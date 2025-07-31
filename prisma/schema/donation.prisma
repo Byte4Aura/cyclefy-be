@@ -1,0 +1,37 @@
+enum DonationStatus {
+    submitted
+    confirmed
+    completed
+    cancelled
+}
+
+// DONATIONS
+model Donation {
+    id            String         @id @default(uuid()) @db.VarChar(255)
+    user          User           @relation(fields: [user_id], references: [id])
+    user_id       String         @db.VarChar(255)
+    name          String         @db.VarChar(255)
+    description   String         @db.VarChar(255)
+    address       Address        @relation(fields: [address_id], references: [id])
+    address_id    String         @db.VarChar(255)
+    category      Category       @relation(fields: [category_id], references: [id])
+    category_id   String         @db.VarChar(255)
+    phone         Phone          @relation(fields: [phone_id], references: [id])
+    phone_id      String         @db.VarChar(255)
+    status        DonationStatus @default(submitted)
+    status_detail String         @db.VarChar(255)
+    created_at    DateTime       @default(now())
+    updated_at    DateTime       @updatedAt
+
+    images DonationImage[]
+}
+
+model DonationImage {
+    id          String   @id @default(uuid()) @db.VarChar(255)
+    donation    Donation @relation(fields: [donation_id], references: [id])
+    donation_id String   @db.VarChar(255)
+    image_path  String   @db.VarChar(255)
+    image_name  String   @db.VarChar(255)
+    image_size  Int
+    created_at  DateTime @default(now())
+}

@@ -13,3 +13,21 @@ datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")
 }
+
+// CATEGORIES
+model Category {
+    id          String   @id @default(uuid())
+    name        String   @unique
+    description String?
+    icon        String?
+    is_active   Boolean  @default(true)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
+
+    donations          Donation[]
+    barters            Barter[]
+    borrows            Borrow[]
+    recyclings         Recycling[]
+    repairs            Repair[]
+    barterApplications BarterApplication[]
+}

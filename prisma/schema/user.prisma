@@ -1,0 +1,100 @@
+//USERS
+model User {
+    id                String    @id @default(uuid()) @db.VarChar(255)
+    username          String    @unique @db.VarChar(255)
+    email             String    @unique @db.VarChar(255)
+    password          String    @db.VarChar(255)
+    is_email_verified Boolean   @default(false)
+    email_verified_at DateTime?
+    profile_picture   String?   @db.VarChar(255)
+    is_active         Boolean   @default(true)
+    created_at        DateTime  @default(now())
+    updated_at        DateTime  @updatedAt
+
+    phones             Phone[]
+    addresses          Address[]
+    donations          Donation[]
+    barters            Barter[]
+    borrows            Borrow[]
+    recyclings         Recycling[]
+    repairs            Repair[]
+    borrowApplications BorrowApplication[]
+    barterApplications BarterApplication[]
+    emailVerifications EmailVerification[]
+    userOauthProviders UserOauthProvider[]
+    passwordResets     PasswordReset[]
+}
+
+// PHONES
+model Phone {
+    id         String   @id @default(uuid()) @db.VarChar(255)
+    user       User     @relation(fields: [user_id], references: [id])
+    user_id    String   @db.VarChar(255)
+    number     String   @db.VarChar(255)
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    donations          Donation[]
+    barters            Barter[]
+    borrows            Borrow[]
+    recyclings         Recycling[]
+    repairs            Repair[]
+    borrowApplications BorrowApplication[]
+    barterApplications BarterApplication[]
+}
+
+// ADDRESSES
+model Address {
+    id         String   @id @default(uuid()) @db.VarChar(255)
+    user       User     @relation(fields: [user_id], references: [id])
+    user_id    String   @db.VarChar(255)
+    address    String   @db.VarChar(255)
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    donations          Donation[]
+    barters            Barter[]
+    borrows            Borrow[]
+    recyclings         Recycling[]
+    repairs            Repair[]
+    borrowApplications BorrowApplication[]
+    barterApplications BarterApplication[]
+}
+
+// EMAIL_VERIFICATIONS
+model EmailVerification {
+    id                String    @id @default(uuid()) @db.VarChar(255)
+    user              User      @relation(fields: [user_id], references: [id])
+    user_id           String    @db.VarChar(255)
+    verification_code String    @db.VarChar(255)
+    expires_at        DateTime
+    verified_at       DateTime?
+    attempts          Int       @default(0)
+    is_used           Boolean   @default(false)
+    created_at        DateTime  @default(now())
+}
+
+// USER_OAUTH_PROVIDERS
+model UserOauthProvider {
+    id             String   @id @default(uuid()) @db.VarChar(255)
+    user           User     @relation(fields: [user_id], references: [id])
+    user_id        String   @db.VarChar(255)
+    provider       String   @db.VarChar(255)
+    provider_id    String   @db.VarChar(255)
+    provider_email String   @db.VarChar(255)
+    provider_data  Json?
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
+}
+
+// PASSWORD_RESETS
+model PasswordReset {
+    id         String    @id @default(uuid()) @db.VarChar(255)
+    email      String    @db.VarChar(255)
+    token      String    @db.VarChar(255)
+    expires_at DateTime
+    used_at    DateTime?
+    created_at DateTime  @default(now())
+    User       User?     @relation(fields: [user_id], references: [id])
+    user_id    String?
+}
