@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Cyclefi API Specification
+  version: 1.0.0
+  description: Spesifikasi API Cyclefi
+
+paths:
+  /api/users/register:
+    post:
+      summary: ""
+  /api/users/login:
+    post:
+      summary: ""
+  /api/users/current:
+    get:
+      summary: ""
