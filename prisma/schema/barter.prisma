@@ -1,39 +1,51 @@
 enum BarterStatus {
-    posted
     waiting_for_request
     waiting_for_confirmation
     confirmed
     completed
-    failed
+    cancelled
 }
 
 // BARTERS
 model Barter {
-    id            String       @id @default(uuid()) @db.VarChar(255)
-    user          User         @relation(fields: [user_id], references: [id])
-    user_id       String       @db.VarChar(255)
-    name          String       @db.VarChar(255)
-    description   String       @db.VarChar(255)
-    address       Address      @relation(fields: [address_id], references: [id])
-    address_id    String       @db.VarChar(255)
-    category      Category     @relation(fields: [category_id], references: [id])
-    category_id   String       @db.VarChar(255)
-    phone         Phone        @relation(fields: [phone_id], references: [id])
-    phone_id      String       @db.VarChar(255)
-    status        BarterStatus @default(posted)
+    id          Int      @id @default(autoincrement())
+    user        User     @relation(fields: [user_id], references: [id])
+    user_id     Int
+    item_name   String   @db.VarChar(255)
+    description String   @db.Text
+    address     Address  @relation(fields: [address_id], references: [id])
+    address_id  Int
+    category    Category @relation(fields: [category_id], references: [id])
+    category_id Int
+    phone       Phone    @relation(fields: [phone_id], references: [id])
+    phone_id    Int
+    // status        BarterStatus @default(posted)
+    // status_detail String       @db.VarChar(255)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
+
+    images                BarterImage[]
+    applications          BarterApplication[]
+    barterStatusHistories BarterStatusHistory[]
+}
+
+model BarterStatusHistory {
+    id            Int          @id @default(autoincrement())
+    barter        Barter       @relation(fields: [barter_id], references: [id])
+    barter_id     Int
+    status        BarterStatus @default(waiting_for_request)
     status_detail String       @db.VarChar(255)
     created_at    DateTime     @default(now())
     updated_at    DateTime     @updatedAt
-
-    images       BarterImage[]
-    applications BarterApplication[]
+    updated       User?        @relation(fields: [updated_by], references: [id])
+    updated_by    Int?
 }
 
 // BARTER_IMAGES
 model BarterImage {
-    id         String   @id @default(uuid()) @db.VarChar(255)
+    id         Int      @id @default(autoincrement())
     barter     Barter   @relation(fields: [barter_id], references: [id])
-    barter_id  String   @db.VarChar(255)
+    barter_id  Int
     image_path String   @db.VarChar(255)
     image_name String   @db.VarChar(255)
     image_size Int
@@ -44,37 +56,51 @@ enum BarterApplicationStatus {
     request_submitted
     confirmed
     completed
-    failed
+    cancelled
 }
 
 // BARTER_APPLICATIONS
 model BarterApplication {
-    id            String                  @id @default(uuid()) @db.VarChar(255)
-    barter        Barter                  @relation(fields: [barter_id], references: [id])
-    barter_id     String                  @db.VarChar(255)
-    user          User                    @relation(fields: [user_id], references: [id])
-    user_id       String                  @db.VarChar(255)
-    item_name     String                  @db.VarChar(255)
-    description   String                  @db.VarChar(255)
-    address       Address                 @relation(fields: [address_id], references: [id])
-    address_id    String                  @db.VarChar(255)
-    category      Category                @relation(fields: [category_id], references: [id])
-    category_id   String                  @db.VarChar(255)
-    phone         Phone                   @relation(fields: [phone_id], references: [id])
-    phone_id      String                  @db.VarChar(255)
-    status        BarterApplicationStatus @default(request_submitted)
-    status_detail String                  @db.VarChar(255)
-    created_at    DateTime                @default(now())
-    updated_at    DateTime                @updatedAt
+    id             Int      @id @default(autoincrement())
+    barter         Barter   @relation(fields: [barter_id], references: [id])
+    barter_id      Int
+    user           User     @relation(fields: [user_id], references: [id])
+    user_id        Int
+    item_name      String   @db.VarChar(255)
+    description    String   @db.Text
+    address        Address  @relation(fields: [address_id], references: [id])
+    address_id     Int
+    category       Category @relation(fields: [category_id], references: [id])
+    category_id    Int
+    phone          Phone    @relation(fields: [phone_id], references: [id])
+    phone_id       Int
+    // status        BarterApplicationStatus @default(request_submitted)
+    // status_detail String                  @db.VarChar(255)
+    decline_reason String   @db.VarChar(255)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
 
-    images BarterApplicationImage[]
+    images                           BarterApplicationImage[]
+    barterApplicationStatusHistories BarterApplicationStatusHistory[]
+}
+
+model BarterApplicationStatusHistory {
+    id                    Int                     @id @default(autoincrement())
+    barter_application    BarterApplication       @relation(fields: [barter_application_id], references: [id])
+    barter_application_id Int
+    status                BarterApplicationStatus @default(request_submitted)
+    status_detail         String                  @db.VarChar(255)
+    created_at            DateTime                @default(now())
+    updated_at            DateTime                @updatedAt
+    updated               User?                   @relation(fields: [updated_by], references: [id])
+    updated_by            Int?
 }
 
 // BARTER_APPLICATIONS_IMAGES
 model BarterApplicationImage {
-    id                    String            @id @default(uuid()) @db.VarChar(255)
-    barterApplication     BarterApplication @relation(fields: [barter_application_id], references: [id])
-    barter_application_id String            @db.VarChar(255)
+    id                    Int               @id @default(autoincrement())
+    barter_application    BarterApplication @relation(fields: [barter_application_id], references: [id])
+    barter_application_id Int
     image_path            String            @db.VarChar(255)
     image_name            String            @db.VarChar(255)
     image_size            Int

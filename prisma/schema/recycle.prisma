@@ -1,38 +1,74 @@
-enum RecyclingStatus {
+enum RecycleStatus {
     submitted
     confirmed
     in_transit
+    picked_up
     completed
-    failed
+    cancelled
 }
 
 // RECYCLINGS
-model Recycling {
-    id            String          @id @default(uuid()) @db.VarChar(255)
-    user          User            @relation(fields: [user_id], references: [id])
-    user_id       String          @db.VarChar(255)
-    name          String          @db.VarChar(255)
-    description   String          @db.VarChar(255)
-    address       Address         @relation(fields: [address_id], references: [id])
-    address_id    String          @db.VarChar(255)
-    category      Category        @relation(fields: [category_id], references: [id])
-    category_id   String          @db.VarChar(255)
-    phone         Phone           @relation(fields: [phone_id], references: [id])
-    phone_id      String          @db.VarChar(255)
-    status        RecyclingStatus @default(submitted)
-    status_detail String          @db.VarChar(255)
-    created_at    DateTime        @default(now())
-    updated_at    DateTime        @updatedAt
+model Recycle {
+    id          Int      @id @default(autoincrement())
+    user        User     @relation(fields: [user_id], references: [id])
+    user_id     Int
+    item_name   String   @db.VarChar(255)
+    description String   @db.Text
+    address     Address  @relation(fields: [address_id], references: [id])
+    address_id  Int
+    category    Category @relation(fields: [category_id], references: [id])
+    category_id Int
+    phone       Phone    @relation(fields: [phone_id], references: [id])
+    phone_id    Int
+    // status        RecycleStatus @default(submitted)
+    // status_detail String        @db.VarChar(255)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
 
-    images RecyclingImage[]
+    images                 RecycleImage[]
+    recycleStatusHistories RecycleStatusHistory[]
 }
 
-model RecyclingImage {
-    id           String    @id @default(uuid()) @db.VarChar(255)
-    recycling    Recycling @relation(fields: [recycling_id], references: [id])
-    recycling_id String    @db.VarChar(255)
-    image_path   String    @db.VarChar(255)
-    image_name   String    @db.VarChar(255)
-    image_size   Int
-    created_at   DateTime  @default(now())
+model RecycleStatusHistory {
+    id            Int           @id @default(autoincrement())
+    recycle       Recycle       @relation(fields: [recycle_id], references: [id])
+    recycle_id    Int
+    status        RecycleStatus @default(submitted)
+    status_detail String        @db.VarChar(255)
+    created_at    DateTime      @default(now())
+    updated_at    DateTime      @updatedAt
+    updated       User?         @relation(fields: [updated_by], references: [id])
+    updated_by    Int?
+}
+
+model RecycleImage {
+    id         Int      @id @default(autoincrement())
+    recycle    Recycle  @relation(fields: [recycle_id], references: [id])
+    recycle_id Int
+    image_path String   @db.VarChar(255)
+    image_name String   @db.VarChar(255)
+    image_size Int
+    created_at DateTime @default(now())
+}
+
+model RecycleLocation {
+    id            Int      @id @default(autoincrement())
+    location_name String   @db.VarChar(255)
+    address       String   @db.VarChar(255)
+    latitude      Float    @db.Double
+    longitude     Float    @db.Double
+    created_at    DateTime @default(now())
+    updated_at    DateTime @updatedAt
+
+    recycleLocationCategories RecycleLocationCategories[]
+}
+
+model RecycleLocationCategories {
+    id                  Int             @id @default(autoincrement())
+    recycle_location    RecycleLocation @relation(fields: [recycle_location_id], references: [id])
+    recycle_location_id Int
+    category            Category        @relation(fields: [categories_id], references: [id])
+    categories_id       Int
+    created_at          DateTime        @default(now())
+    updated_at          DateTime        @updatedAt
 }

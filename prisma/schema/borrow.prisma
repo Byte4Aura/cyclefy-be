@@ -1,5 +1,4 @@
 enum BorrowStatus {
-    posted
     waiting_for_request
     waiting_for_confirmation
     confirmed
@@ -7,38 +6,51 @@ enum BorrowStatus {
     returned
     overdue
     completed
-    failed
+    cancelled
 }
 
 // BORROW
 model Borrow {
-    id            String       @id @default(uuid()) @db.VarChar(255)
-    user          User         @relation(fields: [user_id], references: [id])
-    user_id       String       @db.VarChar(255)
-    name          String       @db.VarChar(255)
-    description   String       @db.VarChar(255)
-    address       Address      @relation(fields: [address_id], references: [id])
-    address_id    String       @db.VarChar(255)
-    category      Category     @relation(fields: [category_id], references: [id])
-    category_id   String       @db.VarChar(255)
-    phone         Phone        @relation(fields: [phone_id], references: [id])
-    phone_id      String       @db.VarChar(255)
+    id            Int      @id @default(autoincrement())
+    user          User     @relation(fields: [user_id], references: [id])
+    user_id       Int
+    item_name     String   @db.VarChar(255)
+    description   String   @db.Text
+    address       Address  @relation(fields: [address_id], references: [id])
+    address_id    Int
+    category      Category @relation(fields: [category_id], references: [id])
+    category_id   Int
+    phone         Phone    @relation(fields: [phone_id], references: [id])
+    phone_id      Int
     duration_from DateTime
     duration_to   DateTime
-    status        BorrowStatus @default(posted)
+    // status        BorrowStatus @default(posted)
+    // status_detail String       @db.VarChar(255)
+    created_at    DateTime @default(now())
+    updated_at    DateTime @updatedAt
+
+    images                BorrowImage[]
+    applications          BorrowApplication[]
+    borrowStatusHistories BorrowStatusHistory[]
+}
+
+model BorrowStatusHistory {
+    id            Int          @id @default(autoincrement())
+    borrow        Borrow       @relation(fields: [borrow_id], references: [id])
+    borrow_id     Int
+    status        BorrowStatus @default(waiting_for_request)
     status_detail String       @db.VarChar(255)
     created_at    DateTime     @default(now())
     updated_at    DateTime     @updatedAt
-
-    images       BorrowImage[]
-    applications BorrowApplication[]
+    updated       User?        @relation(fields: [updated_by], references: [id])
+    updated_by    Int?
 }
 
 // BORROW_IMAGES
 model BorrowImage {
     id         String   @id @default(uuid()) @db.VarChar(255)
     borrow     Borrow   @relation(fields: [borrow_id], references: [id])
-    borrow_id  String   @db.VarChar(255)
+    borrow_id  Int
     image_path String   @db.VarChar(255)
     image_name String   @db.VarChar(255)
     image_size Int
@@ -52,25 +64,40 @@ enum BorrowApplicationStatus {
     returned
     overdue
     completed
-    failed
+    cancelled
 }
 
 // BORROW_APPLICATIONS
 model BorrowApplication {
-    id            String                  @id @default(uuid()) @db.VarChar(255)
-    borrow        Borrow                  @relation(fields: [borrow_id], references: [id])
-    borrow_id     String                  @db.VarChar(255)
-    user          User                    @relation(fields: [user_id], references: [id])
-    user_id       String                  @db.VarChar(255)
-    reason        String                  @db.VarChar(255)
-    address       Address                 @relation(fields: [address_id], references: [id])
-    address_id    String                  @db.VarChar(255)
-    phone         Phone                   @relation(fields: [phone_id], references: [id])
-    phone_id      String                  @db.VarChar(255)
-    duration_from DateTime
-    duration_to   DateTime
-    status        BorrowApplicationStatus @default(request_submitted)
-    status_detail String                  @db.VarChar(255)
-    created_at    DateTime                @default(now())
-    updated_at    DateTime                @updatedAt
+    id             Int      @id @default(autoincrement())
+    borrow         Borrow   @relation(fields: [borrow_id], references: [id])
+    borrow_id      Int
+    user           User     @relation(fields: [user_id], references: [id])
+    user_id        Int
+    reason         String   @db.Text
+    address        Address  @relation(fields: [address_id], references: [id])
+    address_id     Int
+    phone          Phone    @relation(fields: [phone_id], references: [id])
+    phone_id       Int
+    duration_from  DateTime
+    duration_to    DateTime
+    // status        BorrowApplicationStatus @default(request_submitted)
+    // status_detail String                  @db.VarChar(255)
+    decline_reason String   @db.VarChar(255)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
+
+    borrowApplicationStatusHistories BorrowApplicationStatusHistory[]
+}
+
+model BorrowApplicationStatusHistory {
+    id                    Int                     @id @default(autoincrement())
+    borrow_application    BorrowApplication       @relation(fields: [borrow_application_id], references: [id])
+    borrow_application_id Int
+    status                BorrowApplicationStatus @default(request_submitted)
+    status_detail         String                  @db.VarChar(255)
+    created_at            DateTime                @default(now())
+    updated_at            DateTime                @updatedAt
+    updated               User?                   @relation(fields: [updated_by], references: [id])
+    updated_by            Int?
 }

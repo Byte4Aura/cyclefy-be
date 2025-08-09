@@ -1,0 +1,41 @@
+enum PaymentType {
+    bank_transfer
+    e_wallet
+    qris
+}
+
+enum RepairPaymentStatus {
+    pending
+    paid
+    expired
+    cancelled
+    failed
+}
+
+model RepairPayment {
+    id           Int                 @id @default(autoincrement())
+    repair       Repair              @relation(fields: [repair_id], references: [id])
+    repair_id    Int
+    user         User                @relation(fields: [user_id], references: [id])
+    user_id      Int
+    order_id     String              @unique @db.VarChar(355)
+    payment_type PaymentType
+    bank_code    String? // 'bca', 'bni', etc
+    va_number    String? // Virtual account number
+    ewallet_type String? // 'gopay', 'shopeepay', etc
+    qris_url     String? // URL QRIS image
+    amount       Int
+    admin_fee    Int
+    status       RepairPaymentStatus @default(pending)
+    paid_at      DateTime?
+    expired_at   DateTime?
+    created_at   DateTime            @default(now())
+    updated_at   DateTime            @updatedAt
+}
+
+model Bank {
+    id       Int     @id @default(autoincrement())
+    code     String  @unique @db.VarChar(255)
+    name     String  @db.VarChar(255)
+    logo_url String?
+}

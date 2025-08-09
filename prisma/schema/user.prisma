@@ -1,6 +1,6 @@
 //USERS
 model User {
-    id                String    @id @default(uuid()) @db.VarChar(255)
+    id                Int       @id @default(autoincrement())
     username          String    @unique @db.VarChar(255)
     email             String    @unique @db.VarChar(255)
     password          String    @db.VarChar(255)
@@ -16,20 +16,32 @@ model User {
     donations          Donation[]
     barters            Barter[]
     borrows            Borrow[]
-    recyclings         Recycling[]
+    recycles           Recycle[]
     repairs            Repair[]
     borrowApplications BorrowApplication[]
     barterApplications BarterApplication[]
     emailVerifications EmailVerification[]
     userOauthProviders UserOauthProvider[]
     passwordResets     PasswordReset[]
+
+    donationStatusHistories DonationStatusHistory[]
+
+    barterStatusHistories            BarterStatusHistory[]
+    barterApplicationStatusHistories BarterApplicationStatusHistory[]
+
+    borrowStatusHistories            BorrowStatusHistory[]
+    borrowApplicationStatusHistories BorrowApplicationStatusHistory[]
+
+    recycleStatusHistories RecycleStatusHistory[]
+    repairStatusHistories  RepairStatusHistory[]
+    repairPayments         RepairPayment[]
 }
 
 // PHONES
 model Phone {
-    id         String   @id @default(uuid()) @db.VarChar(255)
+    id         Int      @id @default(autoincrement())
     user       User     @relation(fields: [user_id], references: [id])
-    user_id    String   @db.VarChar(255)
+    user_id    Int
     number     String   @db.VarChar(255)
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -37,7 +49,7 @@ model Phone {
     donations          Donation[]
     barters            Barter[]
     borrows            Borrow[]
-    recyclings         Recycling[]
+    recycles           Recycle[]
     repairs            Repair[]
     borrowApplications BorrowApplication[]
     barterApplications BarterApplication[]
@@ -45,17 +57,19 @@ model Phone {
 
 // ADDRESSES
 model Address {
-    id         String   @id @default(uuid()) @db.VarChar(255)
+    id         Int      @id @default(autoincrement())
     user       User     @relation(fields: [user_id], references: [id])
-    user_id    String   @db.VarChar(255)
+    user_id    Int
     address    String   @db.VarChar(255)
+    latitude   Float    @db.Double
+    longitude  Float    @db.Double
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
     donations          Donation[]
     barters            Barter[]
     borrows            Borrow[]
-    recyclings         Recycling[]
+    recycles           Recycle[]
     repairs            Repair[]
     borrowApplications BorrowApplication[]
     barterApplications BarterApplication[]
@@ -63,9 +77,9 @@ model Address {
 
 // EMAIL_VERIFICATIONS
 model EmailVerification {
-    id                String    @id @default(uuid()) @db.VarChar(255)
+    id                Int       @id @default(autoincrement())
     user              User      @relation(fields: [user_id], references: [id])
-    user_id           String    @db.VarChar(255)
+    user_id           Int
     verification_code String    @db.VarChar(255)
     expires_at        DateTime
     verified_at       DateTime?
@@ -76,9 +90,9 @@ model EmailVerification {
 
 // USER_OAUTH_PROVIDERS
 model UserOauthProvider {
-    id             String   @id @default(uuid()) @db.VarChar(255)
+    id             Int      @id @default(autoincrement())
     user           User     @relation(fields: [user_id], references: [id])
-    user_id        String   @db.VarChar(255)
+    user_id        Int
     provider       String   @db.VarChar(255)
     provider_id    String   @db.VarChar(255)
     provider_email String   @db.VarChar(255)
@@ -89,12 +103,12 @@ model UserOauthProvider {
 
 // PASSWORD_RESETS
 model PasswordReset {
-    id         String    @id @default(uuid()) @db.VarChar(255)
+    id         Int       @id @default(autoincrement())
     email      String    @db.VarChar(255)
     token      String    @db.VarChar(255)
     expires_at DateTime
     used_at    DateTime?
     created_at DateTime  @default(now())
     User       User?     @relation(fields: [user_id], references: [id])
-    user_id    String?
+    user_id    Int?
 }

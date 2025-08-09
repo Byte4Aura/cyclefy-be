@@ -16,7 +16,7 @@ datasource db {
 
 // CATEGORIES
 model Category {
-    id          String   @id @default(uuid())
+    id          Int      @id @default(autoincrement())
     name        String   @unique
     description String?
     icon        String?
@@ -24,10 +24,13 @@ model Category {
     created_at  DateTime @default(now())
     updated_at  DateTime @updatedAt
 
-    donations          Donation[]
-    barters            Barter[]
-    borrows            Borrow[]
-    recyclings         Recycling[]
-    repairs            Repair[]
-    barterApplications BarterApplication[]
+    donations                 Donation[]
+    barters                   Barter[]
+    borrows                   Borrow[]
+    recycles                  Recycle[]
+    repairs                   Repair[]
+    barterApplications        BarterApplication[]
+    recycleLocationCategories RecycleLocationCategories[]
+
+    repairPrice RepairPrice?
 }

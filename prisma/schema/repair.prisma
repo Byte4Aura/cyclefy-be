@@ -2,39 +2,87 @@ enum RepairStatus {
     request_submitted
     confirmed
     in_transit
+    picked_up
+    under_repair
     courier_return
     returned
     completed
-    failed
+    cancelled
+}
+
+enum RepairType {
+    minor_repair
+    moderate_repair
+    major_repair
+}
+
+enum RepairLocation {
+    my_location
+    warehouse
+}
+
+enum RepaiImageType {
+    front_view
+    close_up_damage
 }
 
 // REPAIRS
 model Repair {
-    id            String       @id @default(uuid()) @db.VarChar(255)
-    user          User         @relation(fields: [user_id], references: [id])
-    user_id       String       @db.VarChar(255)
-    name          String       @db.VarChar(255)
-    description   String       @db.VarChar(255)
-    address       Address      @relation(fields: [address_id], references: [id])
-    address_id    String       @db.VarChar(255)
-    category      Category     @relation(fields: [category_id], references: [id])
-    category_id   String       @db.VarChar(255)
-    phone         Phone        @relation(fields: [phone_id], references: [id])
-    phone_id      String       @db.VarChar(255)
+    id              Int            @id @default(autoincrement())
+    user            User           @relation(fields: [user_id], references: [id])
+    user_id         Int
+    item_name       String         @db.VarChar(255)
+    description     String         @db.Text
+    item_weight     Float          @db.Double
+    address         Address        @relation(fields: [address_id], references: [id])
+    address_id      Int
+    category        Category       @relation(fields: [category_id], references: [id])
+    category_id     Int
+    repair_type     RepairType
+    phone           Phone          @relation(fields: [phone_id], references: [id])
+    phone_id        Int
+    repair_location RepairLocation
+    // status          RepairStatus   @default(request_submitted)
+    // status_detail   String         @db.VarChar(255)
+    created_at      DateTime       @default(now())
+    updated_at      DateTime       @updatedAt
+
+    images                RepairImage[]
+    repairStatusHistories RepairStatusHistory[]
+
+    repairPayments RepairPayment[]
+}
+
+model RepairStatusHistory {
+    id            Int          @id @default(autoincrement())
+    repair        Repair       @relation(fields: [repair_id], references: [id])
+    repair_id     Int
     status        RepairStatus @default(request_submitted)
     status_detail String       @db.VarChar(255)
     created_at    DateTime     @default(now())
     updated_at    DateTime     @updatedAt
-
-    images RepairImage[]
+    updated       User?        @relation(fields: [updated_by], references: [id])
+    updated_by    Int?
 }
 
 model RepairImage {
-    id         String   @id @default(uuid()) @db.VarChar(255)
-    repair     Repair   @relation(fields: [repair_id], references: [id])
-    repair_id  String   @db.VarChar(255)
-    image_path String   @db.VarChar(255)
-    image_name String   @db.VarChar(255)
+    id         Int             @id @default(autoincrement())
+    repair     Repair          @relation(fields: [repair_id], references: [id])
+    repair_id  Int
+    image_path String          @db.VarChar(255)
+    image_name String          @db.VarChar(255)
     image_size Int
-    created_at DateTime @default(now())
+    image_type RepaiImageType?
+    created_at DateTime        @default(now())
+}
+
+model RepairPrice {
+    id              Int      @id @default(autoincrement())
+    category        Category @relation(fields: [category_id], references: [id])
+    category_id     Int      @unique
+    minor_repair    Int
+    moderate_repair Int
+    major_repair    Int
+    created_at      DateTime @default(now())
+    updated_at      DateTime @updatedAt
 }

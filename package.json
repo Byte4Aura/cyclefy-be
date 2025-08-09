@@ -6,7 +6,8 @@
 	"author": "Muhammad Zhafran Ilham",
 	"type": "module",
 	"prisma": {
-		"schema": "./prisma"
+		"schema": "./prisma",
+		"seed": "node prisma/seed.js"
 	},
 	"main": "src/main.js",
 	"scripts": {
