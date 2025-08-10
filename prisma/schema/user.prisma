@@ -1,6 +1,7 @@
 //USERS
 model User {
     id                Int       @id @default(autoincrement())
+    fullname          String?   @db.VarChar(255)
     username          String    @unique @db.VarChar(255)
     email             String    @unique @db.VarChar(255)
     password          String    @db.VarChar(255)
@@ -83,7 +84,7 @@ model EmailVerification {
     verification_code String    @db.VarChar(255)
     expires_at        DateTime
     verified_at       DateTime?
-    attempts          Int       @default(0)
+    // attempts          Int       @default(0)
     is_used           Boolean   @default(false)
     created_at        DateTime  @default(now())
 }
@@ -99,6 +100,8 @@ model UserOauthProvider {
     provider_data  Json?
     created_at     DateTime @default(now())
     updated_at     DateTime @updatedAt
+
+    @@unique([user_id, provider])
 }
 
 // PASSWORD_RESETS

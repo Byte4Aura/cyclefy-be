@@ -7,13 +7,15 @@ externalDocs:
   description: Postman Documentation
   url: https://documenter.getpostman.com/view/28800996/2sB3BEmpmo
 
-
 paths:
   /api/register:
     post:
-      summary: Registrasi User Baru
+      summary: Registrasi User Baru (Manual) || Resend OTP
       description: |
         Endpoint untuk registrasi user secara manual. User akan menerima email berisi kode OTP untuk verifikasi email.
+        - Jika email & username sudah terdaftar dan sudah diverifikasi, akan ditolak.
+        - Jika email sudah terdaftar tapi belum diverifikasi dan username sama, OTP akan dikirim ulang.
+        - Jika username sudah terdaftar, akan ditolak.
       tags:
         - Auth
       requestBody:
@@ -57,21 +59,46 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: Registration successful. Please check your email for OTP
+                    example: Registration successful. Please check your email for OTP.
                   data:
                     type: object
                     properties:
                       id:
                         type: integer
                         example: 1
+                      fullname:
+                        type: string
+                        example: johndoe
                       username:
                         type: string
                         example: johndoe
                       email:
                         type: string
                         example: johndoe@email.com
+                      profile_picture:
+                        type: string
+                        example: /src/assets/profiles/johndoe.png
+        '200':
+          description: OTP dikirim ulang ke email user yang belum diverifikasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP resent, please check your email
+                  data:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        example: johndoe@email.com
         '400':
-          description: Validation failed
+          description: Validasi gagal atau data sudah terdaftar
           content:
             application/json:
               schema:
@@ -84,14 +111,14 @@ paths:
                     type: object
                     example:
                       username:
-                        - "username is required"
+                        - "Username already registered"
                       email:
-                        - "email is required"
-                        - "email already registered"
+                        - "Email already registered"
                       password:
                         - "password length must be at least 8 characters long"
                       confirmPassword:
                         - "confirmPassword must be equal with password"
+  
   /api/verify-email:
     post:
       summary: Verifikasi Email User dengan OTP
@@ -166,3 +193,86 @@ paths:
                   errors:
                     type: string
                     example: User not found
+
+  /api/auth/google:
+    get:
+      summary: Redirect ke Google OAuth
+      description: |
+        Endpoint untuk memulai proses login/register dengan Google OAuth. User akan diarahkan ke halaman login Google.
+      tags:
+        - Auth
+      responses:
+        '302':
+          description: Redirect ke halaman login Google
+
+  /api/auth/google/callback:
+    get:
+      summary: Callback dari Google OAuth
+      description: |
+        Endpoint callback setelah user login dengan Google. Jika sukses, user akan otomatis login/register.
+        - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+        - Jika email sudah ada dan sudah verifikasi, user langsung login.
+        - Jika email belum ada, user baru akan dibuat.
+      tags:
+        - Auth
+      responses:
+        '201':
+          description: Register/login dengan Google berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Register with Google successful
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      fullname:
+                        type: string
+                        example: John Doe
+                      username:
+                        type: string
+                        example: johndoe_google
+                      email:
+                        type: string
+                        example: johndoe@email.com
+                      profile_picture:
+                        type: string
+                        example: https://lh3.googleusercontent.com/a/abc123
+        '400':
+          description: Validasi gagal atau error lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: string
+                    example: Error message
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

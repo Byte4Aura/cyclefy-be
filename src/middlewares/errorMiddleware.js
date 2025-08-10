@@ -7,8 +7,10 @@ export const errorMiddleware = (err, req, res, next) => {
         return;
     }
 
+    const status = err.status && Number.isInteger(err.status) ? err.status : 500;
+
     if (err instanceof ResponseError) {
-        res.status(err.status).json({
+        res.status(status).json({
             success: false,
             message: err.message,
             errors: err.errors
@@ -16,10 +18,10 @@ export const errorMiddleware = (err, req, res, next) => {
         }).end();
     } else {
         console.info(err);
-        res.status(err.status).json({
+        res.status(status).json({
             success: false,
-            message: err.message,
-            errors: err.errors
+            message: err.message || 'Internal Server Error',
+            errors: err.errors || null
         }).end();
     }
 }

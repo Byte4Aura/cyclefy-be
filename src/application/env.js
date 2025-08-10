@@ -11,5 +11,11 @@ export const env = {
         pass: process.env.MAIL_PASS,
         from: process.env.MAIL_FROM,
         secure: process.env.MAIL_SECURE
-    }
+    },
+    google: {
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        callbackURL: process.env.CALLBACK_URL,
+    },
+    sessionSecret: process.env.SESSION_SECRET,
 };
