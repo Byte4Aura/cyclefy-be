@@ -1,4 +1,4 @@
-import { registerUserValidation } from "../validations/userValidation.js";
+import { registerUserValidation, verifyEmailValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/ResponseError.js";
@@ -59,6 +59,48 @@ const register = async (request) => {
     }
 }
 
+const verifyEmail = async (request) => {
+    const data = validate(verifyEmailValidation, request);
+
+    // Find user
+    const user = await prismaClient.user.findUnique({
+        where: { email: data.email }
+    });
+    if (!user) throw new ResponseError(404, "User not found");
+
+    // Find unused & valid OTP
+    const otpRecord = await prismaClient.emailVerification.findFirst({
+        where: {
+            user_id: user.id,
+            verification_code: data.otp,
+            is_used: false,
+            expires_at: { gte: new Date() }
+        }
+    });
+    if (!otpRecord) throw new ResponseError(400, "OTP code is incorrect or has expired");
+
+    // Update user's email status & OTP
+    await prismaClient.user.update({
+        where: { id: user.id },
+        data: {
+            is_email_verified: true,
+            email_verified_at: new Date()
+        }
+    });
+    await prismaClient.emailVerification.update({
+        where: { id: otpRecord.id },
+        data: {
+            is_used: true,
+            verified_at: new Date()
+        }
+    });
+
+    return {
+        email: user.email,
+        verified: true,
+    }
+}
+
 export default {
-    register
+    register, verifyEmail
 }

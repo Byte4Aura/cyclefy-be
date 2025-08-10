@@ -3,14 +3,166 @@ info:
   title: Cyclefi API Specification
   version: 1.0.0
   description: Spesifikasi API Cyclefi
+externalDocs:
+  description: Postman Documentation
+  url: https://documenter.getpostman.com/view/28800996/2sB3BEmpmo
+
 
 paths:
-  /api/users/register:
+  /api/register:
     post:
-      summary: ""
-  /api/users/login:
+      summary: Registrasi User Baru
+      description: |
+        Endpoint untuk registrasi user secara manual. User akan menerima email berisi kode OTP untuk verifikasi email.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                  description: Username unik untuk user
+                email:
+                  type: string
+                  example: johndoe@email.com
+                  description: Email user yang valid
+                password:
+                  type: string
+                  example: rahasia123
+                  description: Password minimal 8 karakter
+                confirmPassword:
+                  type: string
+                  example: rahasia123
+                  description: Konfirmasi password, harus sama dengan password
+              required:
+                - username
+                - email
+                - password
+                - confirmPassword
+      responses:
+        '201':
+          description: Registrasi berhasil, OTP dikirim ke email user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Registration successful. Please check your email for OTP
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      username:
+                        type: string
+                        example: johndoe
+                      email:
+                        type: string
+                        example: johndoe@email.com
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: object
+                    example:
+                      username:
+                        - "username is required"
+                      email:
+                        - "email is required"
+                        - "email already registered"
+                      password:
+                        - "password length must be at least 8 characters long"
+                      confirmPassword:
+                        - "confirmPassword must be equal with password"
+  /api/verify-email:
     post:
-      summary: ""
-  /api/users/current:
-    get:
-      summary: ""
+      summary: Verifikasi Email User dengan OTP
+      description: |
+        Endpoint untuk verifikasi email user setelah registrasi menggunakan kode OTP yang dikirim ke email.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: johndoe@email.com
+                  description: Email user yang akan diverifikasi
+                otp:
+                  type: string
+                  example: "1234"
+                  description: Kode OTP yang diterima user melalui email
+              required:
+                - email
+                - otp
+      responses:
+        '200':
+          description: Email berhasil diverifikasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Email verification successful.
+                  data:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        example: johndoe@email.com
+                      verified:
+                        type: boolean
+                        example: true
+        '400':
+          description: Kode OTP salah atau sudah expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: string
+                    example: OTP code is incorrect or has expired
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: string
+                    example: User not found
