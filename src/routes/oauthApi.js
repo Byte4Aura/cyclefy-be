@@ -1,5 +1,6 @@
 import express from "express";
 import passport from "passport";
+import { generateJWT } from "../helpers/jwtHelper.js";
 
 const oauthRouter = express.Router();
 
@@ -12,17 +13,19 @@ oauthRouter.get('/api/auth/google', passport.authenticate("google", {
 oauthRouter.get('/api/auth/google/callback',
     passport.authenticate("google", { failureRedirect: '/login' }),
     (req, res) => {
-        // Sukses login, kirim data user ke frontend
+        // Login success using google
+        const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "Register with Google successful",
+            message: "Authentication with Google successful",
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,
                 username: req.user.username,
                 email: req.user.email,
                 profile_picture: req.user.profile_picture
-            }
+            },
+            token: token,
         });
     }
 );

@@ -2,8 +2,9 @@ import express from "express";
 import session from "express-session";
 import passport from "./passport.js";
 import { env } from "./env.js";
-import { publicRouter } from "../routes/publicApi.js";
 import { errorMiddleware } from "../middlewares/errorMiddleware.js";
+import { publicRouter } from "../routes/publicApi.js";
+import { userRouter } from "../routes/api.js";
 import { oauthRouter } from "../routes/oauthApi.js";
 import path from "path";
 import { fileURLToPath } from "url"
@@ -29,6 +30,7 @@ web.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 web.use(publicRouter);
 web.use(oauthRouter);
+web.use('/api', userRouter);
 
 web.use((req, res, next) => {
     res.status(404).json({

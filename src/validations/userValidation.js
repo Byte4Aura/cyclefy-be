@@ -17,3 +17,8 @@ export const verifyEmailValidation = Joi.object({
 export const resendOtpValidation = Joi.object({
     email: Joi.string().email().max(255).required(),
 })
+
+export const loginUserValidation = Joi.object({
+    identifier: Joi.string().max(255).required(), // email atau username
+    password: Joi.string().min(8).max(255).required()
+});

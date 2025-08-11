@@ -1,5 +1,5 @@
 import { logger } from "../application/logging.js";
-import { ResponseError } from "../errors/ResponseError.js";
+import { ResponseError } from "../errors/responseError.js";
 
 export const errorMiddleware = (err, req, res, next) => {
     if (!err) {

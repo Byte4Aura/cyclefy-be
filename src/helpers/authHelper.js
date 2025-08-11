@@ -7,7 +7,8 @@ import fetch from "node-fetch";
 export const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 export const downloadAndSaveProfileIamge = async (user) => {
-    const avatarUrl = `https://ui-avatars.com/api/?name${encodeURIComponent(user.username)}`;
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`;
+    console.log(avatarUrl);
     const profileDir = path.resolve('src/assets/profiles');
     const profilePath = path.join(profileDir, `${user.username}.png`);
     try {

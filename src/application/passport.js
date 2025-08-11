@@ -3,7 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { env } from "./env.js";
 import { prismaClient } from "./database.js";
 import { v4 as uuidv4 } from "uuid";
-import { ResponseError } from "../errors/ResponseError.js";
+import { ResponseError } from "../errors/responseError.js";
 import { generateUniqueUsername } from "../helpers/authHelper.js";
 
 passport.use(new GoogleStrategy({

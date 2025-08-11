@@ -1,10 +1,11 @@
-import { registerUserValidation, resendOtpValidation, verifyEmailValidation } from "../validations/userValidation.js";
+import { loginUserValidation, registerUserValidation, resendOtpValidation, verifyEmailValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
 import { prismaClient } from "../application/database.js";
-import { ResponseError } from "../errors/ResponseError.js";
+import { ResponseError } from "../errors/responseError.js";
 import bcrypt from "bcrypt";
 import { logger } from "../application/logging.js";
 import { downloadAndSaveProfileIamge, sendEmailOTP } from "../helpers/authHelper.js";
+import { generateJWT } from "../helpers/jwtHelper.js";
 
 const register = async (request) => {
     // Input validation
@@ -134,6 +135,40 @@ const resendOtp = async (request) => {
     };
 }
 
+const login = async (request) => {
+    const data = validate(loginUserValidation, request);
+
+    // Find user from username or email
+    const user = await prismaClient.user.findFirst({
+        where: {
+            OR: [
+                { email: data.identifier },
+                { username: data.identifier }
+            ]
+        }
+    });
+    if (!user) throw new ResponseError(401, 'Username or password wrong');
+
+    // Check password
+    const passwordMatch = await bcrypt.compare(data.password, user.password);
+    if (!passwordMatch) throw new ResponseError(401, 'Username or password wrong');
+
+    // Check if account email is verified & account status is active
+    if (!user.is_active) throw new ResponseError(403, 'Account is inactive');
+    if (!user.is_email_verified) throw new ResponseError(403, 'Email is not verified');
+
+    return {
+        token: generateJWT(user),
+        user: {
+            id: user.id,
+            fullname: user.fullname,
+            username: user.username,
+            email: user.email,
+            profile_picture: user.profile_picture
+        }
+    };
+}
+
 export default {
-    register, verifyEmail, resendOtp
+    register, verifyEmail, resendOtp, login
 }

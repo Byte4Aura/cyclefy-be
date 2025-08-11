@@ -18,4 +18,5 @@ export const env = {
         callbackURL: process.env.CALLBACK_URL,
     },
     sessionSecret: process.env.SESSION_SECRET,
+    jwtSecret: process.env.JWT_SECRET
 };

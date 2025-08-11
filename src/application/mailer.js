@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { env } from "./env.js";
 import { logger } from "./logging.js";
-import { ResponseError } from "../errors/ResponseError.js";
+import { ResponseError } from "../errors/responseError.js";
 
 const transporter = nodemailer.createTransport({
     host: env.mail.host,
