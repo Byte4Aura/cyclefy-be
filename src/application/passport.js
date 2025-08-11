@@ -67,8 +67,8 @@ passport.use(new GoogleStrategy({
                     data: {
                         is_email_verified: true,
                         email_verified_at: new Date(),
-                        profile_picture: profile.photos?.[0]?.value || user.profile_picture,
-                        password: user.password
+                        profile_picture: user.profile_picture || profile.photos?.[0]?.value,
+                        // password: user.password
                     }
                 });
 

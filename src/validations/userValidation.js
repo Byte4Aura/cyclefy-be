@@ -24,7 +24,7 @@ export const loginUserValidation = Joi.object({
 });
 
 export const sendResetPasswordOtpValidation = Joi.object({
-    email: Joi.string().email().max(255).required
+    email: Joi.string().email().max(255).required()
 });
 
 export const resetPasswordValidation = Joi.object({

@@ -117,7 +117,7 @@ const verifyEmail = async (request) => {
 }
 
 // Resend Email Verification OTP
-const resenEmailVerificationdOtp = async (request) => {
+const resendEmailVerificationOtp = async (request) => {
     const data = validate(resendEmailVerificationOtpValidation, request);
 
     // Find user
@@ -228,5 +228,5 @@ const resetPassword = async (request) => {
 }
 
 export default {
-    register, verifyEmail, resenEmailVerificationdOtp, login, sendResetPasswordOTP, resetPassword
+    register, verifyEmail, resendEmailVerificationOtp, login, sendResetPasswordOTP, resetPassword
 }
