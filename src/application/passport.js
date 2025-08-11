@@ -4,7 +4,7 @@ import { env } from "./env.js";
 import { prismaClient } from "./database.js";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../errors/ResponseError.js";
-import { generateUniqueUsername } from "../helpers/helper.js";
+import { generateUniqueUsername } from "../helpers/authHelper.js";
 
 passport.use(new GoogleStrategy({
     clientID: env.google.clientId,
@@ -31,6 +31,7 @@ passport.use(new GoogleStrategy({
                     email: email,
                     password: randomPassword,
                     is_email_verified: true,
+                    email_verified_at: new Date(),
                     is_active: true,
                     profile_picture: profile.photos?.[0]?.value || null,
                 }

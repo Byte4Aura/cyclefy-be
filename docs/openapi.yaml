@@ -10,7 +10,7 @@ externalDocs:
 paths:
   /api/register:
     post:
-      summary: Registrasi User Baru (Manual) || Resend OTP
+      summary: Registrasi User Baru (Manual)
       description: |
         Endpoint untuk registrasi user secara manual. User akan menerima email berisi kode OTP untuk verifikasi email.
         - Jika email & username sudah terdaftar dan sudah diverifikasi, akan ditolak.
@@ -27,19 +27,15 @@ paths:
               properties:
                 username:
                   type: string
-                  example: johndoe
                   description: Username unik untuk user
                 email:
                   type: string
-                  example: johndoe@email.com
                   description: Email user yang valid
                 password:
                   type: string
-                  example: rahasia123
                   description: Password minimal 8 karakter
                 confirmPassword:
                   type: string
-                  example: rahasia123
                   description: Konfirmasi password, harus sama dengan password
               required:
                 - username
@@ -118,10 +114,10 @@ paths:
                         - "password length must be at least 8 characters long"
                       confirmPassword:
                         - "confirmPassword must be equal with password"
-  
+
   /api/verify-email:
     post:
-      summary: Verifikasi Email User dengan OTP
+      summary: Verifikasi Email User dengan OTP || Resend OTP
       description: |
         Endpoint untuk verifikasi email user setelah registrasi menggunakan kode OTP yang dikirim ke email.
       tags:
@@ -135,11 +131,9 @@ paths:
               properties:
                 email:
                   type: string
-                  example: johndoe@email.com
                   description: Email user yang akan diverifikasi
                 otp:
                   type: string
-                  example: "1234"
                   description: Kode OTP yang diterima user melalui email
               required:
                 - email
@@ -194,6 +188,75 @@ paths:
                     type: string
                     example: User not found
 
+  /api/resend-otp:
+    post:
+      summary: Kirim Ulang OTP Verifikasi Email
+      description: |
+        Endpoint untuk mengirim ulang OTP ke email user yang belum diverifikasi.
+        - Jika email belum terdaftar, akan ditolak.
+        - Jika email sudah terverifikasi, akan ditolak.
+        - Jika email belum terverifikasi, OTP baru akan dikirim ke email.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email user yang akan dikirim ulang OTP
+              required:
+                - email
+      responses:
+        '200':
+          description: OTP berhasil dikirim ulang ke email user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP resent, please check your email
+                  data:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        example: johndoe@email.com
+        '400':
+          description: Email sudah terverifikasi atau validasi gagal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: string
+                    example: Email already registered
+        '404':
+          description: Email tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: string
+                    example: Email not found
+
   /api/auth/google:
     get:
       summary: Redirect ke Google OAuth
@@ -237,7 +300,7 @@ paths:
                         example: 1
                       fullname:
                         type: string
-                        example: John Doe
+                        example: johndoe
                       username:
                         type: string
                         example: johndoe_google
@@ -260,7 +323,6 @@ paths:
                   errors:
                     type: string
                     example: Error message
-
 
 
 

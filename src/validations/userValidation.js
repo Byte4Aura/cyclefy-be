@@ -13,3 +13,7 @@ export const verifyEmailValidation = Joi.object({
     email: Joi.string().email().max(255).required(),
     otp: Joi.string().length(4).required()
 });
+
+export const resendOtpValidation = Joi.object({
+    email: Joi.string().email().max(255).required(),
+})
