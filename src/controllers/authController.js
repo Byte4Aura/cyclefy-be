@@ -36,9 +36,9 @@ const verifyEmail = async (req, res, next) => {
     }
 }
 
-const resendOtp = async (req, res, next) => {
+const resenEmailVerificationdOtp = async (req, res, next) => {
     try {
-        const result = await authService.resendOtp(req.body);
+        const result = await authService.resenEmailVerificationdOtp(req.body);
         res.status(200).json({
             success: true,
             message: 'Resend email verification successfull.',
@@ -63,6 +63,30 @@ const login = async (req, res, next) => {
     }
 };
 
+const sendResetPasswordOTP = async (req, res, next) => {
+    try {
+        const result = await authService.sendResetPasswordOTP(req.body);
+        res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const resetPassword = async (req, res, next) => {
+    try {
+        const result = await authService.resetPassword(req.body);
+        res.status(200).json({
+            success: true,
+            message: result.message,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
-    register, verifyEmail, resendOtp, login
+    register, verifyEmail, resenEmailVerificationdOtp, login, sendResetPasswordOTP, resetPassword
 }

@@ -1,10 +1,10 @@
-import { loginUserValidation, registerUserValidation, resendOtpValidation, verifyEmailValidation } from "../validations/userValidation.js";
+import { loginUserValidation, registerUserValidation, resendEmailVerificationOtpValidation, resetPasswordValidation, sendResetPasswordOtpValidation, verifyEmailValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
 import bcrypt from "bcrypt";
 import { logger } from "../application/logging.js";
-import { downloadAndSaveProfileIamge, sendEmailOTP } from "../helpers/authHelper.js";
+import { downloadAndSaveProfileIamge, sendEmailVerificationOTP, sendResetPasswordOTPHelper } from "../helpers/authHelper.js";
 import { generateJWT } from "../helpers/jwtHelper.js";
 
 const register = async (request) => {
@@ -27,7 +27,7 @@ const register = async (request) => {
         }
 
         // Resend OTP
-        await sendEmailOTP(userExistsByEmail);
+        await sendEmailVerificationOTP(userExistsByEmail);
 
         return {
             message: "OTP resent, please check your email",
@@ -62,7 +62,7 @@ const register = async (request) => {
     await downloadAndSaveProfileIamge(newUser);
 
     // Generate OTP & save to EmailVerification
-    await sendEmailOTP(newUser);
+    await sendEmailVerificationOTP(newUser);
 
     // Return data without password
     return {
@@ -116,8 +116,9 @@ const verifyEmail = async (request) => {
     }
 }
 
-const resendOtp = async (request) => {
-    const data = validate(resendOtpValidation, request);
+// Resend Email Verification OTP
+const resenEmailVerificationdOtp = async (request) => {
+    const data = validate(resendEmailVerificationOtpValidation, request);
 
     // Find user
     const user = await prismaClient.user.findUnique({
@@ -127,7 +128,7 @@ const resendOtp = async (request) => {
     if (user.is_email_verified) throw new ResponseError(400, "Email already registered");
 
     // Generate OTP & save to EmailVerification
-    await sendEmailOTP(user);
+    await sendEmailVerificationOTP(user);
 
     return {
         message: "OTP resent, please check your email",
@@ -169,6 +170,63 @@ const login = async (request) => {
     };
 }
 
+const sendResetPasswordOTP = async (request) => {
+    const data = validate(sendResetPasswordOtpValidation, request);
+
+    // Find user
+    const user = await prismaClient.user.findUnique({
+        where: { email: data.email }
+    });
+    if (!user) throw new ResponseError(404, 'User not found');
+
+    // Generate OTP & save the data to password reset table
+    await sendResetPasswordOTPHelper(user);
+
+    return {
+        message: 'OTP sent to email'
+    }
+}
+
+const resetPassword = async (request) => {
+    const data = validate(resetPasswordValidation, request);
+
+    // Find user
+    const user = await prismaClient.user.findUnique({
+        where: { email: data.email }
+    });
+    if (!user) throw new ResponseError(404, 'User not found');
+
+    // Find Valid OTP
+    const otpRecord = await prismaClient.passwordReset.findFirst({
+        where: {
+            user_id: user.id,
+            otp: data.otp,
+            is_used: false,
+            expires_at: { gte: new Date() }
+        }
+    });
+    if (!otpRecord) throw new ResponseError(404, 'OTP code is incorrect or has expired');
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+    await prismaClient.user.update({
+        where: { id: user.id },
+        data: {
+            password: hashedPassword
+        }
+    });
+
+    // Mark OTP as used
+    await prismaClient.passwordReset.update({
+        where: { id: otpRecord.id },
+        data: { is_used: true }
+    });
+
+    return {
+        message: 'Password reset successful'
+    }
+}
+
 export default {
-    register, verifyEmail, resendOtp, login
+    register, verifyEmail, resenEmailVerificationdOtp, login, sendResetPasswordOTP, resetPassword
 }

@@ -422,12 +422,11 @@ CREATE TABLE `UserOauthProvider` (
 -- CreateTable
 CREATE TABLE `PasswordReset` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(255) NOT NULL,
-    `token` VARCHAR(255) NOT NULL,
+    `user_id` INTEGER NOT NULL,
+    `otp` VARCHAR(255) NOT NULL,
     `expires_at` DATETIME(3) NOT NULL,
-    `used_at` DATETIME(3) NULL,
+    `is_used` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `user_id` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -621,4 +620,4 @@ ALTER TABLE `EmailVerification` ADD CONSTRAINT `EmailVerification_user_id_fkey` 
 ALTER TABLE `UserOauthProvider` ADD CONSTRAINT `UserOauthProvider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `PasswordReset` ADD CONSTRAINT `PasswordReset_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `PasswordReset` ADD CONSTRAINT `PasswordReset_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

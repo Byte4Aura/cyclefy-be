@@ -48,7 +48,7 @@ export const generateUniqueUsername = async (baseName) => {
     return username + suffix;
 };
 
-export const sendEmailOTP = async (user) => {
+export const sendEmailVerificationOTP = async (user) => {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); //10 minute
     await prismaClient.emailVerification.create({
@@ -63,6 +63,26 @@ export const sendEmailOTP = async (user) => {
     await sendMail({
         to: user.email,
         subject: "Cyclefy - Email Verification OTP",
+        html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 10 minutes.</p>`
+    });
+}
+
+export const sendResetPasswordOTPHelper = async (user) => {
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); //10 minute
+    await prismaClient.passwordReset.create({
+        data: {
+            user_id: user.id,
+            expires_at: expiresAt,
+            otp: otp,
+            is_used: false,
+        }
+    });
+
+    // Send OTP
+    await sendMail({
+        to: user.email,
+        subject: "Cyclefy - Password Reset OTP",
         html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 10 minutes.</p>`
     });
 }
