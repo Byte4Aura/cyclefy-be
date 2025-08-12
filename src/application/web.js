@@ -35,7 +35,7 @@ web.use('/api', userRouter);
 web.use((req, res, next) => {
     res.status(404).json({
         success: false,
-        errors: `${req.method} ${req.url} not found`
+        errors: `${req.method} ${req.url} not found. Visit /api/docs for documentation`
     });
 });
 
