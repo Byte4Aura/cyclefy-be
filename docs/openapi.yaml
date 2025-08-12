@@ -7,6 +7,16 @@ externalDocs:
   description: Postman Documentation
   url: https://documenter.getpostman.com/view/28800996/2sB3BEmpmo
 
+tags:
+  - name: Auth
+    description: Dokumentasi seputar autentikasi
+  - name: User
+    description: Dokumentasi seputar user
+  - name: Address
+    description: Dokumentasi seputar address
+  - name: Phone
+    description: Dokumentasi seputar phone
+
 paths:
   /api/register:
     post:
@@ -468,15 +478,289 @@ paths:
                   message:
                     type: string
 
+  /api/users/current:
+    get:
+      summary: Mendapatkan data user saat ini
+      description: |
+        Mengambil data profil user yang sedang login, termasuk relasi phones dan addresses.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mendapatkan data user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "Get current user successful" }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      fullname: { type: string, example: "John Doe" }
+                      username: { type: string, example: "johndoe" }
+                      email: { type: string, example: "john@example.com" }
+                      is_email_verified: { type: boolean, example: true }
+                      email_verified_at: { type: string, format: date-time, example: "2025-08-12T10:00:00Z" }
+                      profile_picture: { type: string, example: "/src/assets/profiles/johndoe.png" }
+                      is_active: { type: boolean, example: true }
+                      phones:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 1 }
+                            number: { type: string, example: "08123456789" }
+                      addresses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 1 }
+                            address_name: { type: string, example: "Rumah" }
+                            address: { type: string, example: "Jl. Mawar No. 1" }
+                            latitude: { type: number, example: -6.9 }
+                            longitude: { type: number, example: 107.6 }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+    patch:
+      summary: Update current user profile
+      description: |
+        Mengupdate data profil user (fullname, username, password). Hanya field yang dikirim yang diupdate.
+        Untuk update password, wajib mengirim oldPassword, password baru, dan confirmPassword.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullname: { type: string, example: "John Doe" }
+                username: { type: string, example: "johndoe" }
+                oldPassword: { type: string, format: password, example: "oldpassword123" }
+                password: { type: string, format: password, example: "newpassword123" }
+                confirmPassword: { type: string, format: password, example: "newpassword123" }
+              description: Kirim hanya field yang ingin diupdate. Untuk update password, wajib oldPassword, password, confirmPassword.
+      responses:
+        '200':
+          description: Update current user successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "Update current user successful" }
+                  data:
+                    type: object
+                    example:
+                      fullname: "John Doe"
+                      username: "johndoe"
+        '400':
+          description: Validation failed or old password incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  errors:
+                    type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 
+  /api/users/current/addresses/{addressId}:
+    patch:
+      summary: Update address for current user
+      description: |
+        Mengupdate address milik user yang sedang login.  
+        **Catatan:** Fitur latitude dan longitude belum selesai, seharusnya didapat otomatis dari address menggunakan library geocoding (misal Google Maps API).
+      tags:
+        - Address
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID address yang akan diupdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addressName:
+                  type: string
+                  example: "Rumah"
+                address:
+                  type: string
+                  example: "Jl. Mawar No. 1"
+              description: |
+                Kirim field yang ingin diupdate. Latitude dan longitude belum otomatis.
+      responses:
+        '200':
+          description: Update address successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    example:
+                      addressName: "Rumah"
+                      address: "Jl. Mawar No. 1"
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  errors:
+                    type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Address not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 
-
-
-
-
-
-
-
+  /api/users/current/phones/{phoneId}:
+    patch:
+      summary: Update phone for current user
+      description: |
+        Mengupdate nomor kontak milik user yang sedang login.
+      tags:
+        - Phone
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: phoneId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID phone yang akan diupdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number:
+                  type: string
+                  example: "08123456789"
+              description: Kirim field yang ingin diupdate.
+      responses:
+        '200':
+          description: Update phone successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    example:
+                      number: "08123456789"
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  errors:
+                    type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Phone not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 
 
 
