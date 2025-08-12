@@ -69,51 +69,6 @@ const updateCurrentUser = async (userId, request) => {
     return updateData
 }
 
-const updateAddress = async (userId, addressId, request) => {
-    const updateData = validate(updateAddressValidation, request);
-
-    // Make sure this address is owned by user
-    const address = await prismaClient.address.findUnique({
-        where: {
-            id: addressId,
-            user_id: userId
-        }
-    });
-    if (!address) throw new ResponseError(404, 'Address not found');
-
-    // Update address
-    await prismaClient.address.update({
-        where: { id: addressId },
-        data: {
-            address_name: updateData.addressName,
-            address: updateData.address,
-        }
-    });
-
-    return updateData;
-}
-
-const updatePhone = async (userId, phoneId, request) => {
-    const updateData = validate(updateAddressValidation, request);
-
-    // Make sure this address is owned by user
-    const phone = await prismaClient.phone.findUnique({
-        where: {
-            id: phoneId,
-            user_id: userId
-        }
-    });
-    if (!phone) throw new ResponseError(404, 'Phone not found');
-
-    // Update phone
-    await prismaClient.phone.update({
-        where: { id: phoneId },
-        data: updateData
-    });
-
-    return updateData;
-}
-
 export default {
-    currentUser, updateCurrentUser, updateAddress, updatePhone,
+    currentUser, updateCurrentUser
 }

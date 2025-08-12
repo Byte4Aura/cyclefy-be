@@ -11,14 +11,3 @@ export const updateUserValidation = Joi.object({
         "any.only": 'confirmPassword must be equal with password'
     })
 }).or('fullname', 'username', 'password'); // Minimal satu field
-
-export const updateAddressValidation = Joi.object({
-    // id: Joi.number().positive().required(),  //addressId from request params 
-    addressName: Joi.string().max(255).optional(),
-    address: Joi.string().max(255).optional()
-});
-
-export const updatePhoneValidation = Joi.object({
-    // id: Joi.number().positive().required(),  //phoneId from request params 
-    number: Joi.string().max(255).optional()
-});
