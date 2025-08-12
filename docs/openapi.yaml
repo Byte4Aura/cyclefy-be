@@ -27,21 +27,20 @@ paths:
               properties:
                 username:
                   type: string
-                  description: Username unik untuk user
+                  description: Username unik
                 email:
                   type: string
-                  description: Email user yang valid
+                  format: email
+                  description: Email user
                 password:
                   type: string
-                  description: Password minimal 8 karakter
+                  format: password
+                  description: Password user
                 confirmPassword:
                   type: string
-                  description: Konfirmasi password, harus sama dengan password
-              required:
-                - username
-                - email
-                - password
-                - confirmPassword
+                  format: password
+                  description: Konfirmasi password harus sama dengan password
+              required: [username, email, password, confirmPassword]
       responses:
         '201':
           description: Registrasi berhasil, OTP dikirim ke email user
@@ -52,28 +51,21 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: Registration successful. Please check your email for OTP.
                   data:
                     type: object
                     properties:
                       id:
                         type: integer
-                        example: 1
                       fullname:
                         type: string
-                        example: johndoe
                       username:
                         type: string
-                        example: johndoe
                       email:
                         type: string
-                        example: johndoe@email.com
                       profile_picture:
                         type: string
-                        example: /src/assets/profiles/johndoe.png
         '200':
           description: OTP dikirim ulang ke email user yang belum diverifikasi
           content:
@@ -83,16 +75,13 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: OTP resent, please check your email
                   data:
                     type: object
                     properties:
                       email:
                         type: string
-                        example: johndoe@email.com
         '400':
           description: Validasi gagal atau data sudah terdaftar
           content:
@@ -102,22 +91,14 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
+                  message:
+                    type: string
                   errors:
                     type: object
-                    example:
-                      username:
-                        - "Username already registered"
-                      email:
-                        - "Email already registered"
-                      password:
-                        - "password length must be at least 8 characters long"
-                      confirmPassword:
-                        - "confirmPassword must be equal with password"
 
   /api/verify-email:
     post:
-      summary: Verifikasi Email User dengan OTP || Resend OTP
+      summary: Verifikasi Email User dengan OTP
       description: |
         Endpoint untuk verifikasi email user setelah registrasi menggunakan kode OTP yang dikirim ke email.
       tags:
@@ -131,13 +112,12 @@ paths:
               properties:
                 email:
                   type: string
-                  description: Email user yang akan diverifikasi
+                  format: email
+                  description: Email user
                 otp:
                   type: string
-                  description: Kode OTP yang diterima user melalui email
-              required:
-                - email
-                - otp
+                  description: Kode OTP yang dikirim ke email
+              required: [email, otp]
       responses:
         '200':
           description: Email berhasil diverifikasi
@@ -148,19 +128,15 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: Email verification successful.
                   data:
                     type: object
                     properties:
                       email:
                         type: string
-                        example: johndoe@email.com
                       verified:
                         type: boolean
-                        example: true
         '400':
           description: Kode OTP salah atau sudah expired
           content:
@@ -170,10 +146,10 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
-                  errors:
+                  message:
                     type: string
-                    example: OTP code is incorrect or has expired
+                  errors:
+                    type: object
         '404':
           description: User tidak ditemukan
           content:
@@ -183,12 +159,10 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
-                  errors:
+                  message:
                     type: string
-                    example: User not found
 
-  /api/resend-otp:
+  /api/resend-email-verification-otp:
     post:
       summary: Kirim Ulang OTP Verifikasi Email
       description: |
@@ -207,9 +181,9 @@ paths:
               properties:
                 email:
                   type: string
-                  description: Email user yang akan dikirim ulang OTP
-              required:
-                - email
+                  format: email
+                  description: Email user
+              required: [email]
       responses:
         '200':
           description: OTP berhasil dikirim ulang ke email user
@@ -220,16 +194,13 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: OTP resent, please check your email
                   data:
                     type: object
                     properties:
                       email:
                         type: string
-                        example: johndoe@email.com
         '400':
           description: Email sudah terverifikasi atau validasi gagal
           content:
@@ -239,10 +210,10 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
-                  errors:
+                  message:
                     type: string
-                    example: Email already registered
+                  errors:
+                    type: object
         '404':
           description: Email tidak ditemukan
           content:
@@ -252,10 +223,190 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
-                  errors:
+                  message:
                     type: string
-                    example: Email not found
+
+  /api/send-reset-password-otp:
+    post:
+      summary: Kirim OTP untuk Reset Password
+      description: |
+        Endpoint untuk mengirim OTP ke email user yang ingin melakukan reset password.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email user
+              required: [email]
+      responses:
+        '200':
+          description: OTP berhasil dikirim ke email user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Email tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/reset-password:
+    post:
+      summary: Reset Password dengan OTP
+      description: |
+        Endpoint untuk reset password menggunakan OTP yang dikirim ke email.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email user
+                otp:
+                  type: string
+                  description: Kode OTP yang dikirim ke email
+                newPassword:
+                  type: string
+                  format: password
+                  description: Password baru
+                confirmNewPassword:
+                  type: string
+                  format: password
+                  description: Konfirmasi password baru harus sama dengan password baru
+              required: [email, otp, newPassword, confirmNewPassword]
+      responses:
+        '200':
+          description: Password berhasil direset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: OTP salah/expired atau validasi gagal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  errors:
+                    type: object
+        '404':
+          description: Email tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/users/login:
+    post:
+      summary: Login manual dengan email/username dan password
+      description: |
+        Endpoint untuk login manual menggunakan email atau username dan password. Jika berhasil, JWT dikembalikan.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  description: Email address atau username
+                password:
+                  type: string
+                  format: password
+                  description: Password user
+              required: [identifier, password]
+      responses:
+        '200':
+          description: Login berhasil, JWT dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      fullname:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      profile_picture:
+                        type: string
+                  token:
+                    type: string
+        '401':
+          description: Kredensial salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '403':
+          description: Akun tidak aktif atau email belum diverifikasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 
   /api/auth/google:
     get:
@@ -272,7 +423,7 @@ paths:
     get:
       summary: Callback dari Google OAuth
       description: |
-        Endpoint callback setelah user login dengan Google. Jika sukses, user akan otomatis login/register.
+        Endpoint callback setelah user login dengan Google. Jika sukses, user akan otomatis login/register dan menerima JWT.
         - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
         - Jika email sudah ada dan sudah verifikasi, user langsung login.
         - Jika email belum ada, user baru akan dibuat.
@@ -280,7 +431,7 @@ paths:
         - Auth
       responses:
         '201':
-          description: Register/login dengan Google berhasil
+          description: Register/login dengan Google berhasil, JWT dikembalikan
           content:
             application/json:
               schema:
@@ -288,28 +439,23 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: Register with Google successful
                   data:
                     type: object
                     properties:
                       id:
                         type: integer
-                        example: 1
                       fullname:
                         type: string
-                        example: johndoe
                       username:
                         type: string
-                        example: johndoe_google
                       email:
                         type: string
-                        example: johndoe@email.com
                       profile_picture:
                         type: string
-                        example: https://lh3.googleusercontent.com/a/abc123
+                  token:
+                    type: string
         '400':
           description: Validasi gagal atau error lain
           content:
@@ -319,11 +465,8 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: false
-                  errors:
+                  message:
                     type: string
-                    example: Error message
-
 
 
 
