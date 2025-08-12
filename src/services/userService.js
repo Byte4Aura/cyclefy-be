@@ -1,6 +1,6 @@
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
-import { getCurrentUserValidation, updateAddressValidation, updateUserValidation } from "../validations/userValidation.js";
+import { getCurrentUserValidation, updateUserValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
 import bcrypt from "bcrypt";
 

@@ -1,84 +1,696 @@
-openapi: 3.1.0
-info:
-  title: Cyclefi API Specification
-  version: 1.0.0
-  description: Spesifikasi API Cyclefi
-externalDocs:
-  description: Postman Documentation
-  url: https://documenter.getpostman.com/view/28800996/2sB3BEmpmo
+  openapi: 3.1.0
+  info:
+    title: Cyclefi API Specification
+    version: 1.0.0
+    description: Dokumentasi API Cyclefi (Bahasa Indonesia)
+  externalDocs:
+    description: Dokumentasi Postman
+    url: https://documenter.getpostman.com/view/28800996/2sB3BEmpmo
 
-tags:
-  - name: Auth
-    description: Dokumentasi seputar autentikasi
-  - name: User
-    description: Dokumentasi seputar user
-  - name: Address
-    description: Dokumentasi seputar address
-  - name: Phone
-    description: Dokumentasi seputar phone
+  tags:
+    - name: Auth
+      description: Dokumentasi seputar autentikasi (registrasi, login, verifikasi email, reset password)
+    - name: User
+      description: Dokumentasi seputar user (profil, update data)
+    - name: Address
+      description: Dokumentasi seputar alamat user
+    - name: Phone
+      description: Dokumentasi seputar nomor kontak user
 
-paths:
-  /api/register:
-    post:
-      summary: Registrasi User Baru (Manual)
-      description: |
-        Endpoint untuk registrasi user secara manual. User akan menerima email berisi kode OTP untuk verifikasi email.
-        - Jika email & username sudah terdaftar dan sudah diverifikasi, akan ditolak.
-        - Jika email sudah terdaftar tapi belum diverifikasi dan username sama, OTP akan dikirim ulang.
-        - Jika username sudah terdaftar, akan ditolak.
-      tags:
-        - Auth
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Username unik
-                email:
-                  type: string
-                  format: email
-                  description: Email user
-                password:
-                  type: string
-                  format: password
-                  description: Password user
-                confirmPassword:
-                  type: string
-                  format: password
-                  description: Konfirmasi password harus sama dengan password
-              required: [username, email, password, confirmPassword]
-      responses:
-        '201':
-          description: Registrasi berhasil, OTP dikirim ke email user
+  paths:
+    /api/register:
+      post:
+        summary: Registrasi User Baru (Manual)
+        description: |
+          Endpoint untuk registrasi user secara manual. User akan menerima email berisi kode OTP untuk verifikasi email.
+          - Jika username atau email sudah terdaftar dan sudah diverifikasi, akan ditolak.
+          - Jika email sudah terdaftar tapi belum diverifikasi dan username sama, OTP akan dikirim ulang.
+          - Jika username sudah terdaftar, akan ditolak.
+        tags: [Auth]
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                  message:
+                  username:
                     type: string
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      fullname:
-                        type: string
-                      username:
-                        type: string
-                      email:
-                        type: string
-                      profile_picture:
-                        type: string
-        '200':
-          description: OTP dikirim ulang ke email user yang belum diverifikasi
+                    description: Username unik
+                    example: johndoe
+                  email:
+                    type: string
+                    format: email
+                    description: Email user
+                    example: john@example.com
+                  password:
+                    type: string
+                    format: password
+                    description: Password user
+                    example: password123
+                  confirmPassword:
+                    type: string
+                    format: password
+                    description: Konfirmasi password harus sama dengan password
+                    example: password123
+                required: [username, email, password, confirmPassword]
+        responses:
+          '201':
+            description: Registrasi berhasil, OTP dikirim ke email user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Registration successful. Please check your email for OTP." }
+                    data:
+                      type: object
+                      properties:
+                        id: { type: integer, example: 1 }
+                        fullname: { type: string, example: "John Doe" }
+                        username: { type: string, example: "johndoe" }
+                        email: { type: string, example: "john@example.com" }
+                        profile_picture: { type: string, example: "/src/assets/profiles/johndoe.png" }
+          '200':
+            description: OTP dikirim ulang ke email user yang belum diverifikasi
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "OTP resent, please check your email" }
+                    data:
+                      type: object
+                      properties:
+                        email: { type: string, example: "john@example.com" }
+          '400':
+            description: Validasi gagal atau data sudah terdaftar
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Validation failed" }
+                    errors: { type: object, example: { email: ["Email sudah terdaftar"] } }
+
+    /api/verify-email:
+      post:
+        summary: Verifikasi Email User dengan OTP
+        description: |
+          Endpoint untuk verifikasi email user setelah registrasi menggunakan kode OTP yang dikirim ke email.
+        tags: [Auth]
+        requestBody:
+          required: true
           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: Email user
+                    example: john@example.com
+                  otp:
+                    type: string
+                    description: Kode OTP yang dikirim ke email
+                    example: "1234"
+                required: [email, otp]
+        responses:
+          '200':
+            description: Email berhasil diverifikasi
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Email verification successful." }
+                    data:
+                      type: object
+                      properties:
+                        email: { type: string, example: "john@example.com" }
+                        verified: { type: boolean, example: true }
+          '400':
+            description: Kode OTP salah atau sudah expired
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Invalid or expired OTP" }
+                    errors: { type: object, example: { otp: ["OTP salah atau sudah expired"] } }
+          '404':
+            description: User tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "User not found" }
+
+    /api/resend-email-verification-otp:
+      post:
+        summary: Kirim Ulang OTP Verifikasi Email
+        description: |
+          Endpoint untuk mengirim ulang OTP ke email user yang belum diverifikasi.
+          - Jika email belum terdaftar, akan ditolak.
+          - Jika email sudah terverifikasi, akan ditolak.
+          - Jika email belum terverifikasi, OTP baru akan dikirim ke email.
+        tags: [Auth]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: Email user
+                    example: john@example.com
+                required: [email]
+        responses:
+          '200':
+            description: OTP berhasil dikirim ulang ke email user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Resend email verification successfull." }
+                    data:
+                      type: object
+                      properties:
+                        email: { type: string, example: "john@example.com" }
+          '400':
+            description: Email sudah terverifikasi atau validasi gagal
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Email sudah terverifikasi" }
+                    errors: { type: object, example: { email: ["Email sudah terverifikasi"] } }
+          '404':
+            description: Email tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Email not found" }
+
+    /api/send-reset-password-otp:
+      post:
+        summary: Kirim OTP untuk Reset Password
+        description: |
+          Endpoint untuk mengirim OTP ke email user yang ingin melakukan reset password.
+        tags: [Auth]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: Email user
+                    example: john@example.com
+                required: [email]
+        responses:
+          '200':
+            description: OTP berhasil dikirim ke email user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "OTP sent to email" }
+          '404':
+            description: Email tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Email not found" }
+
+    /api/reset-password:
+      post:
+        summary: Reset Password dengan OTP
+        description: |
+          Endpoint untuk reset password menggunakan OTP yang dikirim ke email.
+        tags: [Auth]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: Email user
+                    example: john@example.com
+                  otp:
+                    type: string
+                    description: Kode OTP yang dikirim ke email
+                    example: "1234"
+                  newPassword:
+                    type: string
+                    format: password
+                    description: Password baru
+                    example: "newpassword123"
+                  confirmNewPassword:
+                    type: string
+                    format: password
+                    description: Konfirmasi password baru harus sama dengan password baru
+                    example: "newpassword123"
+                required: [email, otp, newPassword, confirmNewPassword]
+        responses:
+          '200':
+            description: Password berhasil direset
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Password reset successful" }
+          '400':
+            description: OTP salah/expired atau validasi gagal
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Invalid or expired OTP" }
+                    errors: { type: object, example: { otp: ["OTP salah atau sudah expired"] } }
+          '404':
+            description: Email tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Email not found" }
+
+    /api/users/login:
+      post:
+        summary: Login manual dengan email/username dan password
+        description: |
+          Endpoint untuk login manual menggunakan email atau username dan password. Jika berhasil, JWT dikembalikan.
+        tags: [Auth]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Email address atau username
+                    example: johndoe
+                  password:
+                    type: string
+                    format: password
+                    description: Password user
+                    example: password123
+                required: [identifier, password]
+        responses:
+          '200':
+            description: Login berhasil, JWT dikembalikan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Login successful." }
+                    data:
+                      type: object
+                      properties:
+                        id: { type: integer, example: 1 }
+                        fullname: { type: string, example: "John Doe" }
+                        username: { type: string, example: "johndoe" }
+                        email: { type: string, example: "john@example.com" }
+                        profile_picture: { type: string, example: "/src/assets/profiles/johndoe.png" }
+                    token: { type: string, example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+          '401':
+            description: Kredensial salah
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Invalid credentials" }
+          '403':
+            description: Akun tidak aktif atau email belum diverifikasi
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Account is inactive" }
+
+    /api/auth/google:
+      get:
+        summary: Redirect ke Google OAuth
+        description: |
+          Endpoint untuk memulai proses login/register dengan Google OAuth. User akan diarahkan ke halaman login Google.
+        tags: [Auth]
+        responses:
+          '302':
+            description: Redirect ke halaman login Google
+
+    /api/auth/google/callback:
+      get:
+        summary: Callback dari Google OAuth
+        description: |
+          Endpoint callback setelah user login dengan Google. Jika sukses, user akan otomatis login/register dan menerima JWT.
+          - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+          - Jika email sudah ada dan sudah verifikasi, user langsung login.
+          - Jika email belum ada, user baru akan dibuat.
+        tags: [Auth]
+        responses:
+          '201':
+            description: Register/login dengan Google berhasil, JWT dikembalikan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Authentication with Google successful" }
+                    data:
+                      type: object
+                      properties:
+                        id: { type: integer, example: 1 }
+                        fullname: { type: string, example: "John Doe" }
+                        username: { type: string, example: "johndoe" }
+                        email: { type: string, example: "john@example.com" }
+                        profile_picture: { type: string, example: "/src/assets/profiles/johndoe.png" }
+                    token: { type: string, example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+          '400':
+            description: Validasi gagal atau error lain
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Google authentication failed" }
+
+    /api/users/current:
+      get:
+        summary: Mendapatkan data user saat ini
+        description: |
+          Mengambil data profil user yang sedang login, termasuk relasi phones dan addresses.
+        tags: [User]
+        parameters:
+          - name: Authorization
+            in: header
+            required: true
+            description: Bearer token JWT
+            schema:
+              type: string
+              example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        responses:
+          '200':
+            description: Get current user successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Get current user successful" }
+                    data:
+                      type: object
+                      properties:
+                        id: { type: integer, example: 1 }
+                        fullname: { type: string, example: "John Doe" }
+                        username: { type: string, example: "johndoe" }
+                        email: { type: string, example: "john@example.com" }
+                        is_email_verified: { type: boolean, example: true }
+                        email_verified_at: { type: string, format: date-time, example: "2025-08-12T10:00:00Z" }
+                        profile_picture: { type: string, example: "/src/assets/profiles/johndoe.png" }
+                        is_active: { type: boolean, example: true }
+                        phones:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id: { type: integer, example: 1 }
+                              number: { type: string, example: "08123456789" }
+                        addresses:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id: { type: integer, example: 1 }
+                              address_name: { type: string, example: "Rumah" }
+                              address: { type: string, example: "Jl. Mawar No. 1" }
+                              latitude: { type: number, example: -6.9 }
+                              longitude: { type: number, example: 107.6 }
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Unauthorized" }
+
+      patch:
+        summary: Update data profil user saat ini
+        description: |
+          Mengupdate data profil user (fullname, username, password). Hanya field yang dikirim yang diupdate.
+          Untuk update password, wajib mengirim oldPassword, password baru, dan confirmPassword.
+        tags: [User]
+        parameters:
+          - name: Authorization
+            in: header
+            required: true
+            description: Bearer token JWT
+            schema:
+              type: string
+              example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullname: { type: string, example: "John Doe" }
+                  username: { type: string, example: "johndoe" }
+                  oldPassword: { type: string, format: password, example: "oldpassword123" }
+                  password: { type: string, format: password, example: "newpassword123" }
+                  confirmPassword: { type: string, format: password, example: "newpassword123" }
+                description: Kirim hanya field yang ingin diupdate. Untuk update password, wajib oldPassword, password, confirmPassword.
+        responses:
+          '200':
+            description: Update current user successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Update current user successful" }
+                    data:
+                      type: object
+                      example:
+                        fullname: "John Doe"
+                        username: "johndoe"
+          '400':
+            description: Validasi gagal atau old password salah
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Validation failed" }
+                    errors: { type: object, example: { oldPassword: ["Old password is incorrect"] } }
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Unauthorized" }
+
+    /api/users/current/addresses/{addressId}:
+      patch:
+        summary: Update alamat user saat ini
+        description: |
+          Mengupdate alamat milik user yang sedang login. 
+          Catatan: Fitur latitude dan longitude belum selesai, seharusnya didapat otomatis dari address menggunakan library geocoding (misal Google Maps API).
+        tags: [Address]
+        parameters:
+          - name: Authorization
+            in: header
+            required: true
+            description: Bearer token JWT
+            schema:
+              type: string
+              example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          - name: addressId
+            in: path
+            required: true
+            schema:
+              type: integer
+            description: ID address yang akan diupdate
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  addressName: { type: string, example: "Rumah" }
+                  address: { type: string, example: "Jl. Mawar No. 1" }
+                description: Kirim field yang ingin diupdate. Latitude dan longitude belum otomatis, akan diupdate menggunakan library geocoding di masa depan.
+        responses:
+          '200':
+            description: Update address successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Update address for current user successful" }
+                    data:
+                      type: object
+                      example:
+                        addressName: "Rumah"
+                        address: "Jl. Mawar No. 1"
+          '400':
+            description: Validasi gagal
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Validation failed" }
+                    errors: { type: object, example: { address: ["Address tidak valid"] } }
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Unauthorized" }
+          '404':
+            description: Address tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Address not found" }
+
+    /api/users/current/phones/{phoneId}:
+      patch:
+        summary: Update nomor kontak user saat ini
+        description: |
+          Mengupdate nomor kontak milik user yang sedang login.
+        tags: [Phone]
+        parameters:
+          - name: Authorization
+            in: header
+            required: true
+            description: Bearer token JWT
+            schema:
+              type: string
+              example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          - name: phoneId
+            in: path
+            required: true
+            schema:
+              type: integer
+            description: ID phone yang akan diupdate
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number: { type: string, example: "08123456789" }
+                description: Kirim field yang ingin diupdate.
+        responses:
+          '200':
+            description: Update phone successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: true }
+                    message: { type: string, example: "Update phone for current user successful" }
+                    data:
+                      type: object
+                      example:
+                        number: "08123456789"
+          '400':
+            description: Validasi gagal
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Validation failed" }
+                    errors: { type: object, example: { number: ["Nomor tidak valid"] } }
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Unauthorized" }
+          '404':
+            description: Phone tidak ditemukan
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success: { type: boolean, example: false }
+                    message: { type: string, example: "Phone not found" }
             application/json:
               schema:
                 type: object
@@ -487,6 +1099,13 @@ paths:
         - User
       security:
         - bearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Token autentikasi
       responses:
         '200':
           description: Berhasil mendapatkan data user
@@ -545,6 +1164,13 @@ paths:
         - User
       security:
         - bearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Token autentikasi
       requestBody:
         required: true
         content:
