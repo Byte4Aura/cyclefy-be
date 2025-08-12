@@ -382,6 +382,7 @@ CREATE TABLE `Phone` (
 CREATE TABLE `Address` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
+    `address_name` VARCHAR(255) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,

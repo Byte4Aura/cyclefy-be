@@ -1,7 +1,8 @@
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
-import { getCurrentUserValidation } from "../validations/userValidation.js";
+import { getCurrentUserValidation, updateAddressValidation, updateUserValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
+import bcrypt from "bcrypt";
 
 const currentUser = async (userId) => {
     userId = validate(getCurrentUserValidation, userId);
@@ -38,6 +39,81 @@ const currentUser = async (userId) => {
     return user;
 }
 
+// Update user's username, or fullname, or password
+const updateCurrentUser = async (userId, request) => {
+    const updateData = validate(updateUserValidation, request);
+
+    // Find user
+    const user = await prismaClient.user.findUnique({
+        where: { id: userId }
+    });
+    if (!user) throw new ResponseError(404, 'User not found');
+
+    // Update new password if exists
+    if (updateData.password) {
+        if (!updateData.oldPassword || !updateData.confirmPassword) throw new ResponseError(400, 'oldPassword and confirmPassword is required for password update');
+        const match = await bcrypt.compare(updateData.oldPassword, user.password);
+        if (!match) throw new ResponseError(400, 'Old password is incorrect');
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+    // Remove confirmPassword & oldPassword from reques
+    delete updateData.oldPassword
+    delete updateData.confirmPassword
+
+    // Update User
+    await prismaClient.user.update({
+        where: { id: user.id },
+        data: updateData
+    });
+
+    return updateData
+}
+
+const updateAddress = async (userId, addressId, request) => {
+    const updateData = validate(updateAddressValidation, request);
+
+    // Make sure this address is owned by user
+    const address = await prismaClient.address.findUnique({
+        where: {
+            id: addressId,
+            user_id: userId
+        }
+    });
+    if (!address) throw new ResponseError(404, 'Address not found');
+
+    // Update address
+    await prismaClient.address.update({
+        where: { id: addressId },
+        data: {
+            address_name: updateData.addressName,
+            address: updateData.address,
+        }
+    });
+
+    return updateData;
+}
+
+const updatePhone = async (userId, phoneId, request) => {
+    const updateData = validate(updateAddressValidation, request);
+
+    // Make sure this address is owned by user
+    const phone = await prismaClient.phone.findUnique({
+        where: {
+            id: phoneId,
+            user_id: userId
+        }
+    });
+    if (!phone) throw new ResponseError(404, 'Phone not found');
+
+    // Update phone
+    await prismaClient.phone.update({
+        where: { id: phoneId },
+        data: updateData
+    });
+
+    return updateData;
+}
+
 export default {
-    currentUser
+    currentUser, updateCurrentUser, updateAddress, updatePhone,
 }

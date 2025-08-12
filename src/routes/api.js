@@ -7,9 +7,9 @@ userRouter.use(authMiddleware);
 
 // User API
 userRouter.get('/users/current', userController.currentUser);
-userRouter.get('/profile', (req, res) => {
-    res.json({ success: true, data: req.user });
-});
+userRouter.patch('/users/current', userController.updateCurrentUser);
+userRouter.patch('/users/current/addresses/:addressId', userController.updateAddress);
+userRouter.patch('/users/current/phones/:phoneId', userController.updatePhone);
 
 export {
     userRouter

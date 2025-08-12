@@ -1,4 +1,4 @@
-import { loginUserValidation, registerUserValidation, resendEmailVerificationOtpValidation, resetPasswordValidation, sendResetPasswordOtpValidation, verifyEmailValidation } from "../validations/userValidation.js";
+import { loginUserValidation, registerUserValidation, resendEmailVerificationOtpValidation, resetPasswordValidation, sendResetPasswordOtpValidation, verifyEmailValidation } from "../validations/authValidation.js";
 import { validate } from "../validations/validation.js";
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";

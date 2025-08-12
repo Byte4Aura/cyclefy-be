@@ -58,14 +58,15 @@ model Phone {
 
 // ADDRESSES
 model Address {
-    id         Int      @id @default(autoincrement())
-    user       User     @relation(fields: [user_id], references: [id])
-    user_id    Int
-    address    String   @db.VarChar(255)
-    latitude   Float    @db.Double
-    longitude  Float    @db.Double
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+    id           Int      @id @default(autoincrement())
+    user         User     @relation(fields: [user_id], references: [id])
+    user_id      Int
+    address_name String   @db.VarChar(255)
+    address      String   @db.VarChar(255)
+    latitude     Float    @db.Double
+    longitude    Float    @db.Double
+    created_at   DateTime @default(now())
+    updated_at   DateTime @updatedAt
 
     donations          Donation[]
     barters            Barter[]
