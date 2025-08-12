@@ -31,6 +31,8 @@ model RepairPayment {
     expired_at   DateTime?
     created_at   DateTime            @default(now())
     updated_at   DateTime            @updatedAt
+
+    @@map("repair_payments")
 }
 
 model Bank {
@@ -38,4 +40,6 @@ model Bank {
     code     String  @unique @db.VarChar(255)
     name     String  @db.VarChar(255)
     logo_url String?
+
+    @@map("banks")
 }

@@ -27,6 +27,8 @@ model Recycle {
 
     images                 RecycleImage[]
     recycleStatusHistories RecycleStatusHistory[]
+
+    @@map("recycles")
 }
 
 model RecycleStatusHistory {
@@ -39,6 +41,8 @@ model RecycleStatusHistory {
     updated_at    DateTime      @updatedAt
     updated       User?         @relation(fields: [updated_by], references: [id])
     updated_by    Int?
+
+    @@map("recycle_status_histories")
 }
 
 model RecycleImage {
@@ -49,6 +53,8 @@ model RecycleImage {
     image_name String   @db.VarChar(255)
     image_size Int
     created_at DateTime @default(now())
+
+    @@map("recycle_images")
 }
 
 model RecycleLocation {
@@ -61,6 +67,8 @@ model RecycleLocation {
     updated_at    DateTime @updatedAt
 
     recycleLocationCategories RecycleLocationCategories[]
+
+    @@map("recycle_locations")
 }
 
 model RecycleLocationCategories {
@@ -71,4 +79,6 @@ model RecycleLocationCategories {
     categories_id       Int
     created_at          DateTime        @default(now())
     updated_at          DateTime        @updatedAt
+
+    @@map("recycle_location_categories")
 }

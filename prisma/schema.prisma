@@ -33,4 +33,6 @@ model Category {
     recycleLocationCategories RecycleLocationCategories[]
 
     repairPrice RepairPrice?
+
+    @@map("categories")
 }

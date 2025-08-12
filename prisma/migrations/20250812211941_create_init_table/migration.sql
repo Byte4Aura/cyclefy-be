@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `Barter` (
+CREATE TABLE `barters` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `item_name` VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE `Barter` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BarterStatusHistory` (
+CREATE TABLE `barter_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_id` INTEGER NOT NULL,
     `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'waiting_for_request',
@@ -27,7 +27,7 @@ CREATE TABLE `BarterStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BarterImage` (
+CREATE TABLE `barter_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `BarterImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BarterApplication` (
+CREATE TABLE `barter_applications` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_id` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE `BarterApplication` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BarterApplicationStatusHistory` (
+CREATE TABLE `barter_application_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_application_id` INTEGER NOT NULL,
     `status` ENUM('request_submitted', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
@@ -69,7 +69,7 @@ CREATE TABLE `BarterApplicationStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BarterApplicationImage` (
+CREATE TABLE `barter_application_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_application_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE `BarterApplicationImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Borrow` (
+CREATE TABLE `borrows` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `item_name` VARCHAR(255) NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE `Borrow` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BorrowStatusHistory` (
+CREATE TABLE `borrow_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `borrow_id` INTEGER NOT NULL,
     `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'lent', 'returned', 'overdue', 'completed', 'cancelled') NOT NULL DEFAULT 'waiting_for_request',
@@ -111,7 +111,7 @@ CREATE TABLE `BorrowStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BorrowImage` (
+CREATE TABLE `borrow_images` (
     `id` VARCHAR(255) NOT NULL,
     `borrow_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE `BorrowImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BorrowApplication` (
+CREATE TABLE `borrow_applications` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `borrow_id` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE `BorrowApplication` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `BorrowApplicationStatusHistory` (
+CREATE TABLE `borrow_application_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `borrow_application_id` INTEGER NOT NULL,
     `status` ENUM('request_submitted', 'confirmed', 'borrowed', 'returned', 'overdue', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
@@ -153,7 +153,7 @@ CREATE TABLE `BorrowApplicationStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Donation` (
+CREATE TABLE `donations` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `item_name` VARCHAR(255) NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE `Donation` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `DonationStatusHistory` (
+CREATE TABLE `donation_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `donation_id` INTEGER NOT NULL,
     `status` ENUM('submitted', 'confirmed', 'completed', 'failed') NOT NULL DEFAULT 'submitted',
@@ -181,7 +181,7 @@ CREATE TABLE `DonationStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `DonationImage` (
+CREATE TABLE `donation_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `donation_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -193,7 +193,7 @@ CREATE TABLE `DonationImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Recycle` (
+CREATE TABLE `recycles` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `item_name` VARCHAR(255) NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE `Recycle` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RecycleStatusHistory` (
+CREATE TABLE `recycle_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `recycle_id` INTEGER NOT NULL,
     `status` ENUM('submitted', 'confirmed', 'in_transit', 'picked_up', 'completed', 'cancelled') NOT NULL DEFAULT 'submitted',
@@ -221,7 +221,7 @@ CREATE TABLE `RecycleStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RecycleImage` (
+CREATE TABLE `recycle_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `recycle_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -233,7 +233,7 @@ CREATE TABLE `RecycleImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RecycleLocation` (
+CREATE TABLE `recycle_locations` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `location_name` VARCHAR(255) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
@@ -246,7 +246,7 @@ CREATE TABLE `RecycleLocation` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RecycleLocationCategories` (
+CREATE TABLE `recycle_location_categories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `recycle_location_id` INTEGER NOT NULL,
     `categories_id` INTEGER NOT NULL,
@@ -257,7 +257,7 @@ CREATE TABLE `RecycleLocationCategories` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Repair` (
+CREATE TABLE `repairs` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `item_name` VARCHAR(255) NOT NULL,
@@ -275,7 +275,7 @@ CREATE TABLE `Repair` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RepairStatusHistory` (
+CREATE TABLE `repair_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
     `status` ENUM('request_submitted', 'confirmed', 'in_transit', 'picked_up', 'under_repair', 'courier_return', 'returned', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
@@ -288,7 +288,7 @@ CREATE TABLE `RepairStatusHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RepairImage` (
+CREATE TABLE `repair_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
     `image_path` VARCHAR(255) NOT NULL,
@@ -301,7 +301,7 @@ CREATE TABLE `RepairImage` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RepairPrice` (
+CREATE TABLE `repair_prices` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `category_id` INTEGER NOT NULL,
     `minor_repair` INTEGER NOT NULL,
@@ -310,12 +310,12 @@ CREATE TABLE `RepairPrice` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `RepairPrice_category_id_key`(`category_id`),
+    UNIQUE INDEX `repair_prices_category_id_key`(`category_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `RepairPayment` (
+CREATE TABLE `repair_payments` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
@@ -333,23 +333,23 @@ CREATE TABLE `RepairPayment` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `RepairPayment_order_id_key`(`order_id`),
+    UNIQUE INDEX `repair_payments_order_id_key`(`order_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Bank` (
+CREATE TABLE `banks` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(255) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `logo_url` VARCHAR(191) NULL,
 
-    UNIQUE INDEX `Bank_code_key`(`code`),
+    UNIQUE INDEX `banks_code_key`(`code`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `User` (
+CREATE TABLE `users` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `fullname` VARCHAR(255) NULL,
     `username` VARCHAR(255) NOT NULL,
@@ -362,13 +362,13 @@ CREATE TABLE `User` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_username_key`(`username`),
-    UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `users_username_key`(`username`),
+    UNIQUE INDEX `users_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Phone` (
+CREATE TABLE `phones` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `number` VARCHAR(255) NOT NULL,
@@ -379,7 +379,7 @@ CREATE TABLE `Phone` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Address` (
+CREATE TABLE `addresses` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `address_name` VARCHAR(255) NOT NULL,
@@ -393,7 +393,7 @@ CREATE TABLE `Address` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `EmailVerification` (
+CREATE TABLE `email_verifications` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `verification_code` VARCHAR(255) NOT NULL,
@@ -406,7 +406,7 @@ CREATE TABLE `EmailVerification` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `UserOauthProvider` (
+CREATE TABLE `user_oauth_providers` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `provider` VARCHAR(255) NOT NULL,
@@ -416,12 +416,12 @@ CREATE TABLE `UserOauthProvider` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `UserOauthProvider_user_id_provider_key`(`user_id`, `provider`),
+    UNIQUE INDEX `user_oauth_providers_user_id_provider_key`(`user_id`, `provider`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `PasswordReset` (
+CREATE TABLE `password_resets` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `otp` VARCHAR(255) NOT NULL,
@@ -433,7 +433,7 @@ CREATE TABLE `PasswordReset` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Category` (
+CREATE TABLE `categories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
@@ -442,183 +442,183 @@ CREATE TABLE `Category` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Category_name_key`(`name`),
+    UNIQUE INDEX `categories_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Barter` ADD CONSTRAINT `Barter_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barters` ADD CONSTRAINT `barters_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Barter` ADD CONSTRAINT `Barter_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barters` ADD CONSTRAINT `barters_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Barter` ADD CONSTRAINT `Barter_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barters` ADD CONSTRAINT `barters_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Barter` ADD CONSTRAINT `Barter_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barters` ADD CONSTRAINT `barters_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterStatusHistory` ADD CONSTRAINT `BarterStatusHistory_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `Barter`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_status_histories` ADD CONSTRAINT `barter_status_histories_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `barters`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterStatusHistory` ADD CONSTRAINT `BarterStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `barter_status_histories` ADD CONSTRAINT `barter_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterImage` ADD CONSTRAINT `BarterImage_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `Barter`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_images` ADD CONSTRAINT `barter_images_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `barters`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplication` ADD CONSTRAINT `BarterApplication_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `Barter`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_applications` ADD CONSTRAINT `barter_applications_barter_id_fkey` FOREIGN KEY (`barter_id`) REFERENCES `barters`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplication` ADD CONSTRAINT `BarterApplication_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_applications` ADD CONSTRAINT `barter_applications_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplication` ADD CONSTRAINT `BarterApplication_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_applications` ADD CONSTRAINT `barter_applications_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplication` ADD CONSTRAINT `BarterApplication_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_applications` ADD CONSTRAINT `barter_applications_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplication` ADD CONSTRAINT `BarterApplication_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_applications` ADD CONSTRAINT `barter_applications_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplicationStatusHistory` ADD CONSTRAINT `BarterApplicationStatusHistory_barter_application_id_fkey` FOREIGN KEY (`barter_application_id`) REFERENCES `BarterApplication`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_application_status_histories` ADD CONSTRAINT `barter_application_status_histories_barter_application_id_fkey` FOREIGN KEY (`barter_application_id`) REFERENCES `barter_applications`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplicationStatusHistory` ADD CONSTRAINT `BarterApplicationStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `barter_application_status_histories` ADD CONSTRAINT `barter_application_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BarterApplicationImage` ADD CONSTRAINT `BarterApplicationImage_barter_application_id_fkey` FOREIGN KEY (`barter_application_id`) REFERENCES `BarterApplication`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `barter_application_images` ADD CONSTRAINT `barter_application_images_barter_application_id_fkey` FOREIGN KEY (`barter_application_id`) REFERENCES `barter_applications`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Borrow` ADD CONSTRAINT `Borrow_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrows` ADD CONSTRAINT `borrows_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Borrow` ADD CONSTRAINT `Borrow_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrows` ADD CONSTRAINT `borrows_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Borrow` ADD CONSTRAINT `Borrow_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrows` ADD CONSTRAINT `borrows_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Borrow` ADD CONSTRAINT `Borrow_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrows` ADD CONSTRAINT `borrows_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowStatusHistory` ADD CONSTRAINT `BorrowStatusHistory_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `Borrow`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_status_histories` ADD CONSTRAINT `borrow_status_histories_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `borrows`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowStatusHistory` ADD CONSTRAINT `BorrowStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `borrow_status_histories` ADD CONSTRAINT `borrow_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowImage` ADD CONSTRAINT `BorrowImage_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `Borrow`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_images` ADD CONSTRAINT `borrow_images_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `borrows`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplication` ADD CONSTRAINT `BorrowApplication_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `Borrow`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_applications` ADD CONSTRAINT `borrow_applications_borrow_id_fkey` FOREIGN KEY (`borrow_id`) REFERENCES `borrows`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplication` ADD CONSTRAINT `BorrowApplication_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_applications` ADD CONSTRAINT `borrow_applications_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplication` ADD CONSTRAINT `BorrowApplication_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_applications` ADD CONSTRAINT `borrow_applications_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplication` ADD CONSTRAINT `BorrowApplication_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_applications` ADD CONSTRAINT `borrow_applications_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplicationStatusHistory` ADD CONSTRAINT `BorrowApplicationStatusHistory_borrow_application_id_fkey` FOREIGN KEY (`borrow_application_id`) REFERENCES `BorrowApplication`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `borrow_application_status_histories` ADD CONSTRAINT `borrow_application_status_histories_borrow_application_id_fkey` FOREIGN KEY (`borrow_application_id`) REFERENCES `borrow_applications`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `BorrowApplicationStatusHistory` ADD CONSTRAINT `BorrowApplicationStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `borrow_application_status_histories` ADD CONSTRAINT `borrow_application_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Donation` ADD CONSTRAINT `Donation_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donations` ADD CONSTRAINT `donations_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Donation` ADD CONSTRAINT `Donation_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donations` ADD CONSTRAINT `donations_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Donation` ADD CONSTRAINT `Donation_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donations` ADD CONSTRAINT `donations_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Donation` ADD CONSTRAINT `Donation_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donations` ADD CONSTRAINT `donations_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `DonationStatusHistory` ADD CONSTRAINT `DonationStatusHistory_donation_id_fkey` FOREIGN KEY (`donation_id`) REFERENCES `Donation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donation_status_histories` ADD CONSTRAINT `donation_status_histories_donation_id_fkey` FOREIGN KEY (`donation_id`) REFERENCES `donations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `DonationStatusHistory` ADD CONSTRAINT `DonationStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `donation_status_histories` ADD CONSTRAINT `donation_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `DonationImage` ADD CONSTRAINT `DonationImage_donation_id_fkey` FOREIGN KEY (`donation_id`) REFERENCES `Donation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `donation_images` ADD CONSTRAINT `donation_images_donation_id_fkey` FOREIGN KEY (`donation_id`) REFERENCES `donations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Recycle` ADD CONSTRAINT `Recycle_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Recycle` ADD CONSTRAINT `Recycle_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Recycle` ADD CONSTRAINT `Recycle_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Recycle` ADD CONSTRAINT `Recycle_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RecycleStatusHistory` ADD CONSTRAINT `RecycleStatusHistory_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `Recycle`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycle_status_histories` ADD CONSTRAINT `recycle_status_histories_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `recycles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RecycleStatusHistory` ADD CONSTRAINT `RecycleStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `recycle_status_histories` ADD CONSTRAINT `recycle_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RecycleImage` ADD CONSTRAINT `RecycleImage_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `Recycle`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycle_images` ADD CONSTRAINT `recycle_images_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `recycles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RecycleLocationCategories` ADD CONSTRAINT `RecycleLocationCategories_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `RecycleLocation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycle_location_categories` ADD CONSTRAINT `recycle_location_categories_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `recycle_locations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RecycleLocationCategories` ADD CONSTRAINT `RecycleLocationCategories_categories_id_fkey` FOREIGN KEY (`categories_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `recycle_location_categories` ADD CONSTRAINT `recycle_location_categories_categories_id_fkey` FOREIGN KEY (`categories_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Repair` ADD CONSTRAINT `Repair_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repairs` ADD CONSTRAINT `repairs_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Repair` ADD CONSTRAINT `Repair_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `Address`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repairs` ADD CONSTRAINT `repairs_address_id_fkey` FOREIGN KEY (`address_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Repair` ADD CONSTRAINT `Repair_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repairs` ADD CONSTRAINT `repairs_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Repair` ADD CONSTRAINT `Repair_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `Phone`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repairs` ADD CONSTRAINT `repairs_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairStatusHistory` ADD CONSTRAINT `RepairStatusHistory_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `Repair`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repair_status_histories` ADD CONSTRAINT `repair_status_histories_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `repairs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairStatusHistory` ADD CONSTRAINT `RepairStatusHistory_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `repair_status_histories` ADD CONSTRAINT `repair_status_histories_updated_by_fkey` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairImage` ADD CONSTRAINT `RepairImage_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `Repair`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repair_images` ADD CONSTRAINT `repair_images_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `repairs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairPrice` ADD CONSTRAINT `RepairPrice_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repair_prices` ADD CONSTRAINT `repair_prices_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairPayment` ADD CONSTRAINT `RepairPayment_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `Repair`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repair_payments` ADD CONSTRAINT `repair_payments_repair_id_fkey` FOREIGN KEY (`repair_id`) REFERENCES `repairs`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `RepairPayment` ADD CONSTRAINT `RepairPayment_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `repair_payments` ADD CONSTRAINT `repair_payments_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Phone` ADD CONSTRAINT `Phone_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `phones` ADD CONSTRAINT `phones_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Address` ADD CONSTRAINT `Address_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `addresses` ADD CONSTRAINT `addresses_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `EmailVerification` ADD CONSTRAINT `EmailVerification_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `email_verifications` ADD CONSTRAINT `email_verifications_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `UserOauthProvider` ADD CONSTRAINT `UserOauthProvider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `user_oauth_providers` ADD CONSTRAINT `user_oauth_providers_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `PasswordReset` ADD CONSTRAINT `PasswordReset_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `password_resets` ADD CONSTRAINT `password_resets_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

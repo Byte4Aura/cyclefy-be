@@ -27,6 +27,8 @@ model Barter {
     images                BarterImage[]
     applications          BarterApplication[]
     barterStatusHistories BarterStatusHistory[]
+
+    @@map("barters")
 }
 
 model BarterStatusHistory {
@@ -39,6 +41,8 @@ model BarterStatusHistory {
     updated_at    DateTime     @updatedAt
     updated       User?        @relation(fields: [updated_by], references: [id])
     updated_by    Int?
+
+    @@map("barter_status_histories")
 }
 
 // BARTER_IMAGES
@@ -50,6 +54,8 @@ model BarterImage {
     image_name String   @db.VarChar(255)
     image_size Int
     created_at DateTime @default(now())
+
+    @@map("barter_images")
 }
 
 enum BarterApplicationStatus {
@@ -82,6 +88,8 @@ model BarterApplication {
 
     images                           BarterApplicationImage[]
     barterApplicationStatusHistories BarterApplicationStatusHistory[]
+
+    @@map("barter_applications")
 }
 
 model BarterApplicationStatusHistory {
@@ -94,6 +102,8 @@ model BarterApplicationStatusHistory {
     updated_at            DateTime                @updatedAt
     updated               User?                   @relation(fields: [updated_by], references: [id])
     updated_by            Int?
+
+    @@map("barter_application_status_histories")
 }
 
 // BARTER_APPLICATIONS_IMAGES
@@ -105,4 +115,6 @@ model BarterApplicationImage {
     image_name            String            @db.VarChar(255)
     image_size            Int
     created_at            DateTime          @default(now())
+
+    @@map("barter_application_images")
 }

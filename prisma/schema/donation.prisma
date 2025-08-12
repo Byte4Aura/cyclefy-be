@@ -25,6 +25,8 @@ model Donation {
 
     images                  DonationImage[]
     donationStatusHistories DonationStatusHistory[]
+
+    @@map("donations")
 }
 
 model DonationStatusHistory {
@@ -37,6 +39,8 @@ model DonationStatusHistory {
     updated_at    DateTime       @updatedAt
     updated       User?          @relation(fields: [updated_by], references: [id])
     updated_by    Int?
+
+    @@map("donation_status_histories")
 }
 
 model DonationImage {
@@ -47,4 +51,6 @@ model DonationImage {
     image_name  String   @db.VarChar(255)
     image_size  Int
     created_at  DateTime @default(now())
+
+    @@map("donation_images")
 }
