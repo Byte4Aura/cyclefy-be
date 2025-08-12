@@ -6,10 +6,10 @@ const JWT_SECRET = env.jwtSecret;
 export const generateJWT = (user) => {
     const payload = {
         id: user.id,
-        fullname: user.fullname,
+        // fullname: user.fullname,
         username: user.username,
         email: user.email,
-        profile_picture: user.profile_picture,
+        // profile_picture: user.profile_picture,
     }
     return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 };

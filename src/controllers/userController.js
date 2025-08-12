@@ -1,0 +1,20 @@
+import { logger } from "../application/logging.js";
+import userService from "../services/userService.js";
+
+const currentUser = async (req, res, next) => {
+    try {
+        const userId = req.user.id;  //req.user created from ./../middlewares/authMiddleware.js
+        const result = await userService.currentUser(userId);
+        res.status(200).json({
+            success: true,
+            message: 'Get current user successful',
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export default {
+    currentUser
+}

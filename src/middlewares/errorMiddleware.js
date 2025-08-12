@@ -17,7 +17,8 @@ export const errorMiddleware = (err, req, res, next) => {
             // errors: err.message.replace(/"/g, ''),
         }).end();
     } else {
-        console.info(err);
+        console.error(err);
+        // logger.error(err);
         res.status(status).json({
             success: false,
             message: err.message || 'Internal Server Error',

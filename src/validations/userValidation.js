@@ -35,3 +35,5 @@ export const resetPasswordValidation = Joi.object({
         "any.only": 'confirmNewPassword must be equal with newPassword'
     })
 });
+
+export const getCurrentUserValidation = Joi.number().positive().required();
