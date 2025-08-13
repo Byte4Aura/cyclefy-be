@@ -4,7 +4,7 @@ import userService from "../services/userService.js";
 const currentUser = async (req, res, next) => {
     try {
         const userId = req.user.id;  //req.user created from ./../middlewares/authMiddleware.js
-        const result = await userService.currentUser(userId);
+        const result = await userService.currentUser(userId, req);
         res.status(200).json({
             success: true,
             // message: 'Get current user successful',
@@ -20,7 +20,7 @@ const updateCurrentUser = async (req, res, next) => {
     try {
         const userId = req.user.id;  //req.user created from ./../middlewares/authMiddleware.js
         const request = req.body;
-        const result = await userService.updateCurrentUser(userId, request);
+        const result = await userService.updateCurrentUser(userId, request, req);
         res.status(200).json({
             success: true,
             // message: 'Update current user successful',
