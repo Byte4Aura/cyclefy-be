@@ -17,7 +17,7 @@ export const downloadAndSaveProfileIamge = async (user) => {
 
         // Download image
         const response = await fetch(avatarUrl);
-        if (!response.ok) throw new Error("Failed to fetch avatar");
+        if (!response.ok) throw new Error("helper.failed_to_fetch_avatar");
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         await fs.writeFile(profilePath, buffer);
@@ -43,7 +43,7 @@ export const generateUniqueUsername = async (baseName) => {
         if (!check) break;
         attempt++;
         suffix = '_' + Math.floor(Math.random() * 10000); // atau bisa pakai providerId/email prefix
-        // if (attempt > 10) throw new Error("Failed to generate unique username");
+        // if (attempt > 10) throw new Error("helper.failed_generate_unique_username");
     }
     return username + suffix;
 };

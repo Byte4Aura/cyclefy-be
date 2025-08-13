@@ -1,0 +1,61 @@
+{
+    "success": "Success",
+    "error": "Error",
+    "validation": {
+        "failed": "Validation failed",
+        "confirm_password_mismatch": "Confirm password must be equal with password",
+        "confirm_new_password_mismatch": "Confirm new password must be equal with new password",
+        "field_required": "Field {{field}} is required",
+        "valid_email": "Email must be a valid email",
+        "password_length": "Password length must be at least 8 characters long",
+        "not_allowed": "{{field}} is not allowed"
+    },
+    "auth": {
+        "unauthorized": "Unauthorized. Need Authorization Token",
+        "invalid_token": "Invalid or expired token",
+        "login_successful": "Login successful.",
+        "register_successful": "Registration successful. Please check your email for OTP.",
+        "email_verification_successful": "Email verification successful.",
+        "resend_email_verification_successful": "Resend email verification successful.",
+        "send_reset_password_otp_successful": "Reset password OTP sent successfully.",
+        "reset_password_successful": "Password reset successful.",
+        "old_password_required": "Old password and confirm password are required for password update.",
+        "old_password_incorrect": "Old password is incorrect.",
+        "token_expired_helper": "Token expired. Please log in again.",
+        "invalid_token_helper": "Invalid token. Please log in again.",
+        "failed": "Authentication failed.",
+        "username_or_password_wrong": "Username or password wrong",
+        "account_is_inactive": "Account is inactive",
+        "email_already_registered": "Email already registered",
+        "email_not_verified": "Email is not verified",
+        "username_already_registered": "Username already registered",
+        "otp_send": "OTP sent to email",
+        "otp_resend": "OTP resent, please check your email",
+        "user_not_found": "User not found",
+        "email_not_found": "Email not found",
+        "otp_code_incorrect_or_expired": "OTP code is incorrect or has expired"
+    },
+    "helper": {
+        "failed_generate_unique_username": "Failed to generate unique username",
+        "failed_to_fetch_avatar": "Failed to fetch avatar"
+    },
+    "user": {
+        "not_found": "User not found",
+        "get_current_user_successful": "Get current user successful.",
+        "update_current_user_successful": "Update current user successful.",
+        "old_password_incorrect": "Old password is incorrect.",
+        "old_and_new_password_required": "Old password and confirm password are required for password update."
+    },
+    "address": {
+        "not_found": "Address not found",
+        "update_successful": "Update address for current user successful."
+    },
+    "phone": {
+        "not_found": "Phone not found",
+        "update_successful": "Update phone for current user successful."
+    },
+    "common": {
+        "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation.",
+        "internal_server_error": "Internal Server Error"
+    }
+}

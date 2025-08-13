@@ -4,8 +4,8 @@ import { getCurrentUserValidation, updateUserValidation } from "../validations/u
 import { validate } from "../validations/validation.js";
 import bcrypt from "bcrypt";
 
-const currentUser = async (userId) => {
-    userId = validate(getCurrentUserValidation, userId);
+const currentUser = async (userId, reqObject) => {
+    userId = validate(getCurrentUserValidation, userId, reqObject);
 
     const user = await prismaClient.user.findUnique({
         where: { id: userId },
@@ -34,26 +34,26 @@ const currentUser = async (userId) => {
             },
         }
     });
-    if (!user) throw new ResponseError(404, 'User not found');
+    if (!user) throw new ResponseError(404, "user.not_found");
 
     return user;
 }
 
 // Update user's username, or fullname, or password
-const updateCurrentUser = async (userId, request) => {
-    const updateData = validate(updateUserValidation, request);
+const updateCurrentUser = async (userId, requestBody, reqObject) => {
+    const updateData = validate(updateUserValidation, requestBody, reqObject);
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { id: userId }
     });
-    if (!user) throw new ResponseError(404, 'User not found');
+    if (!user) throw new ResponseError(404, 'user.not_found');
 
     // Update new password if exists
     if (updateData.password) {
-        if (!updateData.oldPassword || !updateData.confirmPassword) throw new ResponseError(400, 'oldPassword and confirmPassword is required for password update');
+        if (!updateData.oldPassword || !updateData.confirmPassword) throw new ResponseError(400, 'user.old_and_new_password_required');
         const match = await bcrypt.compare(updateData.oldPassword, user.password);
-        if (!match) throw new ResponseError(400, 'Old password is incorrect');
+        if (!match) throw new ResponseError(400, 'user.old_password_incorrect');
         updateData.password = await bcrypt.hash(updateData.password, 10);
     }
     // Remove confirmPassword & oldPassword from reques

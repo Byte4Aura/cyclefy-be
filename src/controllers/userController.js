@@ -7,7 +7,8 @@ const currentUser = async (req, res, next) => {
         const result = await userService.currentUser(userId);
         res.status(200).json({
             success: true,
-            message: 'Get current user successful',
+            // message: 'Get current user successful',
+            message: req.__('user.get_current_user_successful'),
             data: result
         });
     } catch (error) {
@@ -22,7 +23,8 @@ const updateCurrentUser = async (req, res, next) => {
         const result = await userService.updateCurrentUser(userId, request);
         res.status(200).json({
             success: true,
-            message: 'Update current user successful',
+            // message: 'Update current user successful',
+            message: req.__('user.update_current_user_successful'),
             data: result
         });
     } catch (error) {

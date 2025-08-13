@@ -3,8 +3,8 @@ import { ResponseError } from "../errors/responseError.js";
 import { updateAddressValidation } from "../validations/addressValidation.js";
 import { validate } from "../validations/validation.js";
 
-const updateAddress = async (userId, addressId, request) => {
-    const updateData = validate(updateAddressValidation, request);
+const updateAddress = async (userId, addressId, requestBody, reqObject) => {
+    const updateData = validate(updateAddressValidation, requestBody, reqObject);
 
     // Make sure this address is owned by user
     const address = await prismaClient.address.findUnique({
@@ -13,7 +13,7 @@ const updateAddress = async (userId, addressId, request) => {
             user_id: userId
         }
     });
-    if (!address) throw new ResponseError(404, 'Address not found');
+    if (!address) throw new ResponseError(404, 'address.not_found');
 
     // Update address
     await prismaClient.address.update({

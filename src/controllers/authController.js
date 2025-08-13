@@ -2,19 +2,19 @@ import authService from "../services/authService.js"
 
 const register = async (req, res, next) => {
     try {
-        const result = await authService.register(req.body);
+        const result = await authService.register(req.body, req);
         if (result.message) {
             // Resend OTP case
             res.status(200).json({
                 success: true,
-                message: result.message,
+                message: req.__(result.message),
                 data: { email: result.email }
             });
         } else {
             // First time register case
             res.status(201).json({
                 success: true,
-                message: 'Registration successful. Please check your email for OTP.',
+                message: req.__('auth.register_successful'),
                 data: result
             });
         }
@@ -25,10 +25,10 @@ const register = async (req, res, next) => {
 
 const verifyEmail = async (req, res, next) => {
     try {
-        const result = await authService.verifyEmail(req.body);
+        const result = await authService.verifyEmail(req.body, req);
         res.status(200).json({
             success: true,
-            message: 'Email verification successful.',
+            message: req.__('auth.email_verification_successful'),
             data: result
         });
     } catch (error) {
@@ -38,10 +38,10 @@ const verifyEmail = async (req, res, next) => {
 
 const resendEmailVerificationOtp = async (req, res, next) => {
     try {
-        const result = await authService.resendEmailVerificationOtp(req.body);
+        const result = await authService.resendEmailVerificationOtp(req.body, req);
         res.status(200).json({
             success: true,
-            message: 'Resend email verification successfull.',
+            message: req.__('auth.resend_email_verification_successful'),
             data: result
         });
     } catch (error) {
@@ -51,10 +51,10 @@ const resendEmailVerificationOtp = async (req, res, next) => {
 
 const login = async (req, res, next) => {
     try {
-        const result = await authService.login(req.body);
+        const result = await authService.login(req.body, req);
         res.status(200).json({
             success: true,
-            message: "Login successful.",
+            message: req.__("auth.login_successful"),
             data: result.user,
             token: result.token
         });
@@ -65,10 +65,10 @@ const login = async (req, res, next) => {
 
 const sendResetPasswordOTP = async (req, res, next) => {
     try {
-        const result = await authService.sendResetPasswordOTP(req.body);
+        const result = await authService.sendResetPasswordOTP(req.body, req);
         res.status(200).json({
             success: true,
-            message: result.message
+            message: req.__(result.message)
         });
     } catch (error) {
         next(error);
@@ -77,10 +77,10 @@ const sendResetPasswordOTP = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
     try {
-        const result = await authService.resetPassword(req.body);
+        const result = await authService.resetPassword(req.body, req);
         res.status(200).json({
             success: true,
-            message: result.message,
+            message: req.__(result.message),
         });
     } catch (error) {
         next(error);

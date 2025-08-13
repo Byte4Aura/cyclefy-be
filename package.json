@@ -28,6 +28,7 @@
 		"express": "^5.1.0",
 		"express-session": "^1.18.2",
 		"fs.promises": "^0.1.2",
+		"i18n": "^0.15.1",
 		"joi": "^17.13.3",
 		"jsonwebtoken": "^9.0.2",
 		"node-fetch": "^3.3.2",
