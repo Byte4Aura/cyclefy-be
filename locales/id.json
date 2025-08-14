@@ -47,15 +47,22 @@
         "old_and_new_password_required": "Kata sandi lama dan konfirmasi kata sandi diperlukan untuk pembaruan kata sandi."
     },
     "address": {
+        "id_not_a_number": "Address id bukan angka",
         "not_found": "Alamat tidak ditemukan",
-        "update_successful": "Berhasil memperbarui alamat pengguna saat ini."
+        "update_successful": "Berhasil memperbarui alamat pengguna saat ini.",
+        "geocode_not_found": "Data alamat tidak ditemukan",
+        "geocode_failed": "Gagal melakukan geocode alamat",
+        "get_list_successful": "Berhasil mendapatkan daftar alamat pengguna saat ini",
+        "get_detail_successful": "Berhasil mendapatkan alamat pengguna saat ini berdasarkan ID",
+        "create_successful": "Berhasil membuat alamat pengguna",
+        "delete_successful": "Berhasil menghapus alamat pengguna berdasarkan ID"
     },
     "phone": {
         "not_found": "Nomor telepon tidak ditemukan",
         "update_successful": "Berhasil memperbarui nomor telepon pengguna saat ini."
     },
     "common": {
-        "not_found": "{{reqMethod}} {{reqURL}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi.",
+        "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi.",
         "internal_server_error": "Kesalahan Server Internal"
     }
 }

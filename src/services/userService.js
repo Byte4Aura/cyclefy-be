@@ -18,20 +18,22 @@ const currentUser = async (userId, reqObject) => {
             email_verified_at: true,
             profile_picture: true,
             is_active: true,
-            phones: {
-                select: {
-                    id: true,
-                    number: true
-                }
-            },
-            addresses: {
-                select: {
-                    id: true,
-                    address: true,
-                    latitude: true,
-                    longitude: true
-                }
-            },
+            phones: true,
+            // phones: {
+            //     select: {
+            //         id: true,
+            //         number: true
+            //     }
+            // },
+            addresses: true
+            // addresses: {
+            //     select: {
+            //         id: true,
+            //         address: true,
+            //         latitude: true,
+            //         longitude: true
+            //     }
+            // },
         }
     });
     if (!user) throw new ResponseError(404, "user.not_found");

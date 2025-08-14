@@ -595,6 +595,13 @@ paths:
                               { type: string, example: "Jl. Mawar No. 1" }
                             latitude: { type: number, example: -6.9 }
                             longitude: { type: number, example: 107.6 }
+                            city: {type: string, example: "Unaaha"}
+                            state: {type: string, example: "Sulawesi Tenggara"}
+                            country: {type: string, example: "Indonesia"}
+                            country_code: {type: string, example: "ID"}
+                            zipcode: {type: string, example: "93418"}
+                            created_at: {type: string, example: "2025-08-14T00:50:59.220Z"}
+                            updated_at: {type: string, example: "2025-08-14T00:50:59.220Z"}
         "401":
           description: Unauthorized
           content:
@@ -682,12 +689,243 @@ paths:
                   success: { type: boolean, example: false }
                   message: { type: string, example: "Unauthorized" }
 
+  /api/users/current/addresses:
+    get:
+      summary: Mendapatkan daftar alamat user saat ini
+      description: |
+        Mengambil data alamat user yang sedang login
+      tags:
+        - Address
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      responses:
+        "200":
+          description: "Berhasil mendapatkan daftar alamat pengguna saat ini"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer, example: 1 }
+                    address_name: { type: string, example: "Rumah" }
+                    address: { type: string, example: "Jl. Mawar No. 1" }
+                    latitude: { type: number, example: -6.9 }
+                    longitude: { type: number, example: 107.6 }
+                    city: {type: string, example: "Unaaha"}
+                    state: {type: string, example: "Sulawesi Tenggara"}
+                    country: {type: string, example: "Indonesia"}
+                    country_code: {type: string, example: "ID"}
+                    zipcode: {type: string, example: "93418"}
+        "404":
+          description: Address tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Address not found" }
+
+    post:
+      summary: Tambah alamat baru untuk user saat ini
+      description: |
+        Endpoint untuk menambah alamat baru milik user yang sedang login. 
+        Sistem akan otomatis melakukan geocoding untuk mendapatkan latitude, longitude, dan detail lokasi dari field `address` yang diberikan.
+      tags:
+        - Address
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addressName:
+                  type: string
+                  maxLength: 255
+                  example: "Rumah Utama"
+                address:
+                  type: string
+                  maxLength: 255
+                  example: "Jl. Diponegoro No. 1, Bandung"
+              required:
+                - address
+      responses:
+        "201":
+          description: Alamat berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Create address successful."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      address_name:
+                        type: string
+                        example: "Rumah Utama"
+                      address:
+                        type: string
+                        example: "Jl. Diponegoro No. 1, Bandung, Jawa Barat, Indonesia"
+                      latitude:
+                        type: number
+                        example: -6.90389
+                      longitude:
+                        type: number
+                        example: 107.61861
+                      city:
+                        type: string
+                        example: "Bandung"
+                      state:
+                        type: string
+                        example: "Jawa Barat"
+                      country:
+                        type: string
+                        example: "Indonesia"
+                      country_code:
+                        type: string
+                        example: "ID"
+                      zipcode:
+                        type: string
+                        example: "40115"
+        "400":
+          description: Validasi gagal atau geocoding gagal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Validation failed"
+                  errors:
+                    type: object
+                    example: { "address": ["Field address is required"] }
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    example: null
+
   /api/users/current/addresses/{addressId}:
+    get:
+      summary: Mendapatkan data alamat user saat ini berdasarkan address Id
+      description: |
+        Mengambil data alamat user yang sedang login
+      tags:
+        - Address
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Berhasil mendapatkan data alamat pengguna saat ini berdasarkan address Id"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: integer, example: 1 }
+                  address_name: { type: string, example: "Rumah" }
+                  address: { type: string, example: "Jl. Mawar No. 1" }
+                  latitude: { type: number, example: -6.9 }
+                  longitude: { type: number, example: 107.6 }
+                  city: {type: string, example: "Unaaha"}
+                  state: {type: string, example: "Sulawesi Tenggara"}
+                  country: {type: string, example: "Indonesia"}
+                  country_code: {type: string, example: "ID"}
+                  zipcode: {type: string, example: "93418"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Unauthorized" }
+        "404":
+          description: Address tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Address not found" }
+    
     patch:
       summary: Update alamat user saat ini
       description: |
-        Mengupdate alamat milik user yang sedang login. 
-        Catatan: Fitur latitude dan longitude belum selesai, seharusnya didapat otomatis dari address menggunakan library geocoding (misal Google Maps API).
+        Mengupdate alamat milik user yang sedang login.
       tags: [Address]
       parameters:
         - name: Authorization
@@ -753,6 +991,69 @@ paths:
                       type: object,
                       example: { address: ["Address tidak valid"] },
                     }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Unauthorized" }
+        "404":
+          description: Address tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Address not found" }
+
+    delete:
+      summary: Menghapus address user saat ini
+      description: |
+        Menghapus address user yang sedang login saat ini menggunakan request parameter addressId
+      tags:
+        - Address
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil menghapus alamat user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: integer, example: 1 }
+                  address_name: { type: string, example: "Rumah" }
+                  address: { type: string, example: "Jl. Mawar No. 1" }
+                  latitude: { type: number, example: -6.9 }
+                  longitude: { type: number, example: 107.6 }
+                  city: {type: string, example: "Unaaha"}
+                  state: {type: string, example: "Sulawesi Tenggara"}
+                  country: {type: string, example: "Indonesia"}
+                  country_code: {type: string, example: "ID"}
+                  zipcode: {type: string, example: "93418"}
         "401":
           description: Unauthorized
           content:

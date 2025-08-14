@@ -47,8 +47,15 @@
         "old_and_new_password_required": "Old password and confirm password are required for password update."
     },
     "address": {
+        "id_not_a_number": "Address id is not a number",
         "not_found": "Address not found",
-        "update_successful": "Update address for current user successful."
+        "update_successful": "Update address for current user successful.",
+        "geocode_not_found": "No address data found",
+        "geocode_failed": "Failed to geocode address",
+        "get_list_successful": "Get current user addresses successful",
+        "get_detail_successful": "Get current user address by id successful",
+        "create_successful": "Create user address successful",
+        "delete_successful": "Delete user address by id successful"
     },
     "phone": {
         "not_found": "Phone not found",

@@ -386,6 +386,11 @@ CREATE TABLE `addresses` (
     `address` VARCHAR(255) NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
+    `city` VARCHAR(255) NULL,
+    `state` VARCHAR(255) NULL,
+    `country` VARCHAR(255) NOT NULL,
+    `country_code` VARCHAR(255) NOT NULL,
+    `zipcode` VARCHAR(255) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
