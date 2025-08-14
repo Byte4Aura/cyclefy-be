@@ -5,10 +5,10 @@ const updatePhone = async (req, res, next) => {
         const userId = req.user.id;  //req.user created from ./../middlewares/authMiddleware.js
         const phoneId = Number(req.params.phoneId);
         const request = req.body;
-        const result = await phoneService.updatePhone(userId, phoneId, request);
+        const result = await phoneService.updatePhone(userId, phoneId, request, req);
         res.status(200).json({
             success: true,
-            message: 'Update phone for current user successful',
+            message: req.__('phone.update_successful'),
             data: result
         });
     } catch (error) {

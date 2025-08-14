@@ -7,9 +7,9 @@ import { logger } from "../application/logging.js";
 import { downloadAndSaveProfileIamge, sendEmailVerificationOTP, sendResetPasswordOTPHelper } from "../helpers/authHelper.js";
 import { generateJWT } from "../helpers/jwtHelper.js";
 
-const register = async (request) => {
+const register = async (requestBody, reqObject) => {
     // Input validation
-    const userData = validate(registerUserValidation, request);
+    const userData = validate(registerUserValidation, requestBody, reqObject);
 
     // Check existing email
     const userExistsByEmail = await prismaClient.user.findUnique({
@@ -18,19 +18,19 @@ const register = async (request) => {
     if (userExistsByEmail) {
         // Return 400 is user email is already verified
         if (userExistsByEmail.is_email_verified) {
-            throw new ResponseError(400, "Email already registered");
+            throw new ResponseError(400, "auth.email_already_registered");
         }
 
         // Username must be equal with unverified user
         if (userExistsByEmail.username !== userData.username) {
-            throw new ResponseError(400, "Email already registered");
+            throw new ResponseError(400, "auth.email_already_registered");
         }
 
         // Resend OTP
         await sendEmailVerificationOTP(userExistsByEmail);
 
         return {
-            message: "OTP resent, please check your email",
+            message: "auth.otp_resend",
             email: userExistsByEmail.email
         };
     }
@@ -40,7 +40,7 @@ const register = async (request) => {
         where: { username: userData.username }
     });
     if (userExistsByUsername) {
-        throw new ResponseError(400, "Username already registered");
+        throw new ResponseError(400, "auth.username_already_registered");
     }
 
     // Hash password
@@ -74,14 +74,14 @@ const register = async (request) => {
     }
 }
 
-const verifyEmail = async (request) => {
-    const data = validate(verifyEmailValidation, request);
+const verifyEmail = async (requestBody, reqObject) => {
+    const data = validate(verifyEmailValidation, requestBody, reqObject);
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { email: data.email }
     });
-    if (!user) throw new ResponseError(404, "User not found");
+    if (!user) throw new ResponseError(404, "auth.user_not_found");
 
     // Find unused & valid OTP
     const otpRecord = await prismaClient.emailVerification.findFirst({
@@ -92,7 +92,7 @@ const verifyEmail = async (request) => {
             expires_at: { gte: new Date() }
         }
     });
-    if (!otpRecord) throw new ResponseError(400, "OTP code is incorrect or has expired");
+    if (!otpRecord) throw new ResponseError(400, "auth.otp_code_incorrect_or_expired");
 
     // Update user's email status & OTP
     await prismaClient.user.update({
@@ -117,27 +117,27 @@ const verifyEmail = async (request) => {
 }
 
 // Resend Email Verification OTP
-const resendEmailVerificationOtp = async (request) => {
-    const data = validate(resendEmailVerificationOtpValidation, request);
+const resendEmailVerificationOtp = async (requestBody, reqObject) => {
+    const data = validate(resendEmailVerificationOtpValidation, requestBody, reqObject);
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { email: data.email }
     });
-    if (!user) throw new ResponseError(404, "Email not found");
-    if (user.is_email_verified) throw new ResponseError(400, "Email already registered");
+    if (!user) throw new ResponseError(404, "auth.email_not_found");
+    if (user.is_email_verified) throw new ResponseError(400, "auth.email_already_registered");
 
     // Generate OTP & save to EmailVerification
     await sendEmailVerificationOTP(user);
 
     return {
-        message: "OTP resent, please check your email",
+        message: "auth.otp_resend",
         email: userExistsByEmail.email
     };
 }
 
-const login = async (request) => {
-    const data = validate(loginUserValidation, request);
+const login = async (requestBody, reqObject) => {
+    const data = validate(loginUserValidation, requestBody, reqObject);
 
     // Find user from username or email
     const user = await prismaClient.user.findFirst({
@@ -148,15 +148,15 @@ const login = async (request) => {
             ]
         }
     });
-    if (!user) throw new ResponseError(401, 'Username or password wrong');
+    if (!user) throw new ResponseError(401, 'auth.username_or_password_wrong');
 
     // Check password
     const passwordMatch = await bcrypt.compare(data.password, user.password);
-    if (!passwordMatch) throw new ResponseError(401, 'Username or password wrong');
+    if (!passwordMatch) throw new ResponseError(401, 'auth.username_or_password_wrong');
 
     // Check if account email is verified & account status is active
-    if (!user.is_active) throw new ResponseError(403, 'Account is inactive');
-    if (!user.is_email_verified) throw new ResponseError(403, 'Email is not verified');
+    if (!user.is_active) throw new ResponseError(403, 'auth.account_is_inactive');
+    if (!user.is_email_verified) throw new ResponseError(403, 'auth.email_not_verified');
 
     return {
         token: generateJWT(user),
@@ -170,31 +170,31 @@ const login = async (request) => {
     };
 }
 
-const sendResetPasswordOTP = async (request) => {
-    const data = validate(sendResetPasswordOtpValidation, request);
+const sendResetPasswordOTP = async (requestBody, reqObject) => {
+    const data = validate(sendResetPasswordOtpValidation, requestBody, reqObject);
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { email: data.email }
     });
-    if (!user) throw new ResponseError(404, 'User not found');
+    if (!user) throw new ResponseError(404, 'auth.user_not_found');
 
     // Generate OTP & save the data to password reset table
     await sendResetPasswordOTPHelper(user);
 
     return {
-        message: 'OTP sent to email'
+        message: 'auth.otp_send'
     }
 }
 
-const resetPassword = async (request) => {
-    const data = validate(resetPasswordValidation, request);
+const resetPassword = async (requestBody, reqObject) => {
+    const data = validate(resetPasswordValidation, requestBody, reqObject);
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { email: data.email }
     });
-    if (!user) throw new ResponseError(404, 'User not found');
+    if (!user) throw new ResponseError(404, 'auth.user_not_found');
 
     // Find Valid OTP
     const otpRecord = await prismaClient.passwordReset.findFirst({
@@ -205,7 +205,7 @@ const resetPassword = async (request) => {
             expires_at: { gte: new Date() }
         }
     });
-    if (!otpRecord) throw new ResponseError(404, 'OTP code is incorrect or has expired');
+    if (!otpRecord) throw new ResponseError(404, 'auth.otp_code_incorrect_or_expired');
 
     // Update password
     const hashedPassword = await bcrypt.hash(data.newPassword, 10);
@@ -223,7 +223,7 @@ const resetPassword = async (request) => {
     });
 
     return {
-        message: 'Password reset successful'
+        message: 'auth.reset_password_successful'
     }
 }
 

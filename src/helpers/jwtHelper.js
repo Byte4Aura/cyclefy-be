@@ -1,5 +1,7 @@
 import { env } from "../application/env.js";
 import jwt from "jsonwebtoken";
+import { ResponseError } from "../errors/responseError.js";
+import { logger } from "../application/logging.js";
 
 const JWT_SECRET = env.jwtSecret;
 
@@ -17,8 +19,14 @@ export const generateJWT = (user) => {
 export const verifyJWT = (token) => {
     try {
         return jwt.verify(token, JWT_SECRET);
-    } catch (error) {
-        return null;
-        // throw new Error(error.message);
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            throw new ResponseError(err.statusCode, 'auth.token_expired_helper');
+        } else if (err.name === 'JsonWebTokenError') {
+            throw new ResponseError(err.statusCode, 'auth.invalid_token_helper');
+        } else {
+            logger.error(err);
+            throw new ResponseError(err.statusCode, 'auth.failed');
+        }
     }
 }

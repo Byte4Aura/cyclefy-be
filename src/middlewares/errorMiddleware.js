@@ -12,7 +12,8 @@ export const errorMiddleware = (err, req, res, next) => {
     if (err instanceof ResponseError) {
         res.status(status).json({
             success: false,
-            message: err.message,
+            // message: err.message,
+            message: req.__(err.message) || err.message,
             errors: err.errors
             // errors: err.message.replace(/"/g, ''),
         }).end();
@@ -21,7 +22,7 @@ export const errorMiddleware = (err, req, res, next) => {
         // logger.error(err);
         res.status(status).json({
             success: false,
-            message: err.message || 'Internal Server Error',
+            message: req.__(err.message) || err.message || 'Internal Server Error',
             errors: err.errors || null
         }).end();
     }
