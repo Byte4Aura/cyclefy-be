@@ -453,7 +453,7 @@ paths:
                 type: object
                 properties:
                   success: { type: boolean, example: false }
-                  message: { type: string, example: "Invalid credentials" }
+                  message: { type: string, example: "Username or password wrong" }
         "403":
           description: Akun tidak aktif atau email belum diverifikasi
           content:
@@ -507,7 +507,7 @@ paths:
                       profile_picture:
                         {
                           type: string,
-                          example: "/src/assets/profiles/johndoe.png",
+                          example: "https://...",
                         }
                   token:
                     {
@@ -524,6 +524,128 @@ paths:
                   success: { type: boolean, example: false }
                   message:
                     { type: string, example: "Google authentication failed" }
+
+  /api/auth/facebook:
+    get:
+      summary: Redirect ke Facebook OAuth
+      description: |
+        Endpoint untuk memulai proses login/register dengan Facebook OAuth. User akan diarahkan ke halaman login Facebook.
+      tags: [Auth]
+      responses:
+        "302":
+          description: Redirect ke halaman login Facebook
+
+  /api/auth/facebook/callback:
+    get:
+      summary: Callback dari Facebook OAuth
+      description: |
+        Endpoint callback setelah user login dengan Facebook. Jika sukses, user akan otomatis login/register dan menerima JWT.
+        - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+        - Jika email sudah ada dan sudah verifikasi, user langsung login.
+        - Jika email belum ada, user baru akan dibuat.
+      tags: [Auth]
+      responses:
+        "201":
+          description: Register/login dengan Facebook berhasil, JWT dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message:
+                    {
+                      type: string,
+                      example: "Authentication with Facebook successful",
+                    }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      fullname: { type: string, example: "John Doe" }
+                      username: { type: string, example: "johndoe" }
+                      email: { type: string, example: "john@example.com" }
+                      profile_picture:
+                        {
+                          type: string,
+                          example: "https://",
+                        }
+                  token:
+                    {
+                      type: string,
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    }
+        "400":
+          description: Validasi gagal atau error lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message:
+                    { type: string, example: "Facebook authentication failed" }
+
+  /api/auth/twitter:
+    get:
+      summary: Redirect ke Twitter OAuth
+      description: |
+        Endpoint untuk memulai proses login/register dengan Twitter OAuth. User akan diarahkan ke halaman login Twitter.
+      tags: [Auth]
+      responses:
+        "302":
+          description: Redirect ke halaman login Twitter
+
+  /api/auth/twitter/callback:
+    get:
+      summary: Callback dari Twitter OAuth
+      description: |
+        Endpoint callback setelah user login dengan Twitter. Jika sukses, user akan otomatis login/register dan menerima JWT.
+        - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+        - Jika email sudah ada dan sudah verifikasi, user langsung login.
+        - Jika email belum ada, user baru akan dibuat.
+      tags: [Auth]
+      responses:
+        "201":
+          description: Register/login dengan Twitter berhasil, JWT dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message:
+                    {
+                      type: string,
+                      example: "Authentication with Twitter successful",
+                    }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      fullname: { type: string, example: "John Doe" }
+                      username: { type: string, example: "johndoe" }
+                      email: { type: string, example: "john@example.com" }
+                      profile_picture:
+                        {
+                          type: string,
+                          example: "https://...",
+                        }
+                  token:
+                    {
+                      type: string,
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    }
+        "400":
+          description: Validasi gagal atau error lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message:
+                    { type: string, example: "Twitter authentication failed" }
 
   /api/users/current:
     get:
@@ -603,14 +725,24 @@ paths:
                             created_at: {type: string, example: "2025-08-14T00:50:59.220Z"}
                             updated_at: {type: string, example: "2025-08-14T00:50:59.220Z"}
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
     patch:
       summary: Update data profil user saat ini
@@ -680,14 +812,104 @@ paths:
                       example: { oldPassword: ["Old password is incorrect"] },
                     }
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+
+  /api/users/current/profile-picture:
+    patch:
+      summary: Upload foto profil user saat ini
+      description: |
+        Mengganti foto profil user yang sedang login. File gambar dikirim sebagai form-data dengan field profile_picture
+      tags:
+        - User
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile_picture:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Foto profil berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Update profile picture successful"
+                  data:
+                    type: object
+                    properties:
+                      profile_picture:
+                        type: string
+                        example: "/src/assets/profiles/user_1_1755334590343.jpg"
+        "400":
+          description: Validasi gagal atau file tidak ditemukan
+          content:
+            application/json:
+              example:
+                success: false
+                message: "No file uploaded"
+                errors: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
   /api/users/current/addresses:
     get:
@@ -717,20 +939,68 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id: { type: integer, example: 1 }
-                    address_name: { type: string, example: "Rumah" }
-                    address: { type: string, example: "Jl. Mawar No. 1" }
-                    latitude: { type: number, example: -6.9 }
-                    longitude: { type: number, example: 107.6 }
-                    city: {type: string, example: "Unaaha"}
-                    state: {type: string, example: "Sulawesi Tenggara"}
-                    country: {type: string, example: "Indonesia"}
-                    country_code: {type: string, example: "ID"}
-                    zipcode: {type: string, example: "93418"}
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Berhasil mendapatkan daftar alamat pengguna saat ini"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        address_name:
+                          type: string
+                          example: "Rumah Utama"
+                        address:
+                          type: string
+                          example: "Jl. Diponegoro No. 1, Bandung, Jawa Barat, Indonesia"
+                        latitude:
+                          type: number
+                          example: -6.90389
+                        longitude:
+                          type: number
+                          example: 107.61861
+                        city:
+                          type: string
+                          example: "Bandung"
+                        state:
+                          type: string
+                          example: "Jawa Barat"
+                        country:
+                          type: string
+                          example: "Indonesia"
+                        country_code:
+                          type: string
+                          example: "ID"
+                        zipcode:
+                          type: string
+                          example: "40115"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
         "404":
           description: Address tidak ditemukan
           content:
@@ -856,7 +1126,10 @@ paths:
                     example: "Unauthorized. Need Authorization Token"
                   errors:
                     type: object
-                    example: null
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
   /api/users/current/addresses/{addressId}:
     get:
@@ -893,25 +1166,44 @@ paths:
               schema:
                 type: object
                 properties:
-                  id: { type: integer, example: 1 }
-                  address_name: { type: string, example: "Rumah" }
-                  address: { type: string, example: "Jl. Mawar No. 1" }
-                  latitude: { type: number, example: -6.9 }
-                  longitude: { type: number, example: 107.6 }
-                  city: {type: string, example: "Unaaha"}
-                  state: {type: string, example: "Sulawesi Tenggara"}
-                  country: {type: string, example: "Indonesia"}
-                  country_code: {type: string, example: "ID"}
-                  zipcode: {type: string, example: "93418"}
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan alamat pengguna saat ini berdasarkan ID
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ..." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
         "404":
           description: Address tidak ditemukan
           content:
@@ -966,17 +1258,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: true }
+                  success:
+                    type: boolean
+                    example: true
                   message:
-                    {
-                      type: string,
-                      example: "Update address for current user successful",
-                    }
+                    type: string
+                    example: Berhasil memperbarui alamat pengguna saat ini.
                   data:
                     type: object
-                    example:
-                      addressName: "Rumah"
-                      address: "Jl. Mawar No. 1"
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ..." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "400":
           description: Validasi gagal
           content:
@@ -992,14 +1292,24 @@ paths:
                       example: { address: ["Address tidak valid"] },
                     }
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
         "404":
           description: Address tidak ditemukan
           content:
@@ -1044,25 +1354,44 @@ paths:
               schema:
                 type: object
                 properties:
-                  id: { type: integer, example: 1 }
-                  address_name: { type: string, example: "Rumah" }
-                  address: { type: string, example: "Jl. Mawar No. 1" }
-                  latitude: { type: number, example: -6.9 }
-                  longitude: { type: number, example: 107.6 }
-                  city: {type: string, example: "Unaaha"}
-                  state: {type: string, example: "Sulawesi Tenggara"}
-                  country: {type: string, example: "Indonesia"}
-                  country_code: {type: string, example: "ID"}
-                  zipcode: {type: string, example: "93418"}
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil menghapus alamat pengguna berdasarkan ID
+                  data: 
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ...." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
         "404":
           description: Address tidak ditemukan
           content:
@@ -1073,7 +1402,222 @@ paths:
                   success: { type: boolean, example: false }
                   message: { type: string, example: "Address not found" }
 
+  /api/users/current/phones:
+    get:
+      summary: Mendapatkan daftar nomor kontak user saat ini
+      description: |
+        Mengambil seluruh daftar nomor kontak (phone) milik user yang sedang login.
+        - Hanya dapat diakses oleh user yang sudah login (dengan Authorization token).
+      tags: [Phone]
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      responses:
+        "200":
+          description: Daftar nomor kontak user berhasil diambil
+          content:
+            application/json:
+              example:
+                success: true
+                message: Berhasil mendapatkan daftar nomor telepon.
+                data:
+                  - id: 1
+                    number: "08123456789"
+                    user_id: 1
+                  - id: 2
+                    number: "08987654321"
+                    user_id: 1
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Address tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Address not found" }
+
+    post:
+      summary: Tambah nomor kontak baru untuk user saat ini
+      description: |
+        Menambahkan nomor kontak (phone) baru untuk user yang sedang login.
+        - Nomor telepon tidak boleh duplikat untuk user yang sama.
+      tags: [Phone]
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              number: "08123456789"
+      responses:
+        "201":
+          description: Nomor kontak berhasil ditambahkan
+          content:
+            application/json:
+              example:
+                success: true
+                message: Berhasil membuat nomor telepon.
+                data:
+                  id: 3
+                  number: "08123456789"
+                  user_id: 1
+        "400":
+          description: Validasi gagal atau nomor telepon sudah ada
+          content:
+            application/json:
+              examples:
+                validasi:
+                  value:
+                    success: false
+                    message: Validasi gagal
+                    errors:
+                      number: "Field number wajib diisi"
+                duplikat:
+                  value:
+                    success: false
+                    message: Nomor telepon sudah ditambahkan
+                    errors: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+
   /api/users/current/phones/{phoneId}:
+    get:
+      summary: Mendapatkan detail nomor kontak user saat ini berdasarkan phoneId
+      description: |
+        Mengambil detail nomor kontak (phone) milik user yang sedang login berdasarkan ID.
+      tags: [Phone]
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+        - name: phoneId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID phone yang akan diambil
+      responses:
+        "200":
+          description: Detail nomor kontak ditemukan
+          content:
+            application/json:
+              example:
+                success: true
+                message: Berhasil mendapatkan detail nomor telepon.
+                data:
+                  id: 1
+                  number: "08123456789"
+                  user_id: 1
+        "400":
+          description: phoneId bukan angka
+          content:
+            application/json:
+              example:
+                success: false
+                message: phone id bukan angka
+                errors: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Nomor kontak tidak ditemukan
+          content:
+            application/json:
+              example:
+                success: false
+                message: Nomor telepon tidak ditemukan
+                errors: null
+    
     patch:
       summary: Update nomor kontak user saat ini
       description: |
@@ -1139,14 +1683,24 @@ paths:
                   errors:
                     { type: object, example: { number: ["Nomor tidak valid"] } }
         "401":
-          description: Unauthorized
+          description: Unauthorized (token tidak valid/expired)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: false }
-                  message: { type: string, example: "Unauthorized" }
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
         "404":
           description: Phone tidak ditemukan
           content:
@@ -1169,3 +1723,95 @@ paths:
                   properties:
                     email:
                       type: string
+
+    delete:
+      summary: Menghapus nomor kontak user saat ini
+      description: |
+        Menghapus nomor kontak (phone) milik user yang sedang login berdasarkan ID.
+      tags: [Phone]
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+        - name: phoneId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID phone yang akan dihapus
+      responses:
+        "200":
+          description: Nomor kontak berhasil dihapus
+          content:
+            application/json:
+              example:
+                success: true
+                message: Berhasil menghapus nomor telepon.
+                data:
+                  id: 1
+                  number: "08123456789"
+                  user_id: 1
+        "400":
+          description: phoneId bukan angka
+          content:
+            application/json:
+              example:
+                success: false
+                message: phone id bukan angka
+                errors: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Nomor kontak tidak ditemukan
+          content:
+            application/json:
+              example:
+                success: false
+                message: Nomor telepon tidak ditemukan
+                errors: null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

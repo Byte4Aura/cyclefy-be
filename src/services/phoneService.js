@@ -1,12 +1,52 @@
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
-import { updatePhoneValidation } from "../validations/phoneValidation.js";
+import { createPhoneValidation, updatePhoneValidation } from "../validations/phoneValidation.js";
 import { validate } from "../validations/validation.js";
+
+const getPhones = async (userId) => {
+    const phones = await prismaClient.phone.findMany({
+        where: { user_id: userId }
+    });
+    if (!phones) throw new ResponseError(404, 'phone.not_found');
+    return phones;
+}
+
+const getPhoneById = async (userId, phoneId) => {
+    const phones = await prismaClient.phone.findUnique({
+        where: {
+            id: phoneId,
+            user_id: userId
+        }
+    });
+    if (!phones) throw new ResponseError(404, 'phone.not_found');
+    return phones;
+}
+
+const createPhone = async (userId, requestBody, reqObject) => {
+    const data = validate(createPhoneValidation, requestBody, reqObject);
+
+    // Check if number is duplicate
+    const numberExists = await prismaClient.phone.findFirst({
+        where: {
+            user_id: userId,
+            number: data.number
+        }
+    });
+    if (numberExists) throw new ResponseError(400, 'phone.duplicate');
+
+    // Create & return new phone data
+    return await prismaClient.phone.create({
+        data: {
+            user_id: userId,
+            number: data.number,
+        }
+    });
+}
 
 const updatePhone = async (userId, phoneId, requestBody, reqObject) => {
     const updateData = validate(updatePhoneValidation, requestBody, reqObject);
 
-    // Make sure this address is owned by user
+    // Make sure this phone number is owned by current user
     const phone = await prismaClient.phone.findUnique({
         where: {
             id: phoneId,
@@ -24,6 +64,20 @@ const updatePhone = async (userId, phoneId, requestBody, reqObject) => {
     return updateData;
 }
 
+const deletePhone = async (userId, phoneId) => {
+    const phone = await prismaClient.phone.findUnique({
+        where: {
+            id: phoneId,
+            user_id: userId,
+        }
+    });
+    if (!phone) throw new ResponseError(404, 'phone.not_found');
+
+    return await prismaClient.phone.delete({
+        where: { id: [phoneId] }
+    });
+}
+
 export default {
-    updatePhone,
+    getPhones, getPhoneById, createPhone, updatePhone, deletePhone
 }

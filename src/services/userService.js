@@ -3,6 +3,8 @@ import { ResponseError } from "../errors/responseError.js";
 import { getCurrentUserValidation, updateUserValidation } from "../validations/userValidation.js";
 import { validate } from "../validations/validation.js";
 import bcrypt from "bcrypt";
+import path from "path";
+import fs from "fs";
 
 const currentUser = async (userId, reqObject) => {
     userId = validate(getCurrentUserValidation, userId, reqObject);
@@ -71,6 +73,31 @@ const updateCurrentUser = async (userId, requestBody, reqObject) => {
     return updateData
 }
 
+const uploadProfilePicture = async (userId, file) => {
+    if (!file) throw new Error("file.no_file_uploaded");
+
+    // Find user
+    const user = await prismaClient.user.findUnique({
+        where: { id: userId }
+    });
+    if (!user) throw new Error("user.not_found");
+
+    // Delete old profile picture file
+    if (user.profile_picture && user.profile_picture.includes("/src/assets/profiles/")) {
+        const oldPath = path.resolve("." + user.profile_picture);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    // Update user with new file
+    const newPath = `/src/assets/profiles/${file.filename}`;
+    await prismaClient.user.update({
+        where: { id: userId },
+        data: { profile_picture: newPath }
+    });
+
+    return { profile_picture: newPath }
+}
+
 export default {
-    currentUser, updateCurrentUser
+    currentUser, updateCurrentUser, uploadProfilePicture
 }

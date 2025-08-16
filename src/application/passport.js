@@ -1,11 +1,15 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as FacebookStrategy } from "passport-facebook";
+import { Strategy as TwitterStrategy } from "passport-twitter";
 import { env } from "./env.js";
 import { prismaClient } from "./database.js";
 import { v4 as uuidv4 } from "uuid";
 import { ResponseError } from "../errors/responseError.js";
 import { generateUniqueUsername } from "../helpers/authHelper.js";
 
+
+// Google
 passport.use(new GoogleStrategy({
     clientID: env.google.clientId,
     clientSecret: env.google.clientSecret,
@@ -103,6 +107,196 @@ passport.use(new GoogleStrategy({
     }
 }));
 
+// Facebook
+passport.use(new FacebookStrategy({
+    clientID: env.facebook.clientId,
+    clientSecret: env.facebook.clientSecret,
+    callbackURL: env.facebook.callbackURL,
+    profileFields: ['id', 'displayName', 'photos', 'email']
+}, async (accessToken, refreshToken, profile, doneCallback) => {
+    try {
+        const email = profile.email?.[0]?.value;
+        // if (!email) return doneCallback(new Error("No email from Facebook"), null);
+
+        let user = await prismaClient.user.findUnique({
+            where: { email: email }
+        });
+        if (!user) {
+            // Generate random password
+            const randomPassword = uuidv4();
+
+            // Generate unique username
+            let username = await generateUniqueUsername(profile.displayName);
+
+            // Create user
+            user = await prismaClient.user.create({
+                data: {
+                    fullname: profile.displayName,
+                    username: username,
+                    email: email,
+                    password: randomPassword,
+                    is_email_verified: true,
+                    email_verified_at: new Date(),
+                    is_active: true,
+                    profile_picture: profile.photos?.[0]?.value || null,
+                }
+            });
+
+            // Upsert provider data
+            await prismaClient.userOauthProvider.upsert({
+                where: {
+                    user_id_provider: {
+                        user_id: user.id,
+                        provider: "facebook"
+                    }
+                },
+                update: {
+                    provider_id: profile.id,
+                    provider_email: email,
+                    provider_data: profile._json
+                },
+                create: {
+                    user_id: user.id,
+                    provider: "facebook",
+                    provider_id: profile.id,
+                    provider_email: email,
+                    provider_data: profile._json
+                }
+            });
+            return doneCallback(null, user);
+        } else {
+            if (!user.is_email_verified) {
+                await prismaClient.user.update({
+                    where: { id: user.id },
+                    data: {
+                        is_email_verified: true,
+                        email_verified_at: new Date(),
+                        profile_picture: user.profile_picture || profile.photos?.[0]?.value,
+                        // password: user.password
+                    }
+                });
+
+                // Upsert data provider
+                await prismaClient.userOauthProvider.upsert({
+                    where: {
+                        user_id_provider: {
+                            user_id: user.id,
+                            provider: 'google'
+                        }
+                    },
+                    update: {
+                        provider_id: profile.id,
+                        provider_email: email,
+                        provider_data: profile._json
+                    },
+                    create: {
+                        user_id: user.id,
+                        provider: "google",
+                        provider_id: profile.id,
+                        provider_email: email,
+                        provider_data: profile._json
+                    }
+                });
+            }
+
+            return doneCallback(null, user);
+        }
+    } catch (error) {
+        return doneCallback(error, null);
+    }
+}));
+
+passport.use(new TwitterStrategy({
+    consumerKey: env.twitter.consumerKey,
+    consumerSecret: env.twitter.consumerSecret,
+    callbackURL: env.twitter.callbackURL,
+    includeEmail: true,
+}, async (token, tokenSecret, profile, doneCallback) => {
+    try {
+        // Email bisa null jika tidak di-approve
+        const email = profile.emails?.[0]?.value || `${profile.username}@twitter.local`;
+        let user = await prismaClient.user.findUnique({ where: { email } });
+
+        if (!user) {
+            // Generate random password
+            const randomPassword = uuidv4();
+
+            let username = await generateUniqueUsername(profile.displayName || profile.username);
+            user = await prismaClient.user.create({
+                data: {
+                    fullname: profile.displayName || profile.username,
+                    username: username,
+                    email: email,
+                    password: randomPassword,
+                    is_email_verified: true,
+                    email_verified_at: new Date(),
+                    is_active: true,
+                    profile_picture: profile.photos?.[0]?.value || null,
+                }
+            });
+
+            await prismaClient.userOauthProvider.upsert({
+                where: {
+                    user_id_provider: {
+                        user_id: user.id,
+                        provider: "twitter"
+                    }
+                },
+                update: {
+                    provider_id: profile.id,
+                    provider_email: email,
+                    provider_data: profile._json
+                },
+                create: {
+                    user_id: user.id,
+                    provider: "twitter",
+                    provider_id: profile.id,
+                    provider_email: email,
+                    provider_data: profile._json
+                }
+            });
+            return doneCallback(null, user);
+        } else {
+            if (!user.is_email_verified) {
+                await prismaClient.user.update({
+                    where: { id: user.id },
+                    data: {
+                        is_email_verified: true,
+                        email_verified_at: new Date(),
+                        profile_picture: user.profile_picture || profile.photos?.[0]?.value,
+                        // password: user.password
+                    }
+                });
+
+                // Upsert data provider
+                await prismaClient.userOauthProvider.upsert({
+                    where: {
+                        user_id_provider: {
+                            user_id: user.id,
+                            provider: 'google'
+                        }
+                    },
+                    update: {
+                        provider_id: profile.id,
+                        provider_email: email,
+                        provider_data: profile._json
+                    },
+                    create: {
+                        user_id: user.id,
+                        provider: "google",
+                        provider_id: profile.id,
+                        provider_email: email,
+                        provider_data: profile._json
+                    }
+                });
+            }
+            return doneCallback(null, user);
+        }
+    } catch (error) {
+        return doneCallback(error, null);
+    }
+}));
+
 passport.serializeUser((user, doneCallbck) => {
     doneCallbck(null, user.id);
 });
@@ -113,5 +307,8 @@ passport.deserializeUser(async (id, doneCallback) => {
     });
     doneCallback(null, user);
 });
+
+
+
 
 export default passport;
