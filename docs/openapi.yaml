@@ -737,20 +737,49 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id: { type: integer, example: 1 }
-                    address_name: { type: string, example: "Rumah" }
-                    address: { type: string, example: "Jl. Mawar No. 1" }
-                    latitude: { type: number, example: -6.9 }
-                    longitude: { type: number, example: 107.6 }
-                    city: {type: string, example: "Unaaha"}
-                    state: {type: string, example: "Sulawesi Tenggara"}
-                    country: {type: string, example: "Indonesia"}
-                    country_code: {type: string, example: "ID"}
-                    zipcode: {type: string, example: "93418"}
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Berhasil mendapatkan daftar alamat pengguna saat ini"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        address_name:
+                          type: string
+                          example: "Rumah Utama"
+                        address:
+                          type: string
+                          example: "Jl. Diponegoro No. 1, Bandung, Jawa Barat, Indonesia"
+                        latitude:
+                          type: number
+                          example: -6.90389
+                        longitude:
+                          type: number
+                          example: 107.61861
+                        city:
+                          type: string
+                          example: "Bandung"
+                        state:
+                          type: string
+                          example: "Jawa Barat"
+                        country:
+                          type: string
+                          example: "Indonesia"
+                        country_code:
+                          type: string
+                          example: "ID"
+                        zipcode:
+                          type: string
+                          example: "40115"
         "401":
           description: Unauthorized (token tidak valid/expired)
           content:
@@ -935,16 +964,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  id: { type: integer, example: 1 }
-                  address_name: { type: string, example: "Rumah" }
-                  address: { type: string, example: "Jl. Mawar No. 1" }
-                  latitude: { type: number, example: -6.9 }
-                  longitude: { type: number, example: 107.6 }
-                  city: {type: string, example: "Unaaha"}
-                  state: {type: string, example: "Sulawesi Tenggara"}
-                  country: {type: string, example: "Indonesia"}
-                  country_code: {type: string, example: "ID"}
-                  zipcode: {type: string, example: "93418"}
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan alamat pengguna saat ini berdasarkan ID
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ..." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "401":
           description: Unauthorized (token tidak valid/expired)
           content:
@@ -1018,17 +1056,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  success: { type: boolean, example: true }
+                  success:
+                    type: boolean
+                    example: true
                   message:
-                    {
-                      type: string,
-                      example: "Update address for current user successful",
-                    }
+                    type: string
+                    example: Berhasil memperbarui alamat pengguna saat ini.
                   data:
                     type: object
-                    example:
-                      addressName: "Rumah"
-                      address: "Jl. Mawar No. 1"
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ..." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "400":
           description: Validasi gagal
           content:
@@ -1106,16 +1152,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  id: { type: integer, example: 1 }
-                  address_name: { type: string, example: "Rumah" }
-                  address: { type: string, example: "Jl. Mawar No. 1" }
-                  latitude: { type: number, example: -6.9 }
-                  longitude: { type: number, example: 107.6 }
-                  city: {type: string, example: "Unaaha"}
-                  state: {type: string, example: "Sulawesi Tenggara"}
-                  country: {type: string, example: "Indonesia"}
-                  country_code: {type: string, example: "ID"}
-                  zipcode: {type: string, example: "93418"}
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil menghapus alamat pengguna berdasarkan ID
+                  data: 
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      address_name: { type: string, example: "Rumah" }
+                      address: { type: string, example: "Jl. Mawar No. 1, Unaaha, ...." }
+                      latitude: { type: number, example: -6.9 }
+                      longitude: { type: number, example: 107.6 }
+                      city: {type: string, example: "Unaaha"}
+                      state: {type: string, example: "Sulawesi Tenggara"}
+                      country: {type: string, example: "Indonesia"}
+                      country_code: {type: string, example: "ID"}
+                      zipcode: {type: string, example: "93418"}
         "401":
           description: Unauthorized (token tidak valid/expired)
           content:
