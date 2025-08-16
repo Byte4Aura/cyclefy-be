@@ -33,7 +33,10 @@
         "otp_resend": "OTP resent, please check your email",
         "user_not_found": "User not found",
         "email_not_found": "Email not found",
-        "otp_code_incorrect_or_expired": "OTP code is incorrect or has expired"
+        "otp_code_incorrect_or_expired": "OTP code is incorrect or has expired",
+        "twitter_successfull": "Authentication with Twitter successful",
+        "google_successfull": "Authentication with Google successful",
+        "facebook_successfull": "Authentication with Facebook successful"
     },
     "helper": {
         "failed_generate_unique_username": "Failed to generate unique username",

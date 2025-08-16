@@ -507,7 +507,7 @@ paths:
                       profile_picture:
                         {
                           type: string,
-                          example: "/src/assets/profiles/johndoe.png",
+                          example: "https://...",
                         }
                   token:
                     {
@@ -524,6 +524,129 @@ paths:
                   success: { type: boolean, example: false }
                   message:
                     { type: string, example: "Google authentication failed" }
+
+  /api/auth/facebook:
+    get:
+      summary: Redirect ke Facebook OAuth
+      description: |
+        Endpoint untuk memulai proses login/register dengan Facebook OAuth. User akan diarahkan ke halaman login Facebook.
+      tags: [Auth]
+      responses:
+        "302":
+          description: Redirect ke halaman login Facebook
+
+  /api/auth/facebook/callback:
+    get:
+      summary: Callback dari Facebook OAuth
+      description: |
+        Endpoint callback setelah user login dengan Facebook. Jika sukses, user akan otomatis login/register dan menerima JWT.
+        - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+        - Jika email sudah ada dan sudah verifikasi, user langsung login.
+        - Jika email belum ada, user baru akan dibuat.
+      tags: [Auth]
+      responses:
+        "201":
+          description: Register/login dengan Facebook berhasil, JWT dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message:
+                    {
+                      type: string,
+                      example: "Authentication with Facebook successful",
+                    }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      fullname: { type: string, example: "John Doe" }
+                      username: { type: string, example: "johndoe" }
+                      email: { type: string, example: "john@example.com" }
+                      profile_picture:
+                        {
+                          type: string,
+                          example: "https://",
+                        }
+                  token:
+                    {
+                      type: string,
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    }
+        "400":
+          description: Validasi gagal atau error lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message:
+                    { type: string, example: "Facebook authentication failed" }
+
+  /api/auth/twitter:
+    get:
+      summary: Redirect ke Twitter OAuth
+      description: |
+        Endpoint untuk memulai proses login/register dengan Twitter OAuth. User akan diarahkan ke halaman login Twitter.
+      tags: [Auth]
+      responses:
+        "302":
+          description: Redirect ke halaman login Twitter
+
+  /api/auth/twitter/callback:
+    get:
+      summary: Callback dari Twitter OAuth
+      description: |
+        Endpoint callback setelah user login dengan Twitter. Jika sukses, user akan otomatis login/register dan menerima JWT.
+        - Jika email sudah ada dan belum verifikasi, akun akan diaktifkan.
+        - Jika email sudah ada dan sudah verifikasi, user langsung login.
+        - Jika email belum ada, user baru akan dibuat.
+      tags: [Auth]
+      responses:
+        "201":
+          description: Register/login dengan Twitter berhasil, JWT dikembalikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message:
+                    {
+                      type: string,
+                      example: "Authentication with Twitter successful",
+                    }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1 }
+                      fullname: { type: string, example: "John Doe" }
+                      username: { type: string, example: "johndoe" }
+                      email: { type: string, example: "john@example.com" }
+                      profile_picture:
+                        {
+                          type: string,
+                          example: "https://...",
+                        }
+                  token:
+                    {
+                      type: string,
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    }
+        "400":
+          description: Validasi gagal atau error lain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message:
+                    { type: string, example: "Twitter authentication failed" }
+
 
   /api/users/current:
     get:

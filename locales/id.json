@@ -33,7 +33,10 @@
         "otp_resend": "OTP telah dikirim ulang, silakan periksa email Anda",
         "user_not_found": "Pengguna tidak ditemukan",
         "email_not_found": "Email tidak ditemukan",
-        "otp_code_incorrect_or_expired": "Kode OTP salah atau sudah kedaluwarsa"
+        "otp_code_incorrect_or_expired": "Kode OTP salah atau sudah kedaluwarsa",
+        "twitter_successfull": "Autentikasi dengan Twitter berhasil",
+        "google_successfull": "Autentikasi dengan Google berhasil",
+        "facebook_successfull": "Autentikasi dengan Facebook berhasil"
     },
     "helper": {
         "failed_generate_unique_username": "Gagal membuat nama pengguna unik",
