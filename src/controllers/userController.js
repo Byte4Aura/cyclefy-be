@@ -32,6 +32,21 @@ const updateCurrentUser = async (req, res, next) => {
     }
 }
 
+const updateProfilePicture = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const file = req.file;
+        const result = await userService.uploadProfilePicture(userId, file);
+        res.status(200).json({
+            success: true,
+            message: req.__("user.update_profile_picture_successful"),
+            data: result
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
 export default {
-    currentUser, updateCurrentUser,
+    currentUser, updateCurrentUser, updateProfilePicture
 }

@@ -17,7 +17,7 @@ oauthRouter.get('/api/auth/google/callback',
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "Authentication with Google successful",
+            message: "auth.google_successfull",
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,
@@ -36,14 +36,14 @@ oauthRouter.get('/api/auth/facebook', passport.authenticate("facebook", {
 }));
 
 // Callback from Facebook
-oauthRouter.get('/api/auth/google/callback',
+oauthRouter.get('/api/auth/facebook/callback',
     passport.authenticate("facebook", { failureRedirect: '/login' }),
     (req, res) => {
         // Login success using facebook
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "Authentication with Facebook successful",
+            message: "auth.facebook_successfull",
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,
@@ -66,7 +66,7 @@ oauthRouter.get('/api/auth/twitter/callback',
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "Authentication with Twitter successful",
+            message: "auth.twitter_successfull",
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,

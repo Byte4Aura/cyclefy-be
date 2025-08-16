@@ -4,6 +4,7 @@ import userController from "../controllers/userController.js";
 import addressController from "../controllers/addressController.js";
 import phoneController from "../controllers/phoneController.js";
 import { geocodeAddress } from "../application/nodeGeocoder.js";
+import { uploadProfilePictureMiddleware } from "../middlewares/uploadMiddleware.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -11,6 +12,7 @@ const userRouter = express.Router();
 // User API
 userRouter.get('/users/current', authMiddleware, userController.currentUser);
 userRouter.patch('/users/current', authMiddleware, userController.updateCurrentUser);
+userRouter.patch('/users/current/profile-picture', authMiddleware, uploadProfilePictureMiddleware, userController.updateProfilePicture)
 
 // Address API
 userRouter.get('/users/current/addresses', authMiddleware, addressController.getAddresses);

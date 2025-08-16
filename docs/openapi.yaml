@@ -647,7 +647,6 @@ paths:
                   message:
                     { type: string, example: "Twitter authentication failed" }
 
-
   /api/users/current:
     get:
       summary: Mendapatkan data user saat ini
@@ -812,6 +811,86 @@ paths:
                       type: object,
                       example: { oldPassword: ["Old password is incorrect"] },
                     }
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+
+  /api/users/current/profile-picture:
+    patch:
+      summary: Upload foto profil user saat ini
+      description: |
+        Mengganti foto profil user yang sedang login. File gambar dikirim sebagai form-data dengan field profile_picture
+      tags:
+        - User
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token JWT
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile_picture:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Foto profil berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Update profile picture successful"
+                  data:
+                    type: object
+                    properties:
+                      profile_picture:
+                        type: string
+                        example: "/src/assets/profiles/user_1_1755334590343.jpg"
+        "400":
+          description: Validasi gagal atau file tidak ditemukan
+          content:
+            application/json:
+              example:
+                success: false
+                message: "No file uploaded"
+                errors: null
         "401":
           description: Unauthorized (token tidak valid/expired)
           content:
