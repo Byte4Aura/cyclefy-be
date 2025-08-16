@@ -59,7 +59,12 @@
     },
     "phone": {
         "not_found": "Phone not found",
-        "update_successful": "Update phone for current user successful."
+        "duplicate": "Nomor telepon sudah ditambahkan",
+        "get_list_successful": "Get phone list successful.",
+        "get_detail_successful": "Get phone detail successful.",
+        "create_successful": "Create phone successful.",
+        "update_successful": "Update phone for current user successful.",
+        "delete_successful": "Delete phone successful."
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation.",

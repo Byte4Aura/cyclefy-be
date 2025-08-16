@@ -37,7 +37,7 @@ const createAddress = async (req, res, next) => {
         const userId = req.user.id;
         const request = req.body;
         const result = await addressService.createAddress(userId, request, req);
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             message: req.__('address.create_successful'),
             data: result

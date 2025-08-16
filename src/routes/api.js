@@ -20,7 +20,11 @@ userRouter.patch('/users/current/addresses/:addressId', authMiddleware, addressC
 userRouter.delete('/users/current/addresses/:addressId', authMiddleware, addressController.deleteAddress);
 
 // Phone API
+userRouter.get('/users/current/phones', authMiddleware, phoneController.getPhones);
+userRouter.post('/users/current/phones', authMiddleware, phoneController.createPhone);
+userRouter.get('/users/current/phones/:phoneId', authMiddleware, phoneController.getPhoneById);
 userRouter.patch('/users/current/phones/:phoneId', authMiddleware, phoneController.updatePhone);
+userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneController.deletePhone);
 
 
 userRouter.get('/test/:query', async (req, res, next) => {
