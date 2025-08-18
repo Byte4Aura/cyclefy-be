@@ -1,5 +1,6 @@
 import { logger } from "../application/logging.js";
 import userService from "../services/userService.js";
+import fs from "fs/promises";
 
 const currentUser = async (req, res, next) => {
     try {
@@ -43,6 +44,13 @@ const updateProfilePicture = async (req, res, next) => {
             data: result
         })
     } catch (error) {
+        if (req.file && req.file.path) {
+            try {
+                await fs.unlink(req.file.path);
+            } catch (error) {
+                logger.error(`updateProfilePicture in userController.js. Failed to delete uploaded file: ${req.file.path}`, error);
+            }
+        }
         next(error);
     }
 }

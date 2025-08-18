@@ -31,7 +31,7 @@ export const validate = (schema, request, req = null) => {
                 } else if (message.includes('is not allowed')) {
                     message = req.__('validation.not_allowed', { field: key });
                 }
-                console.log(`message: ${message}`);
+                console.log(`[validation.js] message: ${message}`);
             }
             errors[key].push(message);
         });

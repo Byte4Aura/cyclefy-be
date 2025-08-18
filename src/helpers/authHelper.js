@@ -8,7 +8,6 @@ export const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toStrin
 
 export const downloadAndSaveProfileIamge = async (user) => {
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`;
-    console.log(avatarUrl);
     const profileDir = path.resolve('src/assets/profiles');
     const profilePath = path.join(profileDir, `${user.username}.png`);
     try {
@@ -25,7 +24,7 @@ export const downloadAndSaveProfileIamge = async (user) => {
         // Update User profile_picture
         await prismaClient.user.update({
             where: { id: user.id },
-            data: { profile_picture: `/src/assets/profiles/${user.username}.png` }
+            data: { profile_picture: `/assets/profiles/${user.username}.png` }
         });
     } catch (error) {
         // Optional: log error, but register still success

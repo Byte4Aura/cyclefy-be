@@ -4,7 +4,9 @@ import { getCurrentUserValidation, updateUserValidation } from "../validations/u
 import { validate } from "../validations/validation.js";
 import bcrypt from "bcrypt";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
+import { logger } from "../application/logging.js";
+import { getProfilePictureUrl, publicPathToDiskPath } from "../helpers/fileHelper.js";
 
 const currentUser = async (userId, reqObject) => {
     userId = validate(getCurrentUserValidation, userId, reqObject);
@@ -39,7 +41,7 @@ const currentUser = async (userId, reqObject) => {
         }
     });
     if (!user) throw new ResponseError(404, "user.not_found");
-
+    user.profile_picture = getProfilePictureUrl(reqObject, user.profile_picture);
     return user;
 }
 
@@ -74,27 +76,34 @@ const updateCurrentUser = async (userId, requestBody, reqObject) => {
 }
 
 const uploadProfilePicture = async (userId, file) => {
-    if (!file) throw new Error("file.no_file_uploaded");
+    if (!file) throw new ResponseError(400, "file.no_file_uploaded");
 
     // Find user
     const user = await prismaClient.user.findUnique({
         where: { id: userId }
     });
-    if (!user) throw new Error("user.not_found");
-
-    // Delete old profile picture file
-    if (user.profile_picture && user.profile_picture.includes("/src/assets/profiles/")) {
-        const oldPath = path.resolve("." + user.profile_picture);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-    }
+    if (!user) throw new ResponseError(404, "user.not_found");
 
     // Update user with new file
-    const newPath = `/src/assets/profiles/${file.filename}`;
+    const newPath = `/assets/profiles/${file.filename}`;
     await prismaClient.user.update({
         where: { id: userId },
         data: { profile_picture: newPath }
     });
 
+    // Delete old profile picture file
+    if (user.profile_picture && user.profile_picture.includes("/assets/profiles/")) {
+        // const oldPath = path.resolve("." + user.profile_picture);
+        // if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+
+        // const oldPath = path.resolve("." + user.profile_picture);
+        const oldPath = publicPathToDiskPath(user.profile_picture);
+        try {
+            await fs.unlink(oldPath);
+        } catch (error) {
+            logger.error(`uploadProfilePicture in userService.js. Failed to delete old profile picture: ${oldPath}`, error);
+        }
+    }
     return { profile_picture: newPath }
 }
 
