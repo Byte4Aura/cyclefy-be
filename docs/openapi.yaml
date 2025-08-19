@@ -86,7 +86,7 @@ paths:
                       profile_picture:
                         {
                           type: string,
-                          example: "/src/assets/profiles/johndoe.png",
+                          example: "http://.../assets/profiles/johndoe.png",
                         }
         "200":
           description: OTP dikirim ulang ke email user yang belum diverifikasi
@@ -438,7 +438,7 @@ paths:
                       profile_picture:
                         {
                           type: string,
-                          example: "/src/assets/profiles/johndoe.png",
+                          example: "http://.../assets/profiles/johndoe.png",
                         }
                   token:
                     {
@@ -696,7 +696,7 @@ paths:
                       profile_picture:
                         {
                           type: string,
-                          example: "/src/assets/profiles/johndoe.png",
+                          example: "http://.../assets/profiles/johndoe.png",
                         }
                       is_active: { type: boolean, example: true }
                       phones:
@@ -882,7 +882,7 @@ paths:
                     properties:
                       profile_picture:
                         type: string
-                        example: "/src/assets/profiles/user_1_1755334590343.jpg"
+                        example: "http://.../assets/profiles/user_1_1755334590343.jpg"
         "400":
           description: Validasi gagal atau file tidak ditemukan
           content:

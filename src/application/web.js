@@ -46,6 +46,7 @@ web.use(publicRouter);
 web.use(oauthRouter);
 web.use('/api', userRouter);
 
+web.use('/assets/profiles', express.static(path.join(__dirname, '../../src/assets/profiles')));
 web.use((req, res, next) => {
     res.status(404).json({
         success: false,
