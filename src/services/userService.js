@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs/promises";
 import { logger } from "../application/logging.js";
-import { getProfilePictureUrl, publicPathToDiskPath } from "../helpers/fileHelper.js";
+import { getPictureUrl, getProfilePictureUrl, publicPathToDiskPath } from "../helpers/fileHelper.js";
 
 const currentUser = async (userId, reqObject) => {
     userId = validate(getCurrentUserValidation, userId, reqObject);
@@ -104,7 +104,7 @@ const uploadProfilePicture = async (userId, file) => {
             logger.error(`uploadProfilePicture in userService.js. Failed to delete old profile picture: ${oldPath}`, error);
         }
     }
-    return { profile_picture: newPath }
+    return { profile_picture: getPictureUrl(newPath) }
 }
 
 export default {

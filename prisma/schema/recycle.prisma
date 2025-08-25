@@ -67,8 +67,19 @@ model RecycleLocation {
     updated_at    DateTime @updatedAt
 
     recycleLocationCategories RecycleLocationCategories[]
+    RecycleLocationImage      RecycleLocationImage[]
 
     @@map("recycle_locations")
+}
+
+model RecycleLocationImage {
+    id                  Int             @id @default(autoincrement())
+    recycle_location    RecycleLocation @relation(fields: [recycle_location_id], references: [id])
+    recycle_location_id Int
+    image_path          String          @db.VarChar(255)
+    image_name          String          @db.VarChar(255)
+    image_size          Int
+    created_at          DateTime        @default(now())
 }
 
 model RecycleLocationCategories {

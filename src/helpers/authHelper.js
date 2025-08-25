@@ -49,7 +49,7 @@ export const generateUniqueUsername = async (baseName) => {
 
 export const sendEmailVerificationOTP = async (user) => {
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); //10 minute
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); //15 minute
     await prismaClient.emailVerification.create({
         data: {
             user_id: user.id,
@@ -62,13 +62,13 @@ export const sendEmailVerificationOTP = async (user) => {
     await sendMail({
         to: user.email,
         subject: "Cyclefy - Email Verification OTP",
-        html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 10 minutes.</p>`
+        html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 15 minutes.</p>`
     });
 }
 
 export const sendResetPasswordOTPHelper = async (user) => {
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); //10 minute
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); //15 minute
     await prismaClient.passwordReset.create({
         data: {
             user_id: user.id,
@@ -82,6 +82,6 @@ export const sendResetPasswordOTPHelper = async (user) => {
     await sendMail({
         to: user.email,
         subject: "Cyclefy - Password Reset OTP",
-        html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 10 minutes.</p>`
+        html: `<p>Your OTP code is: <b>${otp}</b></p><p>This code will expire in 15 minutes.</p>`
     });
 }
