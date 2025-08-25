@@ -5,6 +5,9 @@ import addressController from "../controllers/addressController.js";
 import phoneController from "../controllers/phoneController.js";
 import { geocodeAddress } from "../application/nodeGeocoder.js";
 import { uploadProfilePictureMiddleware } from "../middlewares/uploadMiddleware.js";
+import categoryController from "../controllers/categoryController.js";
+import { uploadDonationImageMiddleware } from "../middlewares/donations/uploadDonationMiddleware.js";
+import donationController from "../controllers/donationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -13,6 +16,9 @@ const userRouter = express.Router();
 userRouter.get('/users/current', authMiddleware, userController.currentUser);
 userRouter.patch('/users/current', authMiddleware, userController.updateCurrentUser);
 userRouter.patch('/users/current/profile-picture', authMiddleware, uploadProfilePictureMiddleware, userController.updateProfilePicture)
+
+// Categories API
+userRouter.get('/categories', authMiddleware, categoryController.getCategories);
 
 // Address API
 userRouter.get('/users/current/addresses', authMiddleware, addressController.getAddresses);
@@ -28,6 +34,10 @@ userRouter.get('/users/current/phones/:phoneId', authMiddleware, phoneController
 userRouter.patch('/users/current/phones/:phoneId', authMiddleware, phoneController.updatePhone);
 userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneController.deletePhone);
 
+// Donation API
+userRouter.get('/donations', authMiddleware,);
+userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
+userRouter.get('/donations/:donationId', authMiddleware,);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

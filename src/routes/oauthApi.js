@@ -17,7 +17,7 @@ oauthRouter.get('/api/auth/google/callback',
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "auth.google_successfull",
+            message: req.__("auth.google_successfull"),
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,
@@ -43,7 +43,7 @@ oauthRouter.get('/api/auth/facebook/callback',
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "auth.facebook_successfull",
+            message: req.__("auth.facebook_successfull"),
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,
@@ -66,7 +66,7 @@ oauthRouter.get('/api/auth/twitter/callback',
         const token = generateJWT(req.user);
         res.status(201).json({
             success: true,
-            message: "auth.twitter_successfull",
+            message: req.__("auth.twitter_successfull"),
             data: {
                 id: req.user.id,
                 fullname: req.user.fullname,

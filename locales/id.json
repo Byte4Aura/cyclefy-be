@@ -62,6 +62,7 @@
         "delete_successful": "Berhasil menghapus alamat pengguna berdasarkan ID"
     },
     "phone": {
+        "id_not_a_number": "Phone id bukan angka",
         "not_found": "Nomor telepon tidak ditemukan",
         "duplicate": "Nomor telepon sudah ditambahkan",
         "get_list_successful": "Berhasil mendapatkan daftar nomor telepon",
@@ -71,7 +72,16 @@
         "delete_successful": "Berhasil menghapus nomor telepon"
     },
     "file": {
-        "image_only": "Hanya file gambar yang diizinkan"
+        "image_only": "Hanya file gambar yang diizinkan",
+        "no_file_uploaded": "Tidak ada file yang diunggah"
+    },
+    "category": {
+        "not_found": "Kategori tidak ditemukan",
+        "get_list_successful": "Berhasil mendapatkan daftar kategori"
+    },
+    "donation": {
+        "submitted_detail": "Barang telah diserahkan untuk didonasikan",
+        "create_successful": "Donasi berhasil dibuat"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

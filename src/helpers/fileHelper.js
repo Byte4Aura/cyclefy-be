@@ -12,3 +12,8 @@ export const publicPathToDiskPath = (publicPath) => {
     // remove leading slash, then add src/
     return path.resolve("src" + publicPath);
 };
+
+export const getPictureUrl = (req, path) => {
+    if (!path) return null;
+    return `${req.protocol}://${req.get('host')}${path.replace('/src', '')}`;
+}

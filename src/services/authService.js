@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { logger } from "../application/logging.js";
 import { downloadAndSaveProfileIamge, sendEmailVerificationOTP, sendResetPasswordOTPHelper } from "../helpers/authHelper.js";
 import { generateJWT } from "../helpers/jwtHelper.js";
-import { publicPathToDiskPath } from "../helpers/fileHelper.js";
+import { getPictureUrl, publicPathToDiskPath } from "../helpers/fileHelper.js";
 
 const register = async (requestBody, reqObject) => {
     // Input validation
@@ -166,7 +166,7 @@ const login = async (requestBody, reqObject) => {
             fullname: user.fullname,
             username: user.username,
             email: user.email,
-            profile_picture: publicPathToDiskPath(user.profile_picture)
+            profile_picture: getPictureUrl(reqObject, user.profile_picture)
         }
     };
 }
