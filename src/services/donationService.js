@@ -75,21 +75,8 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
     };
 };
 
-const getDonations = async (query) => {
-    // Parsing pagination
-    const page = parseInt(query.page) > 0 ? parseInt(query.page) : 1;
-    const size = parseInt(query.size) > 0 ? parseInt(query.size) : 10;
+const getDonations = async (page, size, categoryIds, statuses, reqObject) => {
     const skip = (page - 1) * size;
-
-    // Parsing filter
-    let categoryIds = undefined;
-    if (query.category) {
-        categoryIds = query.category.split(',').map(Number).filter(Boolean);
-    }
-    let statuses = undefined;
-    if (query.status) {
-        statuses = query.status.split(',').map(status => status.trim()).filter(Boolean);
-    }
 
     // Build where clause
     const where = {};
@@ -131,11 +118,13 @@ const getDonations = async (query) => {
         description: donation.description,
         images: donation.images.map(img => {
             if (!img.image_path.startsWith("http") || !img.image_path.startsWith("https")) {
-                return getPictureUrl(query.req, img.image_path);
+                return getPictureUrl(reqObject, img.image_path);
             }
-            return img.image_path
+            return img.image_path;
         }),
-        category: donation.category ? { id: donation.category.id, name: donation.category.name } : null,
+        category: donation.category
+            ? { id: donation.category.id, name: donation.category.name }
+            : null,
         status: donation.donationStatusHistories[0]?.status || null,
         updated_at: donation.updated_at,
     }));

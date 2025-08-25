@@ -29,8 +29,24 @@ const createDonation = async (req, res, next) => {
 
 const getDonations = async (req, res, next) => {
     try {
-        // Kirim req ke service agar bisa dipakai getPictureUrl
-        const result = await donationService.getDonations({ ...req.query, req });
+        // Parsing and validate query parameters
+        const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
+        const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
+        const categoryIds = req.query.category
+            ? req.query.category.split(',').map(Number).filter(Boolean)
+            : [];
+        const statuses = req.query.status
+            ? req.query.status.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+
+        const result = await donationService.getDonations(
+            page,
+            size,
+            categoryIds,
+            statuses,
+            req
+        );
+
         res.status(200).json({
             success: true,
             message: req.__('donation.get_list_successful'),
