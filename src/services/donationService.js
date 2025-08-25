@@ -75,4 +75,80 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
     };
 };
 
-export default { createDonation };
+const getDonations = async (query) => {
+    // Parsing pagination
+    const page = parseInt(query.page) > 0 ? parseInt(query.page) : 1;
+    const size = parseInt(query.size) > 0 ? parseInt(query.size) : 10;
+    const skip = (page - 1) * size;
+
+    // Parsing filter
+    let categoryIds = undefined;
+    if (query.category) {
+        categoryIds = query.category.split(',').map(Number).filter(Boolean);
+    }
+    let statuses = undefined;
+    if (query.status) {
+        statuses = query.status.split(',').map(status => status.trim()).filter(Boolean);
+    }
+
+    // Build where clause
+    const where = {};
+    if (categoryIds && categoryIds.length > 0) {
+        where.category_id = { in: categoryIds };
+    }
+    if (statuses && statuses.length > 0) {
+        // Cari donation yang status terakhirnya ada di status filter
+        where.donationStatusHistories = {
+            some: {
+                status: { in: statuses }
+            }
+        };
+    }
+
+    // Get total count
+    const total = await prismaClient.donation.count({ where });
+
+    // Get data
+    const donations = await prismaClient.donation.findMany({
+        where: where,
+        skip: skip,
+        take: size,
+        // orderBy: { updated_at: "desc" },
+        include: {
+            images: true,
+            category: true,
+            donationStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1 //take last status
+            }
+        }
+    });
+
+    // Mapping response
+    const data = donations.map(donation => ({
+        id: donation.id,
+        item_name: donation.item_name,
+        description: donation.description,
+        images: donation.images.map(img => {
+            if (!img.image_path.startsWith("http") || !img.image_path.startsWith("https")) {
+                return getPictureUrl(query.req, img.image_path);
+            }
+            return img.image_path
+        }),
+        category: donation.category ? { id: donation.category.id, name: donation.category.name } : null,
+        status: donation.donationStatusHistories[0]?.status || null,
+        updated_at: donation.updated_at,
+    }));
+
+    return {
+        meta: {
+            total: total,
+            page: page,
+            size: size,
+            totalPages: Math.ceil(total / size),
+        },
+        data: data
+    };
+}
+
+export default { createDonation, getDonations };

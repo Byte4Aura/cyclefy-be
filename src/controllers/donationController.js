@@ -1,6 +1,8 @@
 import donationService from "../services/donationService.js";
 import fs from "fs/promises";
 import { logger } from "../application/logging.js";
+import { prismaClient } from "../application/database.js";
+import { getPictureUrl } from "../helpers/fileHelper.js";
 
 const createDonation = async (req, res, next) => {
     try {
@@ -25,4 +27,18 @@ const createDonation = async (req, res, next) => {
     }
 };
 
-export default { createDonation };
+const getDonations = async (req, res, next) => {
+    try {
+        // Kirim req ke service agar bisa dipakai getPictureUrl
+        const result = await donationService.getDonations({ ...req.query, req });
+        res.status(200).json({
+            success: true,
+            message: req.__('donation.get_list_successful'),
+            ...result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export default { createDonation, getDonations };

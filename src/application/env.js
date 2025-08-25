@@ -4,6 +4,7 @@ dotenv.config();
 export const env = {
     port: process.env.PORT,
     databaseUrl: process.env.DATABASE_URL,
+    unsplashApiKey: process.env.UNSPLASH_API_KEY,
     mail: {
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,

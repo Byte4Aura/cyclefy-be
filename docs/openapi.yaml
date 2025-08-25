@@ -16,6 +16,11 @@ tags:
     description: Dokumentasi seputar alamat user
   - name: Phone
     description: Dokumentasi seputar nomor kontak user
+  - name: Category
+    description: Dokumentasi seputar data-data category
+  - name: Donation
+    description: Dokumentasi seputar fitur donation
+  
 
 paths:
   /api/register:
@@ -1803,6 +1808,174 @@ paths:
       deprecated: false
 
   /api/donations:
+    get:
+      summary: Mendapatkan daftar donasi (list, filter, pagination)
+      description: |
+        Mengambil daftar donasi dengan dukungan filter kategori, status, dan pagination.
+        - Hanya data yang dibutuhkan UI yang dikembalikan (item_name, images, category, status, last_update, description).
+        - Mendukung filter multi-kategori dan multi-status.
+        - Mendukung pagination (page, size).
+        - Hanya dapat diakses oleh user yang sudah login (Authorization token).
+      tags:
+        - Donation
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token JWT user yang sudah login.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Halaman ke berapa (default 1)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Jumlah data per halaman (default 10)
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Filter kategori, bisa lebih dari satu id dipisahkan koma (misal: 1,2,3)"
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Filter status donasi, bisa lebih dari satu status dipisahkan koma (misal: submitted,confirmed)"
+      responses:
+        "200":
+          description: Daftar donasi berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Get donation list successful
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 2
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        item_name:
+                          type: string
+                          example: Baju Layak Pakai
+                        description:
+                          type: string
+                          example: Baju bekas, masih bagus, siap pakai.
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                          example:
+                            - https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&h=350
+                        category:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: Clothes
+                        status:
+                          type: string
+                          example: submitted
+                          description: Status terakhir donasi (submitted, confirmed, completed, failed)
+                        last_update:
+                          type: string
+                          format: date-time
+                          example: "2025-08-25T13:46:42.813Z"
+              examples:
+                success:
+                  value:
+                    success: true
+                    message: Get donation list successful
+                    meta:
+                      total: 2
+                      page: 1
+                      size: 10
+                      totalPages: 1
+                    data:
+                      - id: 1
+                        item_name: Baju Layak Pakai
+                        description: Baju bekas, masih bagus, siap pakai.
+                        images:
+                          - https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&h=350
+                        category:
+                          id: 1
+                          name: Clothes
+                        status: submitted
+                        last_update: "2025-08-25T13:46:42.813Z"
+                      - id: 2
+                        item_name: Buku Pelajaran
+                        description: Buku pelajaran SD-SMP, lengkap dan bersih.
+                        images:
+                          - https://images.pexels.com/photos/4456815/pexels-photo-4456815.jpeg?auto=compress&cs=tinysrgb&h=350
+                          - https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&h=350
+                          - https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&h=350
+                        category:
+                          id: 2
+                          name: Books
+                        status: submitted
+                        last_update: "2025-08-25T13:46:44.374Z"
+        "401":
+            description: Unauthorized (token tidak valid/expired)
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    message:
+                      type: string
+                      example: "Unauthorized. Need Authorization Token"
+                    errors:
+                      type: object
+                      properties:
+                        token:
+                          type: string
+                          example: null
+        "500":
+          description: Internal server error
+
     post:
       deprecated: false
 
