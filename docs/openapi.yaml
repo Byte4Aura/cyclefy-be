@@ -1798,7 +1798,13 @@ paths:
                 message: Nomor telepon tidak ditemukan
                 errors: null
 
+  /api/categories:
+    get:
+      deprecated: false
 
+  /api/donations:
+    post:
+      deprecated: false
 
 
 
