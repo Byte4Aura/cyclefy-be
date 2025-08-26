@@ -1805,8 +1805,82 @@ paths:
 
   /api/categories:
     get:
-      deprecated: false
-
+      summary: Mendapatkan daftar category yang statusnya aktif
+      tags:
+        - Category
+      description: |
+        Mengambil semua data category. Dapat dilakukan filter menggunakan query parameter dengan key search yang akan mencari nama kategori yang mengandung value dari search
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pencarian nama kategori yang mengandung kata search
+      responses:
+        "200":
+          description: Berhasil mendapatkan data category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Get list of categories successful
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: Clothes
+                        description:
+                          type: string
+                          example: Used or new clothes
+                        # icon:
+                        is_active:
+                          type: boolean
+                          example: true
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+  
   /api/users/current/donations:
     get:
       summary: Mendapatkan daftar donasi (list, filter, pagination) user saat ini

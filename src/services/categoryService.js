@@ -1,8 +1,13 @@
 import { prismaClient } from "../application/database.js";
 
-const getCategories = async () => {
+const getCategories = async (searchFilter) => {
     return await prismaClient.category.findMany({
-        where: { is_active: true },
+        where: {
+            is_active: true,
+            name: {
+                contains: searchFilter
+            }
+        },
         // select: {
         //     id: true,
         //     name: true,
