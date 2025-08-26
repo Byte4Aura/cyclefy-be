@@ -1807,15 +1807,14 @@ paths:
     get:
       deprecated: false
 
-  /api/donations:
+  /api/users/current/donations:
     get:
-      summary: Mendapatkan daftar donasi (list, filter, pagination)
+      summary: Mendapatkan daftar donasi (list, filter, pagination) user saat ini
       description: |
-        Mengambil daftar donasi dengan dukungan filter kategori, status, dan pagination.
+        Mengambil daftar donasi milik user yang sedang login saat ini dengan dukungan filter kategori, status, dan pagination.
         - Hanya data yang dibutuhkan UI yang dikembalikan (item_name, images, category, status, last_update, description).
         - Mendukung filter multi-kategori dan multi-status.
         - Mendukung pagination (page, size).
-        - Hanya dapat diakses oleh user yang sudah login (Authorization token).
       tags:
         - Donation
       parameters:
@@ -1824,7 +1823,13 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token JWT user yang sudah login.
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
         - name: page
           in: query
           required: false
@@ -1914,13 +1919,17 @@ paths:
                               type: string
                               example: Clothes
                         status:
-                          type: string
-                          example: submitted
-                          description: Status terakhir donasi (submitted, confirmed, completed, failed)
-                        last_update:
-                          type: string
-                          format: date-time
-                          example: "2025-08-25T13:46:42.813Z"
+                          type: object
+                          properties:
+                            id: 
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "submitted"
+                            updated_at:
+                              type: date-time
+                              example: "2025-08-25T13:46:42.813Z"
               examples:
                 success:
                   value:
@@ -1940,8 +1949,10 @@ paths:
                         category:
                           id: 1
                           name: Clothes
-                        status: submitted
-                        last_update: "2025-08-25T13:46:42.813Z"
+                        status:
+                          id: 1
+                          status: submitted
+                          updated_at: "2025-08-25T13:46:42.813Z"
                       - id: 2
                         item_name: Buku Pelajaran
                         description: Buku pelajaran SD-SMP, lengkap dan bersih.
@@ -1952,8 +1963,10 @@ paths:
                         category:
                           id: 2
                           name: Books
-                        status: submitted
-                        last_update: "2025-08-25T13:46:44.374Z"
+                        status:
+                          id: 1
+                          status: submitted
+                          updated_at: "2025-08-25T13:46:42.813Z"     
         "401":
             description: Unauthorized (token tidak valid/expired)
             content:
@@ -1973,14 +1986,290 @@ paths:
                         token:
                           type: string
                           example: null
-        "500":
-          description: Internal server error
 
+  /api/users/current/donations/{donationId}:
+    get:
+      summary: Mendapatkan detail donasi milik user saat ini
+      description: |
+        Endpoint untuk mendapatkan detail donasi milik user yang sedang login, termasuk informasi barang, kategori, alamat, gambar, dan seluruh riwayat status donasi.
+        Hanya user yang berhak (pemilik donasi) yang dapat mengakses endpoint ini.
+      tags:
+        - Donation
+      parameters:
+        - name: donationId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID donasi yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        "200":
+          description: Detail donasi berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Detail donasi berhasil diambil
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: Sepeda Bekas
+                      description:
+                        type: string
+                        example: Sepeda bekas, masih layak pakai, warna biru.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Sepeda
+                      status:
+                        type: string
+                        example: "submitted"
+                      address:
+                        type: object
+                        properties:
+                          id: { type: integer, example: 2 }
+                          address: { type: string, example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia" }
+                          latitude: { type: number, example: -6.123 }
+                          longitude: { type: number, example: 106.123 }
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - https://.../donation_1_1692950400000.jpg
+                          - https://.../donation_1_1692950401000.jpg
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 1 }
+                            status: { type: string, example: submitted }
+                            status_detail: { type: string, example: Donasi diajukan }
+                            updated_at: { type: string, format: date-time, example: "2025-08-26T10:00:00.000Z" }
+        "400":
+          description: Parameter donasi id tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Donasi ID bukan angka" }
+                  errors: { type: object, example: null }
+        "401":
+            description: Unauthorized (token tidak valid/expired)
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                      example: false
+                    message:
+                      type: string
+                      example: "Unauthorized. Need Authorization Token"
+                    errors:
+                      type: object
+                      properties:
+                        token:
+                          type: string
+                          example: null
+        "404":
+          description: Donasi tidak ditemukan atau bukan milik user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Donasi tidak ditemukan" }
+                  errors: { type: object, example: null }
+
+  /api/donations:
     post:
-      deprecated: false
+      tags:
+        - Donation
+      summary: Membuat donasi baru
+      description: |
+        Endpoint untuk membuat donasi baru. Hanya user yang sudah login yang dapat mengakses endpoint ini.
+        
+        - Mengunggah satu atau lebih gambar donasi (maksimal 5 gambar, maksimal 5MB per gambar).
+        - Semua field wajib diisi.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda Bekas
+                  description: Nama barang yang didonasikan
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda bekas, masih layak pakai, warna biru.
+                  description: Deskripsi barang donasi
+                category_id:
+                  type: integer
+                  example: 1
+                  description: ID kategori donasi
+                address_id:
+                  type: integer
+                  example: 2
+                  description: ID alamat pengambilan barang
+                phone_id:
+                  type: integer
+                  example: 3
+                  description: ID nomor kontak yang bisa dihubungi
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Daftar file gambar donasi (maksimal 5 gambar)
+              required:
+                - item_name
+                - description
+                - category_id
+                - address_id
+                - phone_id
+                - images
+      responses:
+        '201':
+          description: Donasi berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Donasi berhasil dibuat
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: Sepeda Bekas
+                      description:
+                        type: string
+                        example: Sepeda bekas, masih layak pakai, warna biru.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Sepeda
+                      address_id:
+                        type: integer
+                        example: 2
+                      phone_id:
+                        type: integer
+                        example: 3
+                      image:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - https://.../donation_1_1692950400000.jpg
+                          - https://.../donation_1_1692950401000.jpg
+                      status:
+                        type: string
+                        example: submitted
+        '400':
+          description: Validasi gagal atau request tidak sesuai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Field item_name wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
-
-
+  
 
 
 

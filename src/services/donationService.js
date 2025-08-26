@@ -75,7 +75,7 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
     };
 };
 
-const getDonations = async (page, size, categoryIds, statuses, reqObject) => {
+const getDonations = async (userId, page, size, categoryIds, statuses, reqObject) => {
     const skip = (page - 1) * size;
 
     // Build where clause
@@ -97,7 +97,10 @@ const getDonations = async (page, size, categoryIds, statuses, reqObject) => {
 
     // Get data
     const donations = await prismaClient.donation.findMany({
-        where: where,
+        where: {
+            ...where,
+            user_id: userId,
+        },
         skip: skip,
         take: size,
         // orderBy: { updated_at: "desc" },
@@ -125,8 +128,14 @@ const getDonations = async (page, size, categoryIds, statuses, reqObject) => {
         category: donation.category
             ? { id: donation.category.id, name: donation.category.name }
             : null,
-        status: donation.donationStatusHistories[0]?.status || null,
-        updated_at: donation.updated_at,
+        // status: donation.donationStatusHistories[0]?.status || null,
+        status: {
+            id: donation.donationStatusHistories[0].id,
+            status: donation.donationStatusHistories[0].status,
+            updated_at: donation.donationStatusHistories[0].updated_at
+        }
+        // updated_at: donation.updated_at,
+        // updated_at: donation.donationStatusHistories[donation.donationStatusHistories.length - 1].updated_at,
     }));
 
     return {
@@ -140,4 +149,67 @@ const getDonations = async (page, size, categoryIds, statuses, reqObject) => {
     };
 }
 
-export default { createDonation, getDonations };
+const getDonationDetail = async (userId, donationId, reqObject) => {
+    const donation = await prismaClient.donation.findUnique({
+        where: {
+            id: donationId,
+            user_id: userId
+        },
+        include: {
+            category: true,
+            images: true,
+            address: true,
+            donationStatusHistories: {
+                orderBy: { created_at: "asc" },
+                include: {
+                    updated: {
+                        select: {
+                            id: true,
+                            fullname: true,
+                            username: true,
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    if (!donation || donation.user_id !== userId) throw new ResponseError(404, "donation.not_found");
+
+    // Mapping response
+    return {
+        id: donation.id,
+        item_name: donation.item_name,
+        description: donation.description,
+        images: donation.images.map(img => {
+            if (!img.image_path.startsWith("http") || !img.image_path.startsWith("https")) {
+                return getPictureUrl(reqObject, img.image_path);
+            }
+            return img.image_path;
+        }),
+        category: { id: donation.category.id, name: donation.category.name },
+        status: donation.donationStatusHistories[donation.donationStatusHistories.length - 1]?.status || null,
+        address: {
+            id: donation.address.id,
+            address: donation.address.address,
+            latitue: donation.address.latitude,
+            longitude: donation.address.longitude
+        },
+        status_histories: donation.donationStatusHistories.map(status => ({
+            id: status.id,
+            status: status.status,
+            status_detail: reqObject.__(status.status_detail),
+            // created_at: status.created_at,
+            updated_at: status.updated_at,
+            // updated_by: status.updated ? {
+            //     id: status.updated.id,
+            //     fullname: status.updated.fullname,
+            //     username: status.updated.username
+            // } : null,
+        })),
+        // updated_at: donation.updated_at,
+        // updated_at: donation.donationStatusHistories[donation.donationStatusHistories.length - 1].updated_at,
+    }
+}
+
+export default { createDonation, getDonations, getDonationDetail };

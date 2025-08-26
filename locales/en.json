@@ -80,12 +80,15 @@
         "get_list_successful": "Get list of categories succesful"
     },
     "donation": {
+        "not_found": "Donation not found",
+        "id_not_a_number": "Donation id is not a number",
         "submitted_detail": "The item has been submitted for donation",
         "confirmed_detail": "Donation has been confirmed and is ready for processing",
         "completed_detail": "Donation has been successfully delivered to the recipient",
         "cancelled_detail": "Donation was cancelled",
         "create_successful": "Donation created successfully",
-        "get_list_successful": "Get donation list successful"
+        "get_list_successful": "Get donation list successful",
+        "get_detail_successful": "Get donation detail successful"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

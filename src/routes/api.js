@@ -36,7 +36,8 @@ userRouter.patch('/users/current/phones/:phoneId', authMiddleware, phoneControll
 userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneController.deletePhone);
 
 // Donation API
-userRouter.get('/donations', authMiddleware, donationController.getDonations);
+userRouter.get('/users/current/donations', authMiddleware, donationController.getDonations);
+userRouter.get('/users/current/donations/:donationId', authMiddleware, donationController.getDonationDetail);
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
 userRouter.get('/donations/:donationId', authMiddleware,);
 

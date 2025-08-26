@@ -3,6 +3,8 @@ import fs from "fs/promises";
 import { logger } from "../application/logging.js";
 import { prismaClient } from "../application/database.js";
 import { getPictureUrl } from "../helpers/fileHelper.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
+import { ResponseError } from "../errors/responseError.js";
 
 const createDonation = async (req, res, next) => {
     try {
@@ -39,7 +41,10 @@ const getDonations = async (req, res, next) => {
             ? req.query.status.split(',').map(s => s.trim()).filter(Boolean)
             : [];
 
+        const userId = req.user.id
+
         const result = await donationService.getDonations(
+            userId,
             page,
             size,
             categoryIds,
@@ -57,4 +62,20 @@ const getDonations = async (req, res, next) => {
     }
 };
 
-export default { createDonation, getDonations };
+const getDonationDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const donationId = Number(req.params.donationId);
+        if (!isRequestParameterNumber(donationId)) throw new ResponseError(400, 'donation.id_not_a_number');
+        const result = await donationService.getDonationDetail(userId, donationId, req);
+        res.status(201).json({
+            success: true,
+            message: req.__('donation.get_detail_successful'),
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export default { createDonation, getDonations, getDonationDetail };
