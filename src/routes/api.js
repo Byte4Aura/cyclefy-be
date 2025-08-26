@@ -8,6 +8,7 @@ import { uploadProfilePictureMiddleware } from "../middlewares/uploadMiddleware.
 import categoryController from "../controllers/categoryController.js";
 import { uploadDonationImageMiddleware } from "../middlewares/donations/uploadDonationMiddleware.js";
 import donationController from "../controllers/donationController.js";
+import { env } from "../application/env.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -35,7 +36,8 @@ userRouter.patch('/users/current/phones/:phoneId', authMiddleware, phoneControll
 userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneController.deletePhone);
 
 // Donation API
-userRouter.get('/donations', authMiddleware,);
+userRouter.get('/users/current/donations', authMiddleware, donationController.getDonations);
+userRouter.get('/users/current/donations/:donationId', authMiddleware, donationController.getDonationDetail);
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
 userRouter.get('/donations/:donationId', authMiddleware,);
 
@@ -46,6 +48,18 @@ userRouter.get('/test/:query', async (req, res, next) => {
         data: result
     });
 });
+
+userRouter.get('/tes/pexels/:query', async (req, res) => {
+    const response = await fetch(`https://api.pexels.com/v1/search?query=${req.params.query}`, {
+        headers: {
+            'Authorization': 'EXoKdHXVmyVkHkLtVatSDz5zRh0EhY4zFwWTJY0a5XXWDI7pn2Cy9ija'
+        }
+    });
+    const data = await response.json();
+    res.json({
+        data: data.photos[0].src.medium
+    });
+})
 
 export {
     userRouter

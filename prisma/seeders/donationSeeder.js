@@ -1,0 +1,86 @@
+import { getRandomStatus, getRandomUnsplashImageUrl } from "./helper/donationSeederHelper.js";
+
+export default async function donationSeeder(prisma, users, categories, addresses, phones) {
+    // Dummy data
+    const dummyDonations = [
+        {
+            item_name: "Baju Layak Pakai",
+            description: "Baju bekas, masih bagus, siap pakai.",
+        },
+        {
+            item_name: "Buku Pelajaran",
+            description: "Buku pelajaran SD-SMP, lengkap dan bersih.",
+        },
+        {
+            item_name: "Handphone Bekas",
+            description: "HP Android, masih nyala, minus casing.",
+        },
+        {
+            item_name: "Meja Belajar",
+            description: "Meja belajar kayu, kokoh, ada sedikit goresan.",
+        },
+        {
+            item_name: "Kursi Lipat",
+            description: "Kursi lipat, ringan, mudah dibawa.",
+        }
+    ];
+
+    for (let i = 0; i < dummyDonations.length; i++) {
+        // Random user, category, address, phone
+        const user = users[i % users.length];
+        const category = categories[i % categories.length];
+        const address = addresses[i % addresses.length];
+        const phone = phones[i % phones.length];
+
+        // Create donation
+        const donation = await prisma.donation.create({
+            data: {
+                user_id: user.id,
+                item_name: dummyDonations[i].item_name,
+                description: dummyDonations[i].description,
+                category_id: category.id,
+                address_id: address.id,
+                phone_id: phone.id,
+            }
+        });
+
+        // Create images (1-3 per donation)
+        const imageCount = Math.floor(Math.random() * 3) + 1;
+        for (let j = 0; j < imageCount; j++) {
+            await prisma.donationImage.create({
+                data: {
+                    donation_id: donation.id,
+                    image_path: await getRandomUnsplashImageUrl(),
+                    image_name: `unsplash_${j + 1}.jpg`,
+                    image_size: 0 // Unknown for dummy url data using unsplash
+                }
+            });
+        }
+
+        // Create status histories (atleast 1 status)
+        // Status pertama selalu submitted, lalu random status lain (optional)
+        await prisma.donationStatusHistory.create({
+            data: {
+                donation_id: donation.id,
+                status: "submitted",
+                status_detail: "donation.submitted_detail",
+                // updated_by: user.id
+            }
+        });
+
+        // Optional: tambah status lain (misal: confirmed, completed)
+        if (Math.random() > 0.5) {
+            const status2 = getRandomStatus();
+            if (status2 !== "submitted") {
+                await prisma.donationStatusHistory.create({
+                    data: {
+                        donation_id: donation.id,
+                        status: status2,
+                        status_detail: `donation.${status2}_detail`,
+                        // updated_by: user.id
+                    }
+                });
+            }
+        }
+    }
+}

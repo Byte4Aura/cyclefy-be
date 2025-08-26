@@ -1,6 +1,10 @@
 import donationService from "../services/donationService.js";
 import fs from "fs/promises";
 import { logger } from "../application/logging.js";
+import { prismaClient } from "../application/database.js";
+import { getPictureUrl } from "../helpers/fileHelper.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
+import { ResponseError } from "../errors/responseError.js";
 
 const createDonation = async (req, res, next) => {
     try {
@@ -25,4 +29,53 @@ const createDonation = async (req, res, next) => {
     }
 };
 
-export default { createDonation };
+const getDonations = async (req, res, next) => {
+    try {
+        // Parsing and validate query parameters
+        const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
+        const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
+        const categoryIds = req.query.category
+            ? req.query.category.split(',').map(Number).filter(Boolean)
+            : [];
+        const statuses = req.query.status
+            ? req.query.status.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+
+        const userId = req.user.id
+
+        const result = await donationService.getDonations(
+            userId,
+            page,
+            size,
+            categoryIds,
+            statuses,
+            req
+        );
+
+        res.status(200).json({
+            success: true,
+            message: req.__('donation.get_list_successful'),
+            ...result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getDonationDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const donationId = Number(req.params.donationId);
+        if (!isRequestParameterNumber(donationId)) throw new ResponseError(400, 'donation.id_not_a_number');
+        const result = await donationService.getDonationDetail(userId, donationId, req);
+        res.status(201).json({
+            success: true,
+            message: req.__('donation.get_detail_successful'),
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export default { createDonation, getDonations, getDonationDetail };
