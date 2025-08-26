@@ -1,4 +1,4 @@
-import { getRandomStatus, getRandomUnsplashImageUrl } from "./helper/donationSeederHelper.js";
+import { getRandomDonationStatusSequence, getRandomUnsplashImageUrl } from "./helper/donationSeederHelper.js";
 
 export default async function donationSeeder(prisma, users, categories, addresses, phones) {
     // Dummy data
@@ -57,30 +57,17 @@ export default async function donationSeeder(prisma, users, categories, addresse
             });
         }
 
-        // Create status histories (atleast 1 status)
-        // Status pertama selalu submitted, lalu random status lain (optional)
-        await prisma.donationStatusHistory.create({
-            data: {
-                donation_id: donation.id,
-                status: "submitted",
-                status_detail: "donation.submitted_detail",
-                // updated_by: user.id
-            }
-        });
-
-        // Optional: tambah status lain (misal: confirmed, completed)
-        if (Math.random() > 0.5) {
-            const status2 = getRandomStatus();
-            if (status2 !== "submitted") {
-                await prisma.donationStatusHistory.create({
-                    data: {
-                        donation_id: donation.id,
-                        status: status2,
-                        status_detail: `donation.${status2}_detail`,
-                        // updated_by: user.id
-                    }
-                });
-            }
+        // Create donation statur histories
+        const statusSequence = getRandomDonationStatusSequence();
+        for (const statusObj of statusSequence) {
+            await prisma.donationStatusHistory.create({
+                data: {
+                    donation_id: donation.id,
+                    status: statusObj.status,
+                    status_detail: statusObj.status_detail,
+                    // updated_by: user.id (opsional, jika ingin menambah user yang update)
+                }
+            });
         }
     }
 }

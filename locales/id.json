@@ -85,7 +85,7 @@
         "submitted_detail": "Barang telah diserahkan untuk didonasikan",
         "confirmed_detail": "Donasi sudah dikonfirmasi dan siap untuk diproses",
         "completed_detail": "Donasi telah berhasil dikirimkan ke penerima",
-        "cancelled_detail": "Donasi dibatalkan",
+        "failed_detail": "Donasi dibatalkan",
         "create_successful": "Donasi berhasil dibuat",
         "get_list_successful": "Berhasil mendapatkan daftar donasi",
         "get_detail_successful": "Berhasil mendapatkan detail donasi"

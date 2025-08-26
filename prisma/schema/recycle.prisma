@@ -80,6 +80,8 @@ model RecycleLocationImage {
     image_name          String          @db.VarChar(255)
     image_size          Int
     created_at          DateTime        @default(now())
+
+    @@map("recycle_location_images")
 }
 
 model RecycleLocationCategories {

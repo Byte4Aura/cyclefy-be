@@ -24,3 +24,25 @@ export const getRandomStatus = () => {
     const statuses = ["submitted", "confirmed", "completed", "failed"];
     return statuses[Math.floor(Math.random() * statuses.length)];
 }
+
+export const getRandomDonationStatusSequence = () => {
+    const sequence = [
+        { status: "submitted", status_detail: "donation.submitted_detail" }
+    ];
+
+    // Random: lanjut ke confirmed atau tidak
+    if (Math.random() < 0.7) { // 70% lanjut ke confirmed
+        sequence.push({ status: "confirmed", status_detail: "donation.confirmed_detail" });
+
+        // Random: lanjut ke completed/failed atau tidak
+        const isCompleted = Math.random() < 0.5; // 50% completed, 50% failed
+        if (Math.random() < 0.6) { // 60% dari yang sudah confirmed lanjut ke status akhir
+            sequence.push({
+                status: isCompleted ? "completed" : "failed",
+                status_detail: `donation.${isCompleted ? "completed" : "failed"}_detail`
+            });
+        }
+    }
+
+    return sequence;
+};
