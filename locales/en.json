@@ -44,6 +44,7 @@
     },
     "user": {
         "not_found": "User not found",
+        "no_address": "User does not have an address yet",
         "get_current_user_successful": "Get current user successful",
         "update_current_user_successful": "Update current user successful",
         "update_profile_picture_successful": "Update profile picture successful",
@@ -107,7 +108,7 @@
             "cancelled_detail": "The barter process was cancelled"
         },
         "create_successful": "Barter created successfully",
-        "get_list_successful": "Get barter list successful",
+        "get_posts_successful": "Get barter posts successful",
         "get_detail_successful": "Get barter detail successful"
     },
     "common": {

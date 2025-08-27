@@ -43,6 +43,7 @@ userRouter.get('/users/current/donations/:donationId', authMiddleware, donationC
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
 
 // Barter API
+userRouter.get('/barters', authMiddleware, uploadBarterImagePostMiddleware, barterController.getBarters);
 userRouter.post('/barters', authMiddleware, uploadBarterImagePostMiddleware, barterController.createBarter);
 
 userRouter.get('/test/:query', async (req, res, next) => {

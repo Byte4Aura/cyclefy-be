@@ -2010,12 +2010,14 @@ paths:
           required: false
           schema:
             type: string
+            example: "1,2"
           description: "Filter kategori, bisa lebih dari satu id dipisahkan koma (misal: 1,2,3)"
         - name: status
           in: query
           required: false
           schema:
             type: string
+            example: "submitted,confirmed"
           description: "Filter status donasi, bisa lebih dari satu status dipisahkan koma (misal: submitted,confirmed)"
       responses:
         "200":
@@ -2442,6 +2444,121 @@ paths:
                         example: null
 
   /api/barters:
+    get:
+      summary: Mendapatkan daftar postingan barter milik user lain
+      description: |
+        Endpoint untuk menampilkan daftar postingan barter milik user lain (bukan milik user yang sedang login).
+        Mendukung pencarian, filter kategori, filter jarak maksimum, dan sorting.
+      tags:
+        - Barter
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
+          description: Pencarian pada item name atau description
+        - name: category
+          in: query
+          required: false
+          schema: { type: string, example: "1,2" }
+          description: Filter berdasarkan kategori
+        - name: maxDistance
+          in: query
+          required: false
+          schema: { type: string, example: "2" }
+          description: Filter postingan dengan jarak maksimum (km) dari address user
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [relevance, nearest, newest]
+          description: Urutan hasil (relevance, nearest, newest). Default relevance
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, default: 1 }
+        - name: size
+          in: query
+          required: false
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Daftar postingan barter berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: "Get list of barters successful" }
+                  meta:
+                    type: object
+                    properties:
+                      total: { type: integer, example: 100 }
+                      page: { type: integer, example: 1 }
+                      size: { type: integer, example: 10 }
+                      totalPages: { type: integer, example: 10 }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer, example: 10 }
+                        item_name: { type: string, example: Buku Komik Naruto }
+                        description: { type: string, example: Komik Naruto volume 1-10, kondisi bagus. }
+                        category:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 2 }
+                            name: { type: string, example: Buku }
+                        address:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 3 }
+                            address: { type: string, example: "Jl. Mawar No. 1, Kabupaten Bandung, Indonesia" }
+                            latitude: { type: number, example: -6.123 }
+                            longitude: { type: number, example: 106.123 }
+                        distance: { type: number, example: 2.5, description: "Jarak terdekat (km) dari daftar alamat user" }
+                        user:
+                          type: object
+                          properties:
+                            id: { type: integer, example: 5 }
+                            profile_picture: { type: string, example: "https://.../username.png" }
+                            username: { type: string, example: "budi123" }
+                            fullname: { type: string, example: "Budi Santoso" }
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+
     post:
       summary: Membuat postingan barter baru
       description: |
@@ -2595,6 +2712,9 @@ paths:
                       token:
                         type: string
                         example: null
+
+
+
 
 
 
