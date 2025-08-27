@@ -34,10 +34,10 @@ const getDonations = async (req, res, next) => {
         // Parsing and validate query parameters
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
-        const categoryIds = req.query.category
-            ? req.query.category.split(',').map(Number).filter(Boolean)
+        const category = req.query.category && req.query.category !== "all"
+            ? req.query.category.split(',').map(category => category.trim()).filter(Boolean)
             : [];
-        const statuses = req.query.status
+        const status = req.query.status && req.query.status !== "all"
             ? req.query.status.split(',').map(s => s.trim()).filter(Boolean)
             : [];
 
@@ -47,8 +47,8 @@ const getDonations = async (req, res, next) => {
             userId,
             page,
             size,
-            categoryIds,
-            statuses,
+            category,
+            status,
             req
         );
 

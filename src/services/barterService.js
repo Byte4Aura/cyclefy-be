@@ -6,7 +6,7 @@ import { getPictureUrl } from "../helpers/fileHelper.js";
 import { ResponseError } from "../errors/responseError.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
 
-const getBarters = async (userId, search, categoryIds, maxDistance, sort, page, size, reqObject) => {
+const getBarters = async (userId, search, category, maxDistance, sort, page, size, reqObject) => {
     // Get all current user addresses
     const userAddresses = await prismaClient.address.findMany({
         where: { user_id: userId }
@@ -17,8 +17,8 @@ const getBarters = async (userId, search, categoryIds, maxDistance, sort, page, 
     const where = {
         user_id: { not: userId }
     };
-    if (categoryIds && categoryIds.length > 0) {
-        where.category_id = { in: categoryIds };
+    if (category && category.length > 0) {
+        where.category = { name: { in: category } };
     }
     if (search) {
         where.OR = [
@@ -77,7 +77,7 @@ const getBarters = async (userId, search, categoryIds, maxDistance, sort, page, 
 
     let filtered = data;
     // Filter data by maxDistance if exists
-    if (typeof maxDistance === 'number') {
+    if (maxDistance && typeof maxDistance === 'number') {
         filtered = data.filter(item => item.distance <= maxDistance);
     }
     // Sorting data
@@ -89,7 +89,8 @@ const getBarters = async (userId, search, categoryIds, maxDistance, sort, page, 
     } //sort by relevance = default sort
 
     // Pagination meta
-    const total = await prismaClient.barter.count({ where: where });
+    // const total = await prismaClient.barter.count({ where: where });
+    const total = filtered.length;
 
     return {
         meta: {

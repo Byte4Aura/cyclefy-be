@@ -89,7 +89,7 @@ model BorrowApplication {
     duration_to    DateTime
     // status        BorrowApplicationStatus @default(request_submitted)
     // status_detail String                  @db.VarChar(255)
-    decline_reason String   @db.VarChar(255)
+    decline_reason String?  @db.VarChar(255)
     created_at     DateTime @default(now())
     updated_at     DateTime @updatedAt
 

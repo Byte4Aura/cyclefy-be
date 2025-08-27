@@ -93,6 +93,7 @@
     },
     "barter": {
         "not_found": "Barter tidak ditemukan",
+        "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "id_not_a_number": "Barter ID bukan angka",
         "posting": {
             "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan barter",
@@ -101,15 +102,18 @@
             "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
             "cancelled_detail": "Proses barter dibatalkan"
         },
-        "request": {
+        "application": {
             "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",
             "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
             "cancelled_detail": "Proses barter dibatalkan"
         },
         "create_successful": "Barter berhasil dibuat",
-        "get_list_successful": "Berhasil mendapatkan daftar barter",
+        "get_posts_successful": "Berhasil mendapatkan daftar barter",
         "get_detail_successful": "Berhasil mendapatkan detail barter"
+    },
+    "barter_application": {
+        "create_successful": "Pengajuan barter berhasil dibuat"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

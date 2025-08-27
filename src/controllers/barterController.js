@@ -5,8 +5,8 @@ import { logger } from "../application/logging.js";
 const getBarters = async (req, res, next) => {
     try {
         const searchParam = req.query.search ?? "";
-        const categoryIds = req.query.category
-            ? req.query.category.split(',').map(Number).filter(Boolean)
+        const category = req.query.category && req.query.category !== "all"
+            ? req.query.category.split(',').map(category => category.trim()).filter(Boolean)
             : [];
         const maxDistance = Number(req.query.maxDistance);
         const sortBy = req.query.sortBy ?? "relevance"
@@ -14,21 +14,13 @@ const getBarters = async (req, res, next) => {
         const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
         const userId = req.user.id;
 
-        const result = await barterService.getBarters(userId, searchParam, categoryIds, maxDistance, sortBy, page, size, req)
+        const result = await barterService.getBarters(userId, searchParam, category, maxDistance, sortBy, page, size, req)
         res.status(201).json({
             success: true,
             message: req.__('barter.get_posts_successful'),
             ...result
         });
     } catch (error) {
-        // Hapus file jika gagal
-        if (req.files && Array.isArray(req.files)) {
-            for (const file of req.files) {
-                if (file && file.path) {
-                    try { await fs.unlink(file.path); } catch (e) { logger.error("Failed to delete uploaded barter image", e); }
-                }
-            }
-        }
         next(error);
     }
 };

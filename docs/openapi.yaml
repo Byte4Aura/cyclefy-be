@@ -2002,7 +2002,6 @@ paths:
           schema:
             type: integer
             minimum: 1
-            maximum: 100
             default: 10
           description: Jumlah data per halaman (default 10)
         - name: category
@@ -2010,7 +2009,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "1,2"
+            example: "books,furniture"
           description: "Filter kategori, bisa lebih dari satu id dipisahkan koma (misal: 1,2,3)"
         - name: status
           in: query
@@ -2472,7 +2471,7 @@ paths:
         - name: category
           in: query
           required: false
-          schema: { type: string, example: "1,2" }
+          schema: { type: string, example: "books,furniture" }
           description: Filter berdasarkan kategori
         - name: maxDistance
           in: query

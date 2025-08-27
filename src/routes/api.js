@@ -9,8 +9,10 @@ import categoryController from "../controllers/categoryController.js";
 import { uploadDonationImageMiddleware } from "../middlewares/donations/uploadDonationMiddleware.js";
 import donationController from "../controllers/donationController.js";
 import { env } from "../application/env.js";
-import { uploadBarterImagePostMiddleware } from "../middlewares/barter/uploadBarterImagePostMiddleware.js";
+import { uploadBarterImageMiddleware } from "../middlewares/barter/uploadBarterImageMiddleware.js";
 import barterController from "../controllers/barterController.js";
+import { uploadBarterApplicationImageMiddleware } from "../middlewares/barter/uploadBarterApplicationImagMiddleware.js";
+import barterApplicationController from "../controllers/barterApplicationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -43,8 +45,12 @@ userRouter.get('/users/current/donations/:donationId', authMiddleware, donationC
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
 
 // Barter API
-userRouter.get('/barters', authMiddleware, uploadBarterImagePostMiddleware, barterController.getBarters);
-userRouter.post('/barters', authMiddleware, uploadBarterImagePostMiddleware, barterController.createBarter);
+userRouter.get('/barters', authMiddleware, barterController.getBarters);
+userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterController.createBarter);
+userRouter.get('/barters/:bartedId', authMiddleware,) //Detail other user barter
+userRouter.post('/barters/:barterId/applications', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
+
+// userRouter.get('/users/current/barters', authMiddleware)  //getUserBarters, Endpoint List Barter milik User Sendiri (History)
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);
