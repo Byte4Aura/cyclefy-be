@@ -50,7 +50,8 @@ export default async function donationSeeder(prisma, users, categories, addresse
             await prisma.donationImage.create({
                 data: {
                     donation_id: donation.id,
-                    image_path: await getRandomUnsplashImageUrl(),
+                    // image_path: await getRandomUnsplashImageUrl(),
+                    image_path: "https://dummyimage.com/600x400/000000/ffffff.png&text=dummy-image",
                     image_name: `unsplash_${j + 1}.jpg`,
                     image_size: 0 // Unknown for dummy url data using unsplash
                 }

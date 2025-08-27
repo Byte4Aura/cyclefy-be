@@ -90,6 +90,26 @@
         "get_list_successful": "Get donation list successful",
         "get_detail_successful": "Get donation detail successful"
     },
+    "barter": {
+        "not_found": "Barter not found",
+        "id_not_a_number": "Barter id is not a number",
+        "posting": {
+            "waiting_for_request_detail": "The item has been posted and is waiting for someone else to submit a barter request",
+            "waiting_for_confirmation_detail": "Someone has submitted a barter request, awaiting your confirmation",
+            "confirmed_detail": "You have confirmed the barter request, and the exchange is ready to proceed",
+            "completed_detail": "The barter has been successfully completed, and the items have been exchanged",
+            "cancelled_detail": "The barter process was cancelled"
+        },
+        "request": {
+            "request_submitted_detail": "A barter request has been submitted, awaiting confirmation",
+            "confirmed_detail": "The barter request has been confirmed, and the exchange is ready to proceed",
+            "completed_detail": "The barter has been successfully completed, and items have been exchanged",
+            "cancelled_detail": "The barter process was cancelled"
+        },
+        "create_successful": "Barter created successfully",
+        "get_list_successful": "Get barter list successful",
+        "get_detail_successful": "Get barter detail successful"
+    },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",
         "internal_server_error": "Internal Server Error"

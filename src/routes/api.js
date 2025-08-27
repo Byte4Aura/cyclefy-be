@@ -9,6 +9,8 @@ import categoryController from "../controllers/categoryController.js";
 import { uploadDonationImageMiddleware } from "../middlewares/donations/uploadDonationMiddleware.js";
 import donationController from "../controllers/donationController.js";
 import { env } from "../application/env.js";
+import { uploadBarterImagePostMiddleware } from "../middlewares/barter/uploadBarterImagePostMiddleware.js";
+import barterController from "../controllers/barterController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -39,7 +41,9 @@ userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneControl
 userRouter.get('/users/current/donations', authMiddleware, donationController.getDonations);
 userRouter.get('/users/current/donations/:donationId', authMiddleware, donationController.getDonationDetail);
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
-userRouter.get('/donations/:donationId', authMiddleware,);
+
+// Barter API
+userRouter.post('/barters', authMiddleware, uploadBarterImagePostMiddleware, barterController.createBarter);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

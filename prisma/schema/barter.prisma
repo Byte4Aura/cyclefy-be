@@ -3,7 +3,7 @@ enum BarterStatus {
     waiting_for_confirmation
     confirmed
     completed
-    cancelled
+    failed
 }
 
 // BARTERS
@@ -62,7 +62,7 @@ enum BarterApplicationStatus {
     request_submitted
     confirmed
     completed
-    cancelled
+    failed
 }
 
 // BARTER_APPLICATIONS
