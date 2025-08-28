@@ -30,20 +30,30 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
     }
 
     // Get other user barter posts
-    const skip = (page - 1) * size;
     const barters = await prismaClient.barter.findMany({
-        where: where,
-        skip: skip,
-        take: size,
+        where: {
+            ...where,
+        },
         include: {
             address: true,
             category: true,
-            user: true
+            user: true,
+            barterStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1 //take last status
+            }
         }
     });
 
-    // Count minimun distance to all current user addresses
-    const data = barters.map(barter => {
+    // Filter status
+    const allowedStatuses = ["waiting_for_request", "waiting_for_confirmation"];
+    let filtered = barters.filter(barter =>
+        barter.barterStatusHistories.length > 0 &&
+        allowedStatuses.includes(barter.barterStatusHistories[0].status)
+    );
+
+    // Count minimun distance to all current user addresses & mapping data
+    const data = filtered.map(barter => {
         const distances = userAddresses.map(address => {
             const start = { latitude: address.latitude, longitude: address.longitude }
             const end = { latitude: barter.address.latitude, longitude: barter.address.longitude }
@@ -69,28 +79,33 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
                 id: barter.user.id,
                 username: barter.user.username,
                 fullname: barter.user.fullname,
-                profile_picture: getPictureUrl(reqObject, barter.user.profile_picture)
+                profile_picture: (!barter.user.profile_picture?.startsWith("http") && !barter.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, barter.user.profile_picture)
+                    : barter.user.profile_picture,
             },
             created_at: barter.created_at,
             updated_at: barter.updated_at
         }
     });
 
-    let filtered = data;
+    let filteredByDistance = data;
     // Filter data by maxDistance if exists
     if (maxDistance && typeof maxDistance === 'number') {
-        filtered = data.filter(item => item.distance <= maxDistance);
+        filteredByDistance = data.filter(item => item.distance <= maxDistance);
     }
+
     // Sorting data
     if (sort === "nearest") {
-        filtered.sort((a, b) => a.distance - b.distance);
+        filteredByDistance.sort((a, b) => a.distance - b.distance);
     } else if (sort === "newest") {
         // filtered.sort((a, b) => b.id - a.id);
-        filtered.sort((a, b) => b.created_at - a.created_at);
+        filteredByDistance.sort((a, b) => b.created_at - a.created_at);
     } //sort by relevance = default sort
 
-    // Pagination meta
-    const total = await prismaClient.barter.count({ where: where, skip: skip, take: size });
+
+    // Pagination
+    const total = filteredByDistance.length;
+    const paged = filteredByDistance.slice((page - 1) * size, page * size);
     // const total = filtered.length;
 
     return {
@@ -100,9 +115,91 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
             size: size,
             totalPages: Math.ceil(total / size)
         },
-        data: filtered
+        data: paged
     }
 }
+
+const getBarterDetail = async (userId, barterId, reqObject) => {
+    // Get barter data
+    const barter = await prismaClient.barter.findUnique({
+        where: {
+            id: barterId,
+            user_id: { not: userId }
+        },
+        include: {
+            images: true,
+            category: true,
+            barterStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1  //take last status
+            },
+            user: true,
+            address: true,
+            phone: true
+        }
+    });
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+
+    // Calculate distance
+    let distance = null;
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    if (userAddresses.length && barter.address) {
+        const distances = userAddresses.map(addr =>
+            calculateDistance(
+                { latitude: addr.latitude, longitude: addr.longitude },
+                { latitude: barter.address.latitude, longitude: barter.address.longitude }
+            )
+        );
+        distance = Math.min(...distances);
+    }
+
+    // Mapping response
+    return {
+        id: barter.id,
+        item_name: barter.item_name,
+        description: barter.description,
+        images: barter.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        category: barter.category
+            ? { id: barter.category.id, name: barter.category.name }
+            : null,
+        status: barter.barterStatusHistories[0]
+            ? {
+                id: barter.barterStatusHistories[0].id,
+                status: snakeToTitleCase(barter.barterStatusHistories[0].status),
+                updated_at: barter.barterStatusHistories[0].updated_at
+            }
+            : null,
+        user: barter.user
+            ? {
+                id: barter.user.id,
+                profile_picture: (!barter.user.profile_picture?.startsWith("http") && !barter.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, barter.user.profile_picture)
+                    : barter.user.profile_picture,
+                username: barter.user.username,
+                fullname: barter.user.fullname
+            }
+            : null,
+        address: barter.address
+            ? {
+                id: barter.address.id,
+                address: barter.address.address,
+                latitude: barter.address.latitude,
+                longitude: barter.address.longitude
+            }
+            : null,
+        distance: distance,
+        phone: barter.phone
+            ? {
+                id: barter.phone.id,
+                number: barter.phone.number
+            }
+            : null
+    };
+};
 
 const createBarter = async (userId, requestBody, files, reqObject) => {
     if (!files || !Array.isArray(files) || files.length === 0)
@@ -314,6 +411,7 @@ const getBarterHistory = async (userId, search, category, userItemStatus, otherI
             const userAddresses = await prismaClient.address.findMany({
                 where: { user_id: userId }
             });
+            if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
 
             data.other_items = pagedOtherItems.map(app => {
                 // Distance: min dari semua address user ke address barter application
@@ -396,6 +494,7 @@ const getBarterHistory = async (userId, search, category, userItemStatus, otherI
 
 export default {
     getBarters,
+    getBarterDetail,
     createBarter,
     getBarterHistory
 }

@@ -2015,14 +2015,14 @@ paths:
           schema:
             type: string
             example: "books,furniture"
-          description: "Filter kategori, bisa lebih dari satu id dipisahkan koma (misal: 1,2,3)"
+          description: "Filter kategori, bisa lebih dari satu id dipisahkan koma (ex: books,furniture,clothes)"
         - name: status
           in: query
           required: false
           schema:
             type: string
             example: "submitted,confirmed"
-          description: "Filter status donasi, bisa lebih dari satu status dipisahkan koma (misal: submitted,confirmed)"
+          description: "Filter status donasi, bisa lebih dari satu status dipisahkan koma **(Value: submitted,confirmed,completed,failed)**"
       responses:
         "200":
           description: Daftar donasi berhasil diambil
@@ -2714,7 +2714,169 @@ paths:
                         type: string
                         example: null
 
-  /api/barters/{barterId}/applications:
+  /api/barters/{barterId}:
+    get:
+      tags:
+        - Barter
+      summary: Mendapatkan detail postingan barter user lain
+      description: |
+        Mengambil detail postingan barter milik user lain berdasarkan barterId. Hanya bisa mengakses postingan barter milik user lain, bukan milik sendiri.
+      parameters:
+        - name: barterId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID barter yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail barter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail barter
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      item_name:
+                        type: string
+                        example: "Tes barter post dewi lestari"
+                      description:
+                        type: string
+                        example: "Tes barter desc"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - "http:/..."
+                          - "http:/..."
+                      category:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: "Clothes"
+                      status:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          status:
+                            type: string
+                            example: "Request Submitted"
+                          updated_at:
+                            type: string
+                            format: date-time
+                            example: "2025-08-28T10:27:14.759Z"
+                      user:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          profile_picture:
+                            type: string
+                            format: uri
+                            example: "https://..."
+                          username:
+                            type: string
+                            example: "dewi.lestari"
+                          fullname:
+                            type: string
+                            example: "Dewi Lestari"
+                      address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          address:
+                            type: string
+                            example: "Jalan Sukapura, Sukapura, Dayeuhkolot, Kabupaten Bandung, Jawa Barat, Jawa, 40257, Indonesia"
+                          latitude:
+                            type: number
+                            example: -6.9697397
+                          longitude:
+                            type: number
+                            example: 107.634133
+                      distance:
+                        type: number
+                        nullable: true
+                        example: 0.603
+                      phone:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          number:
+                            type: string
+                            example: "08123456789"
+        '400':
+          description: barterId tidak valid
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        '404':
+          description: Data barter tidak ditemukan
+
+  /api/barters/{barterId}/request:
     post:
       summary: Ajukan Permintaan Barter ke Postingan Barter User Lainnya
       description: |
@@ -2877,9 +3039,9 @@ paths:
     get:
       tags:
         - Barter
-      summary: Mendapatkan riwayat barter user (posting & aplikasi masuk)
+      summary: Mendapatkan riwayat barter user (posting & request)
       description: |
-        Mengambil daftar barter milik user saat ini (my_items) dan aplikasi barter yang masuk ke postingan user (other_items), dengan filter kategori, status, search, dan pagination terpisah.
+        Mengambil daftar barter milik user saat ini (my_items) dan request barter yang masuk ke postingan user (other_items), dengan filter kategori, status, search, dan pagination terpisah.
       parameters:
         - name: search
           in: query

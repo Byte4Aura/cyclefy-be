@@ -47,8 +47,10 @@ userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, don
 // Barter API
 userRouter.get('/barters', authMiddleware, barterController.getBarters);  //discover barter
 userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterController.createBarter);  //create barter
-// userRouter.get('/barters/:bartedId', authMiddleware,) //Detail other user barter
-userRouter.post('/barters/:barterId/applications', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
+userRouter.get('/barters/:barterId', authMiddleware, barterController.getBarterDetail); //Detail other user barter, access from GET /barters
+userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
+
+// userRouter.get('/barters-applications/:barterId', authMiddleware,); //Detail other user barter
 
 userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);
 

@@ -18,7 +18,6 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
     // First option: Use existing item
     if (requestBody.use_existing_barter_id) {
         const userBarterId = Number(requestBody.use_existing_barter_id);
-        console.log(Number.isNaN(userBarterId));
         if (!Number.isInteger(userBarterId) || Number.isNaN(userBarterId)) throw new ResponseError(404, "barter_application.user_barter_id_invalid");
         // Validate ownership
         const userBarter = await prismaClient.barter.findUnique({
