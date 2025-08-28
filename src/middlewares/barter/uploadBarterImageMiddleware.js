@@ -23,5 +23,5 @@ const fileFilter = (req, file, callback) => {
 export const uploadBarterImageMiddleware = multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+    // limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 }).array("images");

@@ -45,9 +45,9 @@ userRouter.get('/users/current/donations/:donationId', authMiddleware, donationC
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
 
 // Barter API
-userRouter.get('/barters', authMiddleware, barterController.getBarters);
-userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterController.createBarter);
-userRouter.get('/barters/:bartedId', authMiddleware,) //Detail other user barter
+userRouter.get('/barters', authMiddleware, barterController.getBarters);  //discover barter
+userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterController.createBarter);  //create barter
+// userRouter.get('/barters/:bartedId', authMiddleware,) //Detail other user barter
 userRouter.post('/barters/:barterId/applications', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
 
 // userRouter.get('/users/current/barters', authMiddleware)  //getUserBarters, Endpoint List Barter milik User Sendiri (History)

@@ -95,6 +95,7 @@
         "not_found": "Barter not found",
         "user_barter_not_found": "Current user barter item not found",
         "id_not_a_number": "Barter id is not a number",
+        "status_not_available": "Your barter item status is not available to be requested",
         "posting": {
             "waiting_for_request_detail": "The item has been posted and is waiting for someone else to submit a barter request",
             "waiting_for_confirmation_detail": "Someone has submitted a barter request, awaiting your confirmation",
@@ -102,17 +103,19 @@
             "completed_detail": "The barter has been successfully completed, and the items have been exchanged",
             "cancelled_detail": "The barter process was cancelled"
         },
-        "application": {
-            "request_submitted_detail": "A barter request has been submitted, awaiting confirmation",
-            "confirmed_detail": "The barter request has been confirmed, and the exchange is ready to proceed",
-            "completed_detail": "The barter has been successfully completed, and items have been exchanged",
-            "cancelled_detail": "The barter process was cancelled"
-        },
         "create_successful": "Barter created successfully",
         "get_posts_successful": "Get barter posts successful",
         "get_detail_successful": "Get barter detail successful"
     },
     "barter_application": {
+        "user_barter_id_invalid": "User barter post id is not valid",
+        "request": {
+            "request_submitted_detail": "A barter request has been submitted, awaiting confirmation",
+            "confirmed_detail": "The barter request has been confirmed, and the exchange is ready to proceed",
+            "completed_detail": "The barter has been successfully completed, and items have been exchanged",
+            "cancelled_detail": "The barter process was cancelled"
+        },
+        "duplicate_existing_item": "Your barter post request is duplicate",
         "create_successful": "Barter application created successfully"
     },
     "common": {

@@ -2288,9 +2288,6 @@ paths:
       summary: Membuat donasi baru
       description: |
         Endpoint untuk membuat donasi baru. Hanya user yang sudah login yang dapat mengakses endpoint ini.
-        
-        - Mengunggah satu atau lebih gambar donasi (maksimal 5 gambar, maksimal 5MB per gambar).
-        - Semua field wajib diisi.
       parameters:
         - name: Authorization
           in: header
@@ -2345,7 +2342,7 @@ paths:
                   items:
                     type: string
                     format: binary
-                  description: Daftar file gambar donasi (maksimal 5 gambar)
+                  # description: Daftar file gambar donasi (maksimal 5 gambar)
               required:
                 - item_name
                 - description
@@ -2561,7 +2558,7 @@ paths:
     post:
       summary: Membuat postingan barter baru
       description: |
-        Endpoint untuk membuat postingan barter. User mengisi data item, kategori, alamat, kontak, dan upload gambar (maksimal 5 gambar, maksimal 5MB per file).
+        Endpoint untuk membuat postingan barter. User mengisi data item, kategori, alamat, kontak, dan upload gambar.
         Status awal barter adalah `waiting_for_request`.
       tags:
         - Barter
@@ -2619,7 +2616,7 @@ paths:
                   items:
                     type: string
                     format: binary
-                  description: Daftar file gambar barter (maksimal 5 gambar)
+                  # description: Daftar file gambar barter (maksimal 5 gambar)
               required:
                 - item_name
                 - description
@@ -2712,7 +2709,164 @@ paths:
                         type: string
                         example: null
 
-
+  /api/barters/{barterId}/applications:
+    post:
+      summary: Ajukan Permintaan Barter ke Postingan Barter Lain
+      description: |
+        Endpoint untuk mengajukan permintaan barter ke postingan barter milik user lain. User dapat memilih menggunakan item barter yang sudah ada (milik sendiri dengan status 'waiting for request' atau 'waiting for confirmation'), atau mengisi data item baru beserta upload gambar. 
+        - Hanya bisa mengajukan ke postingan barter milik user lain.
+        - Tidak boleh mengajukan barter dengan item postingan milik anda yang sama lebih dari satu kali.
+        - Jika menggunakan item yang sudah ada, gambar akan otomatis diambil dari item tersebut.
+      tags:
+        - Barter
+      parameters:
+        - name: barterId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID barter yang akan diajukan permintaan barter
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten yang dikirim dalam format multipart/form-data karena ada file yang disertakan
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                use_existing_barter_id:
+                  type: integer
+                  description: ID barter milik sendiri yang ingin digunakan sebagai item barter (opsional, jika ingin pakai item milik user yang sudah ada dengan status 'waiting for request' atau 'waiting for confirmation')
+                item_name:
+                  type: string
+                  maxLength: 255
+                  description: Nama item yang ditawarkan **(wajib diisi jika tidak pakai use_existing_barter_id)**
+                description:
+                  type: string
+                  maxLength: 255
+                  description: Deskripsi item yang ditawarkan **(wajib diisi jika tidak pakai use_existing_barter_id)**
+                category_id:
+                  type: integer
+                  description: ID kategori item **(wajib diisi jika tidak pakai use_existing_barter_id)**
+                address_id:
+                  type: integer
+                  description: ID alamat user **(wajib diisi jika tidak pakai use_existing_barter_id)**
+                phone_id:
+                  type: integer
+                  description: ID nomor kontak user **(wajib diisi jika tidak pakai use_existing_barter_id)**
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Upload gambar item barter **(wajib diisi jika tidak pakai use_existing_barter_id)**
+      responses:
+        "201":
+          description: Pengajuan barter berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Pengajuan barter berhasil dibuat
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ID barter application
+                      barter_id:
+                        type: integer
+                        description: ID barter yang diajukan
+                      item_name:
+                        type: string
+                        description: Nama item yang ditawarkan
+                      description:
+                        type: string
+                        description: Deskripsi item
+                      category_id:
+                        type: integer
+                        description: ID kategori item
+                      address_id:
+                        type: integer
+                        description: ID alamat user
+                      phone_id:
+                        type: integer
+                        description: ID nomor kontak user
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        description: Daftar URL gambar item barter
+                      status:
+                        type: string
+                        example: Request Submitted
+                        description: Status aplikasi barter (request_submitted)
+        "400":
+          description: Request tidak valid (validasi gagal, file tidak diupload, dsb)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    {
+                      type: object,
+                      example: { item_name: ["Kolom item_name wajib diisi"] },
+                    }
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Barter tidak ditemukan, barter milik sendiri, atau barter item milik sendiri tidak ditemukan
+        "409":
+          description: Duplikasi pengajuan barter dengan postingan milik user (sudah pernah mengajukan barter dengan postingan item yang sama)
 
 
 

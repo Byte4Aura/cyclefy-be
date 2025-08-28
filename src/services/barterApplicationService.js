@@ -7,33 +7,44 @@ import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
 
 const createBarterApplication = async (userId, barterId, requestBody, files, reqObject) => {
-    if (!files || !Array.isArray(files) || files.length === 0)
-        throw new ResponseError(400, "file.no_file_uploaded", {
-            images: null
-        });
-    // if (files.length > 5)
-    //     throw new ResponseError(400, "file.too_many_files");
-
     // Validate barterId (must be other users' post)
     const barter = await prismaClient.barter.findUnique({
         where: { id: barterId }
     });
     if (!barter || barter.user_id === userId) throw new ResponseError(404, "barter.not_found");
 
-    // Validate data in request body
-    const data = validate(createBarterApplicationValidation, requestBody, reqObject);
-
-
     let applicationData, imagePaths = [], imagesToInsert = [];
 
     // First option: Use existing item
-    if (data.use_existing_barter_id) {
+    if (requestBody.use_existing_barter_id) {
+        const userBarterId = Number(requestBody.use_existing_barter_id);
+        console.log(Number.isNaN(userBarterId));
+        if (!Number.isInteger(userBarterId) || Number.isNaN(userBarterId)) throw new ResponseError(404, "barter_application.user_barter_id_invalid");
         // Validate ownership
         const userBarter = await prismaClient.barter.findUnique({
-            where: { id: data.use_existing_barter_id, user_id: userId },
-            include: { images: true }
+            where: { id: userBarterId, user_id: userId },
+            include: {
+                images: true,
+                barterStatusHistories: {
+                    orderBy: { created_at: "desc" },
+                    take: 1  //take last status
+                }
+            }
         });
-        if (!userBarter) throw new ResponseError(404, "barter.user_barter_not_found");
+        if (!userBarter) throw new ResponseError(404, "barter_application.user_barter_not_found");
+        if (userBarter.barterStatusHistories[0].status !== "waiting_for_confirmation" &&
+            userBarter.barterStatusHistories[0].status !== "waiting_for_request"
+        ) throw new ResponseError(400, "barter.status_not_available");
+
+        // Check duplicate
+        const duplicate = await prismaClient.barterApplication.findFirst({
+            where: {
+                barter_id: barterId,
+                user_id: userId,
+                item_name: userBarter.item_name
+            }
+        });
+        if (duplicate) throw new ResponseError(409, "barter_application.duplicate_existing_item");
 
         applicationData = {
             barter_id: barterId,
@@ -54,6 +65,14 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
         }));
         imagePaths = imagesToInsert.map(img => getPictureUrl(reqObject, img.image_path));
     } else {
+        const data = validate(createBarterApplicationValidation, requestBody, reqObject);
+        if (!files || !Array.isArray(files) || files.length === 0)
+            throw new ResponseError(400, "file.no_file_uploaded", {
+                images: null
+            });
+        // if (files.length > 5)
+        //     throw new ResponseError(400, "file.too_many_files");
+
         // Second option: manual
         await addressIdOwnershipValidate(userId, data.address_id);
         await phoneIdOwnershipValidate(userId, data.phone_id);
@@ -99,11 +118,12 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
         data: {
             barter_application_id: barterApplication.id,
             status: "request_submitted",
-            status_detail: "barter.application.request_submitted_detail",
+            status_detail: "barter_application.request_submitted_detail",
             updated_by: userId
         }
     });
 
+    // Update barter status
     const latestBarterStatus = await prismaClient.barterStatusHistory.findFirst({
         where: { barter_id: barterId },
         orderBy: { created_at: "desc" }
