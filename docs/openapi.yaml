@@ -2043,15 +2043,15 @@ paths:
                       total:
                         type: integer
                         example: 2
-                      # page:
-                      #   type: integer
-                      #   example: 1
-                      # size:
-                      #   type: integer
-                      #   example: 10
-                      # totalPages:
-                      #   type: integer
-                      #   example: 1
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 1
                   data:
                     type: array
                     items:
@@ -2101,9 +2101,9 @@ paths:
                     message: Get donation list successful
                     meta:
                       total: 2
-                      # page: 1
-                      # size: 10
-                      # totalPages: 1
+                      page: 1
+                      size: 10
+                      totalPages: 1
                     data:
                       - id: 1
                         item_name: Baju Layak Pakai
@@ -2446,7 +2446,7 @@ paths:
 
   /api/barters:
     get:
-      summary: Mendapatkan daftar postingan barter milik user lain
+      summary: Mendapatkan daftar postingan barter milik user lain (Discover barter)
       description: |
         Endpoint untuk menampilkan daftar postingan barter milik user lain (bukan milik user yang sedang login).
         Mendukung pencarian, filter kategori, filter jarak maksimum, dan sorting.
@@ -2875,9 +2875,242 @@ paths:
 
   /api/users/current/barters:
     get:
-      deprecated: false
-      # Barter histories, getBarterHistories
-
+      tags:
+        - Barter
+      summary: Mendapatkan riwayat barter user (posting & aplikasi masuk)
+      description: |
+        Mengambil daftar barter milik user saat ini (my_items) dan aplikasi barter yang masuk ke postingan user (other_items), dengan filter kategori, status, search, dan pagination terpisah.
+      parameters:
+        - name: search
+          in: query
+          description: Pencarian nama item atau deskripsi (optional)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: userItemStatus
+          in: query
+          description: "Filter status barter milik user **(value: waiting_for_request, waiting_for_confirmation, confirmed, completed, failed)**"
+          required: false
+          schema:
+            type: string
+            example: waiting_for_request,waiting_for_confirmation
+        - name: otherItemStatus
+          in: query
+          description: "Filter status aplikasi barter yang masuk **(value: request_submitted,confirmed,completed,failed)**"
+          required: false
+          schema:
+            type: string
+            example: request_submitted,confirmed
+        - name: ownership
+          in: query
+          description: "Pilih data yang diambil: my_items, other_items, all (pisahkan dengan koma, default: all)"
+          required: false
+          schema:
+            type: string
+            example: my_items,other_items
+        - name: userItemPage
+          in: query
+          description: "Halaman data barter milik user (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: userItemSize
+          in: query
+          description: "Jumlah data per halaman barter milik user (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: otherItemPage
+          in: query
+          description: "Halaman data aplikasi barter yang masuk (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: otherItemSize
+          in: query
+          description: "Jumlah data per halaman aplikasi barter yang masuk (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Berhasil mendapatkan riwayat barter user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan riwayat barter
+                  meta:
+                    type: object
+                    properties:
+                      my_items:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 12
+                          page:
+                            type: integer
+                            example: 1
+                          size:
+                            type: integer
+                            example: 10
+                          totalPages:
+                            type: integer
+                            example: 2
+                      other_items:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 5
+                          page:
+                            type: integer
+                            example: 1
+                          size:
+                            type: integer
+                            example: 10
+                          totalPages:
+                            type: integer
+                            example: 1
+                  data:
+                    type: object
+                    properties:
+                      my_items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            item_name:
+                              type: string
+                            description:
+                              type: string
+                            images:
+                              type: array
+                              items:
+                                type: string
+                                format: uri
+                            category:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                            status:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                status:
+                                  type: string
+                                updated_at:
+                                  type: string
+                                  format: date-time
+                      other_items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            item_name:
+                              type: string
+                            description:
+                              type: string
+                            images:
+                              type: array
+                              items:
+                                type: string
+                                format: uri
+                            category:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                            status:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                status:
+                                  type: string
+                                updated_at:
+                                  type: string
+                                  format: date-time
+                            user:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                profile_picture:
+                                  type: string
+                                  format: uri
+                                username:
+                                  type: string
+                                fullname:
+                                  type: string
+                            address:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                address:
+                                  type: string
+                                latitude:
+                                  type: number
+                                longitude:
+                                  type: number
+                            distance:
+                              type: number
+                              nullable: true
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        
 
 
 
