@@ -48,7 +48,43 @@ const createBarter = async (req, res, next) => {
     }
 };
 
+const getBarterHistory = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const search = req.query.search ?? "";
+
+        const category = req.query.category && req.query.category !== "all"
+            ? req.query.category.split(',').map(category => category.trim()).filter(Boolean)
+            : [];
+        const userItemStatus = req.query.userItemStatus && req.query.userItemStatus !== "all"
+            ? req.query.userItemStatus.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+        const otherItemStatus = req.query.otherItemStatus && req.query.otherItemStatus !== "all"
+            ? req.query.otherItemStatus.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+        const ownership = req.query.ownership && req.query.ownership !== "all"
+            ? req.query.ownership.split(',').map(ownership => ownership.trim()).filter(Boolean)
+            : ["my_items", "other_items"];
+
+        const userItemPage = parseInt(req.query.userItemPage) > 0 ? parseInt(req.query.userItemPage) : 1;
+        const userItemSize = parseInt(req.query.userItemSize) > 0 ? parseInt(req.query.userItemSize) : 10;
+
+        const otherItemPage = parseInt(req.query.otherItemPage) > 0 ? parseInt(req.query.otherItemPage) : 1;
+        const otherItemSize = parseInt(req.query.otherItemSize) > 0 ? parseInt(req.query.otherItemSize) : 10;
+
+        const result = await barterService.getBarterHistory(userId, search, category, userItemStatus, otherItemStatus, ownership, userItemPage, userItemSize, otherItemPage, otherItemSize, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter.get_history_successful"),
+            ...result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getBarters,
     createBarter,
+    getBarterHistory
 };

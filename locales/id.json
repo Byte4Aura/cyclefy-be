@@ -88,12 +88,11 @@
         "completed_detail": "Donasi telah berhasil dikirimkan ke penerima",
         "failed_detail": "Donasi dibatalkan",
         "create_successful": "Donasi berhasil dibuat",
-        "get_posts_successful": "Berhasil mendapatkan daftar postingan donasi",
+        "get_history_successful": "Berhasil mendapatkan riwayat donasi",
         "get_detail_successful": "Berhasil mendapatkan detail donasi"
     },
     "barter": {
         "not_found": "Barter tidak ditemukan",
-        "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "id_not_a_number": "Barter ID bukan angka",
         "status_not_available": "Status item barter Anda tidak tersedia untuk diajukan",
         "posting": {
@@ -103,12 +102,14 @@
             "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
             "cancelled_detail": "Proses barter dibatalkan"
         },
+        "get_history_successful": "Berhasil mendapatkan riwayat barter",
         "create_successful": "Barter berhasil dibuat",
         "get_posts_successful": "Berhasil mendapatkan daftar barter",
         "get_detail_successful": "Berhasil mendapatkan detail barter"
     },
     "barter_application": {
         "user_barter_id_invalid": "ID postingan barter user tidak valid",
+        "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "request": {
             "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",

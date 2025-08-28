@@ -50,7 +50,7 @@ userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterC
 // userRouter.get('/barters/:bartedId', authMiddleware,) //Detail other user barter
 userRouter.post('/barters/:barterId/applications', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
 
-// userRouter.get('/users/current/barters', authMiddleware)  //getUserBarters, Endpoint List Barter milik User Sendiri (History)
+userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

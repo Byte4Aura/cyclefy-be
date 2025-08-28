@@ -1988,6 +1988,11 @@ paths:
             type: string
             example: application/json
           description: Tipe konten yang dikirim dalam format application/json
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
+          description: Pencarian pada item name atau description
         - name: page
           in: query
           required: false
@@ -2038,15 +2043,15 @@ paths:
                       total:
                         type: integer
                         example: 2
-                      page:
-                        type: integer
-                        example: 1
-                      size:
-                        type: integer
-                        example: 10
-                      totalPages:
-                        type: integer
-                        example: 1
+                      # page:
+                      #   type: integer
+                      #   example: 1
+                      # size:
+                      #   type: integer
+                      #   example: 10
+                      # totalPages:
+                      #   type: integer
+                      #   example: 1
                   data:
                     type: array
                     items:
@@ -2096,9 +2101,9 @@ paths:
                     message: Get donation list successful
                     meta:
                       total: 2
-                      page: 1
-                      size: 10
-                      totalPages: 1
+                      # page: 1
+                      # size: 10
+                      # totalPages: 1
                     data:
                       - id: 1
                         item_name: Baju Layak Pakai
@@ -2711,7 +2716,7 @@ paths:
 
   /api/barters/{barterId}/applications:
     post:
-      summary: Ajukan Permintaan Barter ke Postingan Barter Lain
+      summary: Ajukan Permintaan Barter ke Postingan Barter User Lainnya
       description: |
         Endpoint untuk mengajukan permintaan barter ke postingan barter milik user lain. User dapat memilih menggunakan item barter yang sudah ada (milik sendiri dengan status 'waiting for request' atau 'waiting for confirmation'), atau mengisi data item baru beserta upload gambar. 
         - Hanya bisa mengajukan ke postingan barter milik user lain.
@@ -2868,7 +2873,10 @@ paths:
         "409":
           description: Duplikasi pengajuan barter dengan postingan milik user (sudah pernah mengajukan barter dengan postingan item yang sama)
 
-
+  /api/users/current/barters:
+    get:
+      deprecated: false
+      # Barter histories, getBarterHistories
 
 
 

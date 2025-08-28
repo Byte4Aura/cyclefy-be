@@ -32,6 +32,7 @@ const createDonation = async (req, res, next) => {
 const getDonations = async (req, res, next) => {
     try {
         // Parsing and validate query parameters
+        const searchParam = req.query.search ?? "";
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
         const category = req.query.category && req.query.category !== "all"
@@ -47,6 +48,7 @@ const getDonations = async (req, res, next) => {
             userId,
             page,
             size,
+            searchParam,
             category,
             status,
             req
@@ -54,7 +56,7 @@ const getDonations = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: req.__('donation.get_list_successful'),
+            message: req.__('donation.get_history_successful'),
             ...result
         });
     } catch (error) {

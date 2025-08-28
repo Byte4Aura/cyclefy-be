@@ -76,22 +76,20 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
     };
 };
 
-const getDonations = async (userId, page, size, category, statuses, reqObject) => {
-    const skip = (page - 1) * size;
-
+const getDonations = async (userId, page, size, search, category, statuses, reqObject) => {
     // Build where clause
     const where = {};
+
+    if (search) {
+        where.OR = [
+            { item_name: { contains: search } },
+            { description: { contains: search } },
+            // { category: { name: { contains: search} } }
+        ];
+    }
     if (category && category.length > 0) {
         where.category = { name: { in: category } };
     }
-    // if (statuses && statuses.length > 0) {
-    //     // Cari donation yang status terakhirnya ada di status filter
-    //     where.donationStatusHistories = {
-    //         some: {
-    //             status: { in: statuses }
-    //         }
-    //     };
-    // }
 
     // Get data
     const donations = await prismaClient.donation.findMany({
@@ -99,8 +97,6 @@ const getDonations = async (userId, page, size, category, statuses, reqObject) =
             ...where,
             user_id: userId,
         },
-        skip: skip,
-        take: size,
         // orderBy: { updated_at: "desc" },
         include: {
             images: true,
@@ -121,8 +117,12 @@ const getDonations = async (userId, page, size, category, statuses, reqObject) =
         );
     }
 
+    // Pagination
+    const total = filteredDonations.length;
+    const pagedDonations = filteredDonations.slice((page - 1) * size, page * size);
+
     // Mapping response
-    const data = filteredDonations.map(donation => ({
+    const data = pagedDonations.map(donation => ({
         id: donation.id,
         item_name: donation.item_name,
         description: donation.description,
@@ -136,17 +136,16 @@ const getDonations = async (userId, page, size, category, statuses, reqObject) =
             ? { id: donation.category.id, name: donation.category.name }
             : null,
         // status: donation.donationStatusHistories[0]?.status || null,
-        status: {
-            id: donation.donationStatusHistories[0].id,
-            status: snakeToTitleCase(donation.donationStatusHistories[0].status),
-            updated_at: donation.donationStatusHistories[0].updated_at
-        }
+        status: donation.donationStatusHistories[0]
+            ? {
+                id: donation.donationStatusHistories[0].id,
+                status: snakeToTitleCase(donation.donationStatusHistories[0].status),
+                updated_at: donation.donationStatusHistories[0].updated_at
+            }
+            : null
         // updated_at: donation.updated_at,
         // updated_at: donation.donationStatusHistories[donation.donationStatusHistories.length - 1].updated_at,
     }));
-
-    // Get total count
-    const total = filteredDonations.length;
 
     return {
         meta: {
