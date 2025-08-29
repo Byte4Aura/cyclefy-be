@@ -17,7 +17,7 @@ CREATE TABLE `barters` (
 CREATE TABLE `barter_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_id` INTEGER NOT NULL,
-    `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'waiting_for_request',
+    `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'completed', 'failed') NOT NULL DEFAULT 'waiting_for_request',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE `barter_applications` (
     `address_id` INTEGER NOT NULL,
     `category_id` INTEGER NOT NULL,
     `phone_id` INTEGER NOT NULL,
-    `decline_reason` VARCHAR(255) NOT NULL,
+    `decline_reason` VARCHAR(255) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -59,7 +59,7 @@ CREATE TABLE `barter_applications` (
 CREATE TABLE `barter_application_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `barter_application_id` INTEGER NOT NULL,
-    `status` ENUM('request_submitted', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
+    `status` ENUM('request_submitted', 'confirmed', 'completed', 'failed') NOT NULL DEFAULT 'request_submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE `borrow_applications` (
     `phone_id` INTEGER NOT NULL,
     `duration_from` DATETIME(3) NOT NULL,
     `duration_to` DATETIME(3) NOT NULL,
-    `decline_reason` VARCHAR(255) NOT NULL,
+    `decline_reason` VARCHAR(255) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -241,6 +241,18 @@ CREATE TABLE `recycle_locations` (
     `longitude` DOUBLE NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `recycle_location_images` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `recycle_location_id` INTEGER NOT NULL,
+    `image_path` VARCHAR(255) NOT NULL,
+    `image_name` VARCHAR(255) NOT NULL,
+    `image_size` INTEGER NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -576,6 +588,9 @@ ALTER TABLE `recycle_status_histories` ADD CONSTRAINT `recycle_status_histories_
 
 -- AddForeignKey
 ALTER TABLE `recycle_images` ADD CONSTRAINT `recycle_images_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `recycles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `recycle_location_images` ADD CONSTRAINT `recycle_location_images_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `recycle_locations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `recycle_location_categories` ADD CONSTRAINT `recycle_location_categories_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `recycle_locations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
