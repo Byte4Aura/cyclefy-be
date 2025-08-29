@@ -4,13 +4,13 @@ import fs from "fs";
 
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
-        const directory = path.resolve("src/assets/donations/offers");
+        const directory = path.resolve("src/assets/barters/applications");
         if (!fs.existsSync(directory)) fs.mkdirSync(directory, { recursive: true });
         callback(null, directory);
     },
     filename: (req, file, callback) => {
         const extension = path.extname(file.originalname);
-        const filename = `donation_${req.user.id}_${Date.now()}${extension}`;
+        const filename = `barter_app_${req.user.id}_${Date.now()}${extension}`;
         callback(null, filename);
     }
 });
@@ -20,7 +20,7 @@ const fileFilter = (req, file, callback) => {
     else callback(new Error("file.image_only"));
 };
 
-export const uploadDonationImageMiddleware = multer({
+export const uploadBarterApplicationImageMiddleware = multer({
     storage: storage,
     fileFilter: fileFilter,
     // limits: { fileSize: 5 * 1024 * 1024 } // 5MB

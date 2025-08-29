@@ -1,0 +1,629 @@
+import { validate } from "../validations/validation.js";
+import { createBarterValidation } from "../validations/barterValidation.js";
+import { addressIdOwnershipValidate, phoneIdOwnershipValidate, isCategoryIdValid } from "../helpers/userHelper.js";
+import { prismaClient } from "../application/database.js";
+import { getPictureUrl } from "../helpers/fileHelper.js";
+import { ResponseError } from "../errors/responseError.js";
+import { calculateDistance } from "../helpers/geoHelper.js";
+import { snakeToTitleCase } from "../helpers/statusHelper.js";
+
+const getBarters = async (userId, search, category, maxDistance, sort, page, size, reqObject) => {
+    // Get all current user addresses
+    const userAddresses = await prismaClient.address.findMany({
+        where: { user_id: userId }
+    });
+    if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
+
+    // Get Other user barter posts query
+    const where = {
+        user_id: { not: userId }
+    };
+    if (category && category.length > 0) {
+        where.category = { name: { in: category } };
+    }
+    if (search) {
+        where.OR = [
+            { item_name: { contains: search } },
+            { description: { contains: search } },
+            // { category: { name: { contains: search} } }
+        ];
+    }
+
+    // Get other user barter posts
+    const barters = await prismaClient.barter.findMany({
+        where: {
+            ...where,
+        },
+        include: {
+            address: true,
+            category: true,
+            user: true,
+            barterStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1 //take last status
+            }
+        }
+    });
+
+    // Filter status
+    const allowedStatuses = ["waiting_for_request", "waiting_for_confirmation"];
+    let filtered = barters.filter(barter =>
+        barter.barterStatusHistories.length > 0 &&
+        allowedStatuses.includes(barter.barterStatusHistories[0].status)
+    );
+
+    // Count minimun distance to all current user addresses & mapping data
+    const data = filtered.map(barter => {
+        const distances = userAddresses.map(address => {
+            const start = { latitude: address.latitude, longitude: address.longitude }
+            const end = { latitude: barter.address.latitude, longitude: barter.address.longitude }
+            return calculateDistance(start, end);
+        });
+        const minDistance = Math.min(...distances);
+        return {
+            id: barter.id,
+            item_name: barter.item_name,
+            description: barter.description,
+            category: {
+                id: barter.category.id,
+                name: barter.category.name,
+            },
+            address: {
+                id: barter.address.id,
+                address: barter.address.address,
+                latitude: barter.address.latitude,
+                longitude: barter.address.longitude
+            },
+            distance: minDistance,
+            user: {
+                id: barter.user.id,
+                username: barter.user.username,
+                fullname: barter.user.fullname,
+                profile_picture: (!barter.user.profile_picture?.startsWith("http") && !barter.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, barter.user.profile_picture)
+                    : barter.user.profile_picture,
+            },
+            created_at: barter.created_at,
+            updated_at: barter.updated_at
+        }
+    });
+
+    let filteredByDistance = data;
+    // Filter data by maxDistance if exists
+    if (maxDistance && typeof maxDistance === 'number') {
+        filteredByDistance = data.filter(item => item.distance <= maxDistance);
+    }
+
+    // Sorting data
+    if (sort === "nearest") {
+        filteredByDistance.sort((a, b) => a.distance - b.distance);
+    } else if (sort === "newest") {
+        // filtered.sort((a, b) => b.id - a.id);
+        filteredByDistance.sort((a, b) => b.created_at - a.created_at);
+    } //sort by relevance = default sort
+
+
+    // Pagination
+    const total = filteredByDistance.length;
+    const paged = filteredByDistance.slice((page - 1) * size, page * size);
+    // const total = filtered.length;
+
+    return {
+        meta: {
+            total: total,
+            page: page,
+            size: size,
+            totalPages: Math.ceil(total / size)
+        },
+        data: paged
+    }
+}
+
+const getBarterDetail = async (userId, barterId, reqObject) => {
+    // Get barter data
+    const barter = await prismaClient.barter.findUnique({
+        where: {
+            id: barterId,
+            user_id: { not: userId }
+        },
+        include: {
+            images: true,
+            category: true,
+            barterStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1  //take last status
+            },
+            user: true,
+            address: true,
+            phone: true
+        }
+    });
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+
+    // Calculate distance
+    let distance = null;
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    if (userAddresses.length && barter.address) {
+        const distances = userAddresses.map(addr =>
+            calculateDistance(
+                { latitude: addr.latitude, longitude: addr.longitude },
+                { latitude: barter.address.latitude, longitude: barter.address.longitude }
+            )
+        );
+        distance = Math.min(...distances);
+    }
+
+    // Mapping response
+    return {
+        id: barter.id,
+        item_name: barter.item_name,
+        description: barter.description,
+        images: barter.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        category: barter.category
+            ? { id: barter.category.id, name: barter.category.name }
+            : null,
+        status: barter.barterStatusHistories[0]
+            ? {
+                id: barter.barterStatusHistories[0].id,
+                status: snakeToTitleCase(barter.barterStatusHistories[0].status),
+                updated_at: barter.barterStatusHistories[0].updated_at
+            }
+            : null,
+        user: barter.user
+            ? {
+                id: barter.user.id,
+                profile_picture: (!barter.user.profile_picture?.startsWith("http") && !barter.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, barter.user.profile_picture)
+                    : barter.user.profile_picture,
+                username: barter.user.username,
+                fullname: barter.user.fullname
+            }
+            : null,
+        address: barter.address
+            ? {
+                id: barter.address.id,
+                address: barter.address.address,
+                latitude: barter.address.latitude,
+                longitude: barter.address.longitude
+            }
+            : null,
+        distance: distance,
+        phone: barter.phone
+            ? {
+                id: barter.phone.id,
+                number: barter.phone.number
+            }
+            : null
+    };
+};
+
+const createBarter = async (userId, requestBody, files, reqObject) => {
+    if (!files || !Array.isArray(files) || files.length === 0)
+        throw new ResponseError(400, "file.no_file_uploaded");
+    // if (files.length > 5)
+    //     throw new ResponseError(400, "file.too_many_files");
+
+    const data = validate(createBarterValidation, requestBody, reqObject);
+
+    // Ownership & validation
+    await addressIdOwnershipValidate(userId, data.address_id);
+    await phoneIdOwnershipValidate(userId, data.phone_id);
+    await isCategoryIdValid(data.category_id);
+
+    // Save barter
+    const barter = await prismaClient.barter.create({
+        data: {
+            user_id: userId,
+            item_name: data.item_name,
+            description: data.description,
+            category_id: data.category_id,
+            address_id: data.address_id,
+            phone_id: data.phone_id,
+        },
+        include: { category: true }
+    });
+
+    // Save all images
+    const imagePaths = [];
+    for (const file of files) {
+        const imagePath = `/assets/barters/postings/${file.filename}`;
+        await prismaClient.barterImage.create({
+            data: {
+                barter_id: barter.id,
+                // image_path: file.path.replace(/\\/g, "/"),
+                image_path: imagePath,
+                image_name: file.originalname,
+                image_size: file.size
+            }
+        });
+        imagePaths.push(getPictureUrl(reqObject, imagePath));
+    }
+
+    // Create Barter Status
+    const barterStatus = await prismaClient.barterStatusHistory.create({
+        data: {
+            barter_id: barter.id,
+            status: "waiting_for_request",
+            status_detail: "barter.posting.waiting_for_request_detail",
+            updated_by: userId
+        }
+    });
+
+    return {
+        id: barter.id,
+        item_name: barter.item_name,
+        description: barter.description,
+        category: {
+            id: barter.category.id,
+            name: barter.category.name
+        },
+        address_id: barter.address_id,
+        phone_id: barter.phone_id,
+        images: imagePaths,
+        status: barterStatus.status
+    };
+};
+
+const getBarterHistory = async (userId, search, category, userItemStatus, otherItemStatus, ownership, userItemPage, userItemSize, otherItemPage, otherItemSize, reqObject) => {
+    // Prepare result
+    const data = { my_items: [], other_items: [] };
+    const meta = { my_items: {}, other_items: {} };
+
+    // Current user items
+    if (ownership.includes("my_items")) {
+        const whereBarterFilter = { user_id: userId };
+
+        if (category && category.length > 0) {
+            whereBarterFilter.category = { name: { in: category } };
+        }
+        if (search) {
+            whereBarterFilter.OR = [
+                { item_name: { contains: search } },
+                { description: { contains: search } },
+                // { category: { name: { contains: search} } }
+            ];
+        }
+
+        const myBarters = await prismaClient.barter.findMany({
+            where: whereBarterFilter,
+            include: {
+                images: true,
+                category: true,
+                barterStatusHistories: {
+                    orderBy: { created_at: "desc" },
+                    take: 1 //take last status
+                }
+            },
+            // take: userItemSize,
+            // skip: (userItemPage - 1) * userItemSize
+        });
+
+        // Filter status
+        let filteredMyBarters = myBarters;
+        if (userItemStatus && userItemStatus.length > 0) {
+            filteredMyBarters = myBarters.filter(myBarter =>
+                myBarter.barterStatusHistories.length > 0 &&
+                userItemStatus.includes(myBarter.barterStatusHistories[0].status)
+            );
+        }
+
+        // Pagination
+        const userItemTotal = filteredMyBarters.length;
+        const pagedMyBarters = filteredMyBarters.slice(
+            (userItemPage - 1) * userItemSize,
+            userItemPage * userItemSize
+        );
+
+        data.my_items = pagedMyBarters.map(barter => ({
+            id: barter.id,
+            item_name: barter.item_name,
+            description: barter.description,
+            images: barter.images.map(img => {
+                if (!img.image_path.startsWith("http") && !img.image_path.startsWith("https")) {
+                    return getPictureUrl(reqObject, img.image_path);
+                }
+                return img.image_path;
+            }),
+            category: barter.category
+                ? { id: barter.category.id, name: barter.category.name }
+                : null,
+            status: barter.barterStatusHistories[0]
+                ? {
+                    id: barter.barterStatusHistories[0].id,
+                    status: snakeToTitleCase(barter.barterStatusHistories[0].status),
+                    updated_at: barter.barterStatusHistories[0].updated_at,
+                }
+                : null,
+        }));
+
+        meta.my_items = {
+            total: userItemTotal,
+            page: userItemPage,
+            size: userItemSize,
+            totalPages: Math.ceil(userItemTotal / userItemSize)
+        };
+    }
+
+    // Other user items
+    if (ownership.includes("other_items")) {
+        const myBarterIds = (
+            await prismaClient.barter.findMany({
+                where: { user_id: userId },
+                select: { id: true }
+            })
+        ).map(barter => barter.id);
+
+        let filteredBarterApplications = [];
+        if (myBarterIds.length > 0) {
+            const whereBarterApplicationFilter = {
+                barter_id: { in: myBarterIds },
+                user_id: { not: userId }
+            }
+
+            if (category && category.length > 0) {
+                whereBarterApplicationFilter.category = { name: { in: category } };
+            }
+            if (search) {
+                whereBarterApplicationFilter.OR = [
+                    { item_name: { contains: search } },
+                    { description: { contains: search } },
+                    // { category: { name: { contains: search} } }
+                ];
+            }
+
+            const barterApplications = await prismaClient.barterApplication.findMany({
+                where: whereBarterApplicationFilter,
+                include: {
+                    images: true,
+                    category: true,
+                    barterApplicationStatusHistories: {
+                        orderBy: { created_at: "desc" },
+                        take: 1 //take last status
+                    },
+                    user: true,
+                    address: true
+                },
+                // skip: (otherItemPage - 1) * otherItemSize,
+                // take: otherItemSize
+            });
+
+            // Filter status
+            filteredBarterApplications = barterApplications;
+            if (otherItemStatus && otherItemStatus.length > 0) {
+                filteredBarterApplications = barterApplications.filter(barterApp =>
+                    barterApp.barterApplicationStatusHistories.length > 0 &&
+                    otherItemStatus.includes(barterApp.barterApplicationStatusHistories[0].status)
+                );
+            }
+
+            // Pagination
+            const totalOtherItems = filteredBarterApplications.length;
+            const pagedOtherItems = filteredBarterApplications.slice(
+                (otherItemPage - 1) * otherItemSize,
+                otherItemPage * otherItemSize
+            );
+
+            // Get user addresses for distance calculation
+            const userAddresses = await prismaClient.address.findMany({
+                where: { user_id: userId }
+            });
+            if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
+
+            data.other_items = pagedOtherItems.map(app => {
+                // Distance: min dari semua address user ke address barter application
+                let distance = null;
+                if (userAddresses.length && app.address) {
+                    const distances = userAddresses.map(addr =>
+                        calculateDistance(
+                            { latitude: addr.latitude, longitude: addr.longitude },
+                            { latitude: app.address.latitude, longitude: app.address.longitude }
+                        )
+                    );
+                    distance = Math.min(...distances);
+                }
+
+                const userProfilePicture = (!app.user.profile_picture.startsWith("http") || !app.user.profile_picture.startsWith("https"))
+                    ? getPictureUrl(reqObject, app.user.profile_picture)
+                    : app.user.profile_picture
+
+                return {
+                    id: app.id,
+                    item_name: app.item_name,
+                    description: app.description,
+                    images: app.images.map(img => {
+                        if (!img.image_path.startsWith("http") || !img.image_path.startsWith("https")) {
+                            return getPictureUrl(reqObject, img.image_path);
+                        };
+                        return img.image_path;
+                    }),
+                    category: app.category
+                        ? { id: app.category.id, name: app.category.name }
+                        : null,
+                    status: app.barterApplicationStatusHistories[0]
+                        ? {
+                            id: app.barterApplicationStatusHistories[0].id,
+                            status: snakeToTitleCase(app.barterApplicationStatusHistories[0].status),
+                            updated_at: app.barterApplicationStatusHistories[0].updated_at,
+                        }
+                        : null,
+                    user: app.user
+                        ? {
+                            id: app.user.id,
+                            profile_picture: userProfilePicture,
+                            username: app.user.username,
+                            fullname: app.user.fullname
+                        }
+                        : null,
+                    address: app.address
+                        ? {
+                            id: app.address.id,
+                            address: app.address.address,
+                            latitude: app.address.latitude,
+                            longitude: app.address.longitude
+                        }
+                        : null,
+                    distance: distance
+                };
+            });
+
+            meta.other_items = {
+                total: totalOtherItems,
+                page: otherItemPage,
+                size: otherItemSize,
+                totalPages: Math.ceil(totalOtherItems / otherItemSize)
+            };
+        } else {
+            meta.other_items = {
+                total: 0,
+                page: otherItemPage,
+                size: otherItemSize,
+                totalPages: 0
+            };
+        }
+    }
+
+    return {
+        meta: meta,
+        data: data
+    }
+}
+
+const getMyBarterDetail = async (userId, barterId, reqObject) => {
+    // Ambil barter milik user login
+    const barter = await prismaClient.barter.findUnique({
+        where: {
+            id: barterId,
+            user_id: userId
+        },
+        include: {
+            images: true,
+            category: true,
+            address: true,
+            barterStatusHistories: {
+                orderBy: { created_at: "asc" } // urutkan status dari awal ke akhir
+            }
+        }
+    });
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+
+    // Ambil semua aplikasi barter (barterApplication) yang masuk ke barter ini
+    const barterApplications = await prismaClient.barterApplication.findMany({
+        where: { barter_id: barterId },
+        include: {
+            images: true,
+            category: true,
+            barterApplicationStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1
+            },
+            user: true,
+            address: true
+        }
+    });
+
+    // Ambil address user login untuk hitung distance
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+
+    // Mapping incoming_request
+    const incoming_request = barterApplications.map(app => {
+        // Hitung distance (min dari semua address user ke address barter application)
+        let distance = null;
+        if (userAddresses.length && app.address) {
+            const distances = userAddresses.map(addr =>
+                calculateDistance(
+                    { latitude: addr.latitude, longitude: addr.longitude },
+                    { latitude: app.address.latitude, longitude: app.address.longitude }
+                )
+            );
+            distance = Math.min(...distances);
+        }
+
+        return {
+            id: app.id,
+            item_name: app.item_name,
+            description: app.description,
+            images: app.images.map(img =>
+                (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                    ? getPictureUrl(reqObject, img.image_path)
+                    : img.image_path
+            ),
+            category: app.category
+                ? { id: app.category.id, name: app.category.name }
+                : null,
+            status: app.barterApplicationStatusHistories[0]
+                ? {
+                    id: app.barterApplicationStatusHistories[0].id,
+                    status: snakeToTitleCase(app.barterApplicationStatusHistories[0].status),
+                    updated_at: app.barterApplicationStatusHistories[0].updated_at
+                }
+                : null,
+            user: app.user
+                ? {
+                    id: app.user.id,
+                    profile_picture: (!app.user.profile_picture?.startsWith("http") && !app.user.profile_picture?.startsWith("https"))
+                        ? getPictureUrl(reqObject, app.user.profile_picture)
+                        : app.user.profile_picture,
+                    username: app.user.username,
+                    fullname: app.user.fullname
+                }
+                : null,
+            address: app.address
+                ? {
+                    id: app.address.id,
+                    address: app.address.address,
+                    latitude: app.address.latitude,
+                    longitude: app.address.longitude
+                }
+                : null,
+            distance: distance
+        };
+    });
+
+    // Mapping status_histories
+    const status_histories = barter.barterStatusHistories.map(status => ({
+        id: status.id,
+        status: snakeToTitleCase(status.status),
+        status_detail: reqObject.__(status.status_detail),
+        updated_at: status.updated_at
+    }));
+
+    // Mapping response
+    return {
+        id: barter.id,
+        item_name: barter.item_name,
+        description: barter.description,
+        category: barter.category
+            ? { id: barter.category.id, name: barter.category.name }
+            : null,
+        status: barter.barterStatusHistories.length > 0
+            ? barter.barterStatusHistories[barter.barterStatusHistories.length - 1].status
+            : null,
+        address: barter.address
+            ? {
+                id: barter.address.id,
+                address: barter.address.address,
+                latitude: barter.address.latitude,
+                longitude: barter.address.longitude
+            }
+            : null,
+        images: barter.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        status_histories: status_histories,
+        incoming_request: incoming_request
+    };
+};
+
+export default {
+    getBarters,
+    getBarterDetail,
+    createBarter,
+    getBarterHistory,
+    getMyBarterDetail
+}

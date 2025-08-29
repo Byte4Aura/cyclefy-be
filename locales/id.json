@@ -44,6 +44,7 @@
     },
     "user": {
         "not_found": "Pengguna tidak ditemukan",
+        "no_address": "Pengguna belum memiliki alamat",
         "get_current_user_successful": "Berhasil mendapatkan pengguna saat ini",
         "update_current_user_successful": "Berhasil memperbarui pengguna saat ini",
         "update_profile_picture_successful": "Berhasil memperbarui foto profil",
@@ -85,10 +86,38 @@
         "submitted_detail": "Barang telah diserahkan untuk didonasikan",
         "confirmed_detail": "Donasi sudah dikonfirmasi dan siap untuk diproses",
         "completed_detail": "Donasi telah berhasil dikirimkan ke penerima",
-        "cancelled_detail": "Donasi dibatalkan",
+        "failed_detail": "Donasi dibatalkan",
         "create_successful": "Donasi berhasil dibuat",
-        "get_list_successful": "Berhasil mendapatkan daftar donasi",
+        "get_history_successful": "Berhasil mendapatkan riwayat donasi",
         "get_detail_successful": "Berhasil mendapatkan detail donasi"
+    },
+    "barter": {
+        "not_found": "Barter tidak ditemukan",
+        "id_not_a_number": "Barter ID bukan angka",
+        "status_not_available": "Status item barter Anda tidak tersedia untuk diajukan",
+        "posting": {
+            "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan barter",
+            "waiting_for_confirmation_detail": "Seseorang telah mengajukan permintaan barter, menunggu konfirmasi Anda",
+            "confirmed_detail": "Anda telah mengonfirmasi permintaan barter, dan pertukaran siap dilanjutkan",
+            "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
+            "cancelled_detail": "Proses barter dibatalkan"
+        },
+        "get_history_successful": "Berhasil mendapatkan riwayat barter",
+        "create_successful": "Barter berhasil dibuat",
+        "get_posts_successful": "Berhasil mendapatkan daftar barter",
+        "get_detail_successful": "Berhasil mendapatkan detail barter"
+    },
+    "barter_application": {
+        "user_barter_id_invalid": "ID postingan barter user tidak valid",
+        "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
+        "request": {
+            "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
+            "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",
+            "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
+            "cancelled_detail": "Proses barter dibatalkan"
+        },
+        "duplicate_existing_item": "Item barter postingan anda duplikat",
+        "create_successful": "Pengajuan barter berhasil dibuat"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

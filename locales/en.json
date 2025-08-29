@@ -44,6 +44,7 @@
     },
     "user": {
         "not_found": "User not found",
+        "no_address": "User does not have an address yet",
         "get_current_user_successful": "Get current user successful",
         "update_current_user_successful": "Update current user successful",
         "update_profile_picture_successful": "Update profile picture successful",
@@ -85,10 +86,38 @@
         "submitted_detail": "The item has been submitted for donation",
         "confirmed_detail": "Donation has been confirmed and is ready for processing",
         "completed_detail": "Donation has been successfully delivered to the recipient",
-        "cancelled_detail": "Donation was cancelled",
+        "failed_detail": "Donation was cancelled",
         "create_successful": "Donation created successfully",
-        "get_list_successful": "Get donation list successful",
+        "get_history_successful": "Get donation history successful",
         "get_detail_successful": "Get donation detail successful"
+    },
+    "barter": {
+        "not_found": "Barter not found",
+        "id_not_a_number": "Barter id is not a number",
+        "status_not_available": "Your barter item status is not available to be requested",
+        "posting": {
+            "waiting_for_request_detail": "The item has been posted and is waiting for someone else to submit a barter request",
+            "waiting_for_confirmation_detail": "Someone has submitted a barter request, awaiting your confirmation",
+            "confirmed_detail": "You have confirmed the barter request, and the exchange is ready to proceed",
+            "completed_detail": "The barter has been successfully completed, and the items have been exchanged",
+            "cancelled_detail": "The barter process was cancelled"
+        },
+        "get_history_successful": "Get barter history successful",
+        "create_successful": "Barter created successfully",
+        "get_posts_successful": "Get barter posts successful",
+        "get_detail_successful": "Get barter detail successful"
+    },
+    "barter_application": {
+        "user_barter_id_invalid": "User barter post id is not valid",
+        "user_barter_not_found": "Current user barter item not found",
+        "request": {
+            "request_submitted_detail": "A barter request has been submitted, awaiting confirmation",
+            "confirmed_detail": "The barter request has been confirmed, and the exchange is ready to proceed",
+            "completed_detail": "The barter has been successfully completed, and items have been exchanged",
+            "cancelled_detail": "The barter process was cancelled"
+        },
+        "duplicate_existing_item": "Your barter post request is duplicate",
+        "create_successful": "Barter application created successfully"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

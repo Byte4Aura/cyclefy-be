@@ -32,12 +32,13 @@ const createDonation = async (req, res, next) => {
 const getDonations = async (req, res, next) => {
     try {
         // Parsing and validate query parameters
+        const searchParam = req.query.search ?? "";
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
-        const categoryIds = req.query.category
-            ? req.query.category.split(',').map(Number).filter(Boolean)
+        const category = req.query.category && req.query.category !== "all"
+            ? req.query.category.split(',').map(category => category.trim()).filter(Boolean)
             : [];
-        const statuses = req.query.status
+        const status = req.query.status && req.query.status !== "all"
             ? req.query.status.split(',').map(s => s.trim()).filter(Boolean)
             : [];
 
@@ -47,14 +48,15 @@ const getDonations = async (req, res, next) => {
             userId,
             page,
             size,
-            categoryIds,
-            statuses,
+            searchParam,
+            category,
+            status,
             req
         );
 
         res.status(200).json({
             success: true,
-            message: req.__('donation.get_list_successful'),
+            message: req.__('donation.get_history_successful'),
             ...result
         });
     } catch (error) {

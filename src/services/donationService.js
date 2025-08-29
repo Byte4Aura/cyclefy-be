@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs/promises";
 import { addressIdOwnershipValidate, isCategoryIdValid, phoneIdOwnershipValidate } from "../helpers/userHelper.js";
 import { getPictureUrl } from "../helpers/fileHelper.js";
+import { snakeToTitleCase } from "../helpers/statusHelper.js";
 
 const createDonation = async (userId, requestBody, files, reqObject) => {
     if (!files || !Array.isArray(files) || files.length === 0)
@@ -75,25 +76,20 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
     };
 };
 
-const getDonations = async (userId, page, size, categoryIds, statuses, reqObject) => {
-    const skip = (page - 1) * size;
-
+const getDonations = async (userId, page, size, search, category, statuses, reqObject) => {
     // Build where clause
     const where = {};
-    if (categoryIds && categoryIds.length > 0) {
-        where.category_id = { in: categoryIds };
-    }
-    if (statuses && statuses.length > 0) {
-        // Cari donation yang status terakhirnya ada di status filter
-        where.donationStatusHistories = {
-            some: {
-                status: { in: statuses }
-            }
-        };
-    }
 
-    // Get total count
-    const total = await prismaClient.donation.count({ where });
+    if (search) {
+        where.OR = [
+            { item_name: { contains: search } },
+            { description: { contains: search } },
+            // { category: { name: { contains: search} } }
+        ];
+    }
+    if (category && category.length > 0) {
+        where.category = { name: { in: category } };
+    }
 
     // Get data
     const donations = await prismaClient.donation.findMany({
@@ -101,8 +97,6 @@ const getDonations = async (userId, page, size, categoryIds, statuses, reqObject
             ...where,
             user_id: userId,
         },
-        skip: skip,
-        take: size,
         // orderBy: { updated_at: "desc" },
         include: {
             images: true,
@@ -114,8 +108,21 @@ const getDonations = async (userId, page, size, categoryIds, statuses, reqObject
         }
     });
 
+    let filteredDonations = donations;
+    // filter last status
+    if (statuses && statuses.length > 0) {
+        filteredDonations = donations.filter(donation =>
+            donation.donationStatusHistories.length > 0 &&
+            statuses.includes(donation.donationStatusHistories[0].status)
+        );
+    }
+
+    // Pagination
+    const total = filteredDonations.length;
+    const pagedDonations = filteredDonations.slice((page - 1) * size, page * size);
+
     // Mapping response
-    const data = donations.map(donation => ({
+    const data = pagedDonations.map(donation => ({
         id: donation.id,
         item_name: donation.item_name,
         description: donation.description,
@@ -129,11 +136,13 @@ const getDonations = async (userId, page, size, categoryIds, statuses, reqObject
             ? { id: donation.category.id, name: donation.category.name }
             : null,
         // status: donation.donationStatusHistories[0]?.status || null,
-        status: {
-            id: donation.donationStatusHistories[0].id,
-            status: donation.donationStatusHistories[0].status,
-            updated_at: donation.donationStatusHistories[0].updated_at
-        }
+        status: donation.donationStatusHistories[0]
+            ? {
+                id: donation.donationStatusHistories[0].id,
+                status: snakeToTitleCase(donation.donationStatusHistories[0].status),
+                updated_at: donation.donationStatusHistories[0].updated_at
+            }
+            : null
         // updated_at: donation.updated_at,
         // updated_at: donation.donationStatusHistories[donation.donationStatusHistories.length - 1].updated_at,
     }));
@@ -188,7 +197,7 @@ const getDonationDetail = async (userId, donationId, reqObject) => {
             return img.image_path;
         }),
         category: { id: donation.category.id, name: donation.category.name },
-        status: donation.donationStatusHistories[donation.donationStatusHistories.length - 1]?.status || null,
+        status: snakeToTitleCase(donation.donationStatusHistories[donation.donationStatusHistories.length - 1]?.status) || null,
         address: {
             id: donation.address.id,
             address: donation.address.address,
@@ -197,7 +206,7 @@ const getDonationDetail = async (userId, donationId, reqObject) => {
         },
         status_histories: donation.donationStatusHistories.map(status => ({
             id: status.id,
-            status: status.status,
+            status: snakeToTitleCase(status.status),
             status_detail: reqObject.__(status.status_detail),
             // created_at: status.created_at,
             updated_at: status.updated_at,

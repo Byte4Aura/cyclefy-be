@@ -9,6 +9,10 @@ import categoryController from "../controllers/categoryController.js";
 import { uploadDonationImageMiddleware } from "../middlewares/donations/uploadDonationMiddleware.js";
 import donationController from "../controllers/donationController.js";
 import { env } from "../application/env.js";
+import { uploadBarterImageMiddleware } from "../middlewares/barter/uploadBarterImageMiddleware.js";
+import barterController from "../controllers/barterController.js";
+import { uploadBarterApplicationImageMiddleware } from "../middlewares/barter/uploadBarterApplicationImagMiddleware.js";
+import barterApplicationController from "../controllers/barterApplicationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -39,7 +43,17 @@ userRouter.delete('/users/current/phones/:phoneId', authMiddleware, phoneControl
 userRouter.get('/users/current/donations', authMiddleware, donationController.getDonations);
 userRouter.get('/users/current/donations/:donationId', authMiddleware, donationController.getDonationDetail);
 userRouter.post('/donations', authMiddleware, uploadDonationImageMiddleware, donationController.createDonation);
-userRouter.get('/donations/:donationId', authMiddleware,);
+
+// Barter API
+userRouter.get('/barters', authMiddleware, barterController.getBarters);  //discover barter
+userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterController.createBarter);  //create barter
+userRouter.get('/barters/:barterId', authMiddleware, barterController.getBarterDetail); //Detail other user barter, access from GET /barters
+userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
+
+// userRouter.get('/barters-applications/:barterId', authMiddleware,); //Detail other user barter
+
+userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);
+userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get user's barter post detail
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

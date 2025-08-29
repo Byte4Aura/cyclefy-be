@@ -3,7 +3,7 @@ enum BarterStatus {
     waiting_for_confirmation
     confirmed
     completed
-    cancelled
+    failed
 }
 
 // BARTERS
@@ -62,7 +62,7 @@ enum BarterApplicationStatus {
     request_submitted
     confirmed
     completed
-    cancelled
+    failed
 }
 
 // BARTER_APPLICATIONS
@@ -82,7 +82,7 @@ model BarterApplication {
     phone_id       Int
     // status        BarterApplicationStatus @default(request_submitted)
     // status_detail String                  @db.VarChar(255)
-    decline_reason String   @db.VarChar(255)
+    decline_reason String?  @db.VarChar(255)
     created_at     DateTime @default(now())
     updated_at     DateTime @updatedAt
 
