@@ -117,10 +117,29 @@ const getMyBarterDetail = async (req, res, next) => {
     }
 };
 
+const getMyBarterIncomingRequestDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const barterId = Number(req.params.barterId);
+        if (!isRequestParameterNumber(barterId)) throw new ResponseError(400, "barter.id_not_a_number");
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "barter.request_id_not_a_number");
+        const result = await barterService.getMyBarterIncomingRequestDetail(userId, barterId, requestId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter.get_incoming_request_detail_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getBarters,
     getBarterDetail,
     createBarter,
     getBarterHistory,
-    getMyBarterDetail
+    getMyBarterDetail,
+    getMyBarterIncomingRequestDetail
 };

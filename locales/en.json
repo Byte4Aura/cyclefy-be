@@ -94,6 +94,7 @@
     "barter": {
         "not_found": "Barter not found",
         "id_not_a_number": "Barter id is not a number",
+        "request_id_not_a_number": "Incoming request id is not a number",
         "status_not_available": "Your barter item status is not available to be requested",
         "posting": {
             "waiting_for_request_detail": "The item has been posted and is waiting for someone else to submit a barter request",
@@ -105,9 +106,11 @@
         "get_history_successful": "Get barter history successful",
         "create_successful": "Barter created successfully",
         "get_posts_successful": "Get barter posts successful",
-        "get_detail_successful": "Get barter detail successful"
+        "get_detail_successful": "Get barter detail successful",
+        "get_incoming_request_detail_successful": "Get incoming request detail successful"
     },
     "barter_application": {
+        "not_found": "Barter request not found",
         "user_barter_id_invalid": "User barter post id is not valid",
         "user_barter_not_found": "Current user barter item not found",
         "request": {
@@ -117,7 +120,7 @@
             "cancelled_detail": "The barter process was cancelled"
         },
         "duplicate_existing_item": "Your barter post request is duplicate",
-        "create_successful": "Barter application created successfully"
+        "create_successful": "Barter request created successfully"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

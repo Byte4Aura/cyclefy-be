@@ -94,6 +94,7 @@
     "barter": {
         "not_found": "Barter tidak ditemukan",
         "id_not_a_number": "Barter ID bukan angka",
+        "request_id_not_a_number": "Request ID bukan angka",
         "status_not_available": "Status item barter Anda tidak tersedia untuk diajukan",
         "posting": {
             "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan barter",
@@ -105,9 +106,11 @@
         "get_history_successful": "Berhasil mendapatkan riwayat barter",
         "create_successful": "Barter berhasil dibuat",
         "get_posts_successful": "Berhasil mendapatkan daftar barter",
-        "get_detail_successful": "Berhasil mendapatkan detail barter"
+        "get_detail_successful": "Berhasil mendapatkan detail barter",
+        "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request barter yang masuk"
     },
     "barter_application": {
+        "not_found": "Request barter tidak ditemukan",
         "user_barter_id_invalid": "ID postingan barter user tidak valid",
         "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "request": {

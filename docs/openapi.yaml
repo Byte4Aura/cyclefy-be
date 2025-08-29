@@ -3525,7 +3525,200 @@ paths:
                         type: string
                         example: null
 
-
+  /api/users/current/barters/{barterId}/requests/{requestId}:
+    get:
+      tags:
+        - Barter
+      summary: Mendapatkan detail incoming request user lain pada postingan barter milik user sendiri
+      description: |
+        Mengambil detail request barter (incoming request) dari user lain pada postingan barter milik user yang sedang login, beserta detail item barter milik user pada field barter_with.
+      parameters:
+        - name: barterId
+          in: path
+          required: true
+          description: ID barter milik user login
+          schema:
+            type: integer
+        - name: requestId
+          in: path
+          required: true
+          description: ID barter request yang ingin diambil detailnya
+          schema:
+            type: integer
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail incoming request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail request barter yang masuk
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      item_name:
+                        type: string
+                      description:
+                        type: string
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                      category:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                      status:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                          status:
+                            type: string
+                          updated_at:
+                            type: string
+                            format: date-time
+                      user:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                          profile_picture:
+                            type: string
+                            format: uri
+                          username:
+                            type: string
+                          fullname:
+                            type: string
+                      address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                          address:
+                            type: string
+                          latitude:
+                            type: number
+                          longitude:
+                            type: number
+                      distance:
+                        type: number
+                        nullable: true
+                      barter_with:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          item_name:
+                            type: string
+                          description:
+                            type: string
+                          images:
+                            type: array
+                            items:
+                              type: string
+                              format: uri
+                          status:
+                            type: string
+                          status_histories:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                status:
+                                  type: string
+                                status_detail:
+                                  type: string
+                                updated_at:
+                                  type: string
+                                  format: date-time
+        '400':
+          description: barterId atau requestId tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Barter ID bukan angka || Request ID bukan angka
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        '404':
+          description: Data tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Barter tidak ditemukan || Request tidak ditemukan
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
 
 

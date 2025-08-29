@@ -54,6 +54,7 @@ userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplic
 
 userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);
 userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get user's barter post detail
+userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);
