@@ -2,6 +2,7 @@ import barterService from "../services/barterService.js";
 import fs from "fs/promises";
 import { logger } from "../application/logging.js";
 import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
+import { ResponseError } from "../errors/responseError.js";
 
 const getBarters = async (req, res, next) => {
     try {
@@ -100,9 +101,26 @@ const getBarterHistory = async (req, res, next) => {
     }
 };
 
+const getMyBarterDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const barterId = Number(req.params.barterId);
+        if (!isRequestParameterNumber(barterId)) throw new ResponseError(400, "barter.id_not_a_number");
+        const result = await barterService.getMyBarterDetail(userId, barterId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter.get_detail_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getBarters,
     getBarterDetail,
     createBarter,
-    getBarterHistory
+    getBarterHistory,
+    getMyBarterDetail
 };
