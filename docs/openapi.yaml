@@ -3738,6 +3738,7 @@ paths:
       description: |
         Accept akan mengubah status requestId menjadi confirmed dan semua request lain pada barterId yang sama menjadi failed.
         Decline akan mengubah status requestId menjadi failed dengan alasan yang diisi user.
+        Aksi ini dapat diproses hanya jika status barterId adalah waiting_for_confirmation & status requestId adalah request_submitted
       parameters:
         - name: barterId
           in: path
@@ -3750,7 +3751,7 @@ paths:
           required: true
           schema:
             type: integer
-          description: ID barter application (request) yang ingin diproses
+          description: ID barter request yang ingin diproses
         - name: Authorization
           in: header
           required: true
@@ -3859,7 +3860,63 @@ paths:
                     type: object
                     nullable: true
 
-
+  /api/users/current/barters/{barterId}/requests/{requestId}/mark-as-completed:
+    post:
+      tags:
+        - Barter
+      summary: Tandai barter sebagai selesai (mark as completed)
+      description: |
+        Hanya dapat dilakukan oleh pemilik barterId jika status barter sudah confirmed.
+        Akan mengubah status barter dan barter request terkait menjadi completed.
+      parameters:
+        - name: barterId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID barter milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID barter request yang sudah di-accept
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      responses:
+        '200':
+          description: Berhasil menandai barter sebagai selesai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Barter marked as completed successfully
+        '400':
+          description: Barter belum dikonfirmasi atau request belum dikonfirmasi
+        '401':
+          description: Unauthorized
+        '404':
+          description: Data tidak ditemukan
 
 
 

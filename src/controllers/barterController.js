@@ -159,6 +159,23 @@ const processIncomingRequest = async (req, res, next) => {
     }
 };
 
+const markBarterAsCompleted = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const barterId = Number(req.params.barterId);
+        if (!isRequestParameterNumber(barterId)) throw new ResponseError(400, "barter.id_not_a_number");
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "barter.request_id_not_a_number");
+        await barterService.markBarterAsCompleted(userId, barterId, requestId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter.mark_completed_successful")
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getBarters,
     getBarterDetail,
@@ -166,5 +183,6 @@ export default {
     getBarterHistory,
     getMyBarterDetail,
     getMyBarterIncomingRequestDetail,
-    processIncomingRequest
+    processIncomingRequest,
+    markBarterAsCompleted
 };

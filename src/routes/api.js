@@ -54,6 +54,8 @@ userRouter.get('/users/current/barters', authMiddleware, barterController.getBar
 userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get user's barter post detail
 userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
+userRouter.post('/users/current/barters/:barterId/requests/:requestId/mark-as-completed', authMiddleware, barterController.markBarterAsCompleted);
+
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

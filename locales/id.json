@@ -111,7 +111,10 @@
         "get_detail_successful": "Berhasil mendapatkan detail barter",
         "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request barter yang masuk",
         "request_accepted": "Pengajuan barter berhasil dikonfirmasi",
-        "request_declined": "Pengajuan barter berhasil ditolak"
+        "request_declined": "Pengajuan barter berhasil ditolak",
+        "mark_completed_successful": "Status barter berhasil ditandai sebagai selesai",
+        "cannot_confirmed": "Status barter tidak bisa mengkonfirmasi request",
+        "cannot_mark_completed": "Status barter tidak bisa ditandai sebagai selesai"
     },
     "barter_application": {
         "not_found": "Request barter tidak ditemukan",
@@ -125,7 +128,8 @@
             "failed_auto_detail": "Pengajuan barter lain telah diterima, pengajuan anda otomatis ditolak"
         },
         "duplicate_existing_item": "Item barter postingan anda duplikat",
-        "create_successful": "Pengajuan barter berhasil dibuat"
+        "create_successful": "Pengajuan barter berhasil dibuat",
+        "cannot_mark_completed": "Status pengajuan barter tidak bisa ditandai sebagai selesai"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

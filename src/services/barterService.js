@@ -752,6 +752,9 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
 
     validate(processBarterRequestValidation, { action, decline_reason }, reqObject);
 
+    if (barter.barterStatusHistories[barter.barterStatusHistories.length - 1].status !== "waiting_for_confirmation") throw new ResponseError(400, "barter.cannot_confirmed");
+    if (barterApp.barterApplicationStatusHistories[barterApp.barterApplicationStatusHistories.length - 1].status !== "request_submitted") throw new ResponseError(400, "barter_application.cannot_confirmed");
+
     if (action === "accept") {
         // 1. Update barter_application_status_histories requestId jadi confirmed
         await prismaClient.barterApplicationStatusHistory.create({
@@ -813,6 +816,58 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
     }
 };
 
+const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => {
+    // 1. Validasi barterId milik user login
+    const barter = await prismaClient.barter.findUnique({
+        where: { id: barterId, user_id: userId },
+        include: {
+            barterStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1 //take last status
+            }
+        }
+    });
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+
+    // 2. Pastikan status terakhir barter adalah confirmed
+    const lastStatus = barter.barterStatusHistories[0];
+    if (!lastStatus || lastStatus.status !== "confirmed")
+        throw new ResponseError(400, "barter.cannot_mark_completed");
+
+    // 3. Validasi requestId adalah barter request ke barterId tsb
+    const barterApp = await prismaClient.barterApplication.findUnique({
+        where: { id: requestId }
+    });
+    if (!barterApp || barterApp.barter_id !== barterId)
+        throw new ResponseError(404, "barter_application.not_found");
+
+    // 4. Pastikan status terakhir barterApplication adalah confirmed
+    const lastAppStatus = await prismaClient.barterApplicationStatusHistory.findFirst({
+        where: { barter_application_id: requestId },
+        orderBy: { created_at: "desc" }
+    });
+    if (!lastAppStatus || lastAppStatus.status !== "confirmed")
+        throw new ResponseError(400, "barter_application.cannot_mark_completed");
+
+    // 5. Update barter_status_histories barterId jadi completed
+    await prismaClient.barterStatusHistory.create({
+        data: {
+            barter_id: barterId,
+            status: "completed",
+            status_detail: "barter.posting.completed_detail"
+        }
+    });
+
+    // 6. Update barter_application_status_histories requestId jadi completed
+    await prismaClient.barterApplicationStatusHistory.create({
+        data: {
+            barter_application_id: requestId,
+            status: "completed",
+            status_detail: "barter_application.request.completed_detail"
+        }
+    });
+};
+
 export default {
     getBarters,
     getBarterDetail,
@@ -820,5 +875,6 @@ export default {
     getBarterHistory,
     getMyBarterDetail,
     getMyBarterIncomingRequestDetail,
-    processIncomingRequest
+    processIncomingRequest,
+    markBarterAsCompleted
 }

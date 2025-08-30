@@ -111,7 +111,10 @@
         "get_detail_successful": "Get barter detail successful",
         "get_incoming_request_detail_successful": "Get incoming request detail successful",
         "request_accepted": "Barter request accepted successfully",
-        "request_declined": "Barter request declined successfully"
+        "request_declined": "Barter request declined successfully",
+        "mark_completed_successful": "Mark barter as completed successful",
+        "cannot_confirmed": "Barter status cannot confirmed a request",
+        "cannot_mark_completed": "Barter status cannot be mark as completed"
     },
     "barter_application": {
         "not_found": "Barter request not found",
@@ -125,7 +128,8 @@
             "failed_auto_detail": "Other request has been accepted, your request automatically declined"
         },
         "duplicate_existing_item": "Your barter post request is duplicate",
-        "create_successful": "Barter request created successfully"
+        "create_successful": "Barter request created successfully",
+        "cannot_mark_completed": "Barter request status cannot be mark as completed"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",
