@@ -3296,7 +3296,7 @@ paths:
     get:
       tags:
         - Barter
-      summary: Mendapatkan detail postingan barter milik user sendiri beserta incoming request
+      summary: Mendapatkan detail postingan barter milik user sendiri (my_items) beserta incoming request
       description: |
         Mengambil detail postingan barter milik user saat ini berdasarkan barterId, beserta daftar incoming_request dari user lain.
       parameters:
@@ -3525,6 +3525,156 @@ paths:
                         type: string
                         example: null
 
+  /api/users/current/barter-requests/{requestId}:
+    get:
+      tags:
+        - Barter
+      summary: Mendapatkan detail incoming request (other_items) milik user login
+      description: |
+        Mengambil detail barter application (incoming request) milik user login, beserta data barter yang diajukan (barter_with).
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID barter application (other_items)
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail incoming request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail incoming request
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      item_name:
+                        type: string
+                      description:
+                        type: string
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                      status:
+                        type: string
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            status:
+                              type: string
+                            status_detail:
+                              type: string
+                            updated_at:
+                              type: string
+                              format: date-time
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          address:
+                            type: string
+                          latitude:
+                            type: number
+                          longitude:
+                            type: number
+                      distance:
+                        type: number
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          profile_picture:
+                            type: string
+                            format: uri
+                          username:
+                            type: string
+                          fullname:
+                            type: string
+                      barter_with:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          item_name:
+                            type: string
+                          description:
+                            type: string
+                          images:
+                            type: array
+                            items:
+                              type: string
+                              format: uri
+                          category:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                          status:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              status:
+                                type: string
+                              updated_at:
+                                type: string
+                                format: date-time
+        '400':
+          description: requestId tidak valid
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (bukan milik user login)
+        '404':
+          description: Data tidak ditemukan
+        '500':
+          description: Internal server error
+    
   /api/users/current/barters/{barterId}/mark-as-completed:
     post:
       tags:
