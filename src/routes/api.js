@@ -50,11 +50,12 @@ userRouter.post('/barters', authMiddleware, uploadBarterImageMiddleware, barterC
 userRouter.get('/barters/:barterId', authMiddleware, barterController.getBarterDetail); //Detail other user barter, access from GET /barters
 userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplicationImageMiddleware, barterApplicationController.createBarterApplication);
 
-userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);
-userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get user's barter post detail
-userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);
+userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);  //get user barters (my_items & other_items (incoming requests)) list
+userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get my_items detail
+userRouter.get('/users/current/barter-requests/:requestId', authMiddleware, barterApplicationController.getMyIncomingRequestDetail);  //get other_items detail
+userRouter.post('/users/current/barters/:barterId/mark-as-completed', authMiddleware, barterController.markBarterAsCompleted);
+userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);  //get incoming request detail
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
-userRouter.post('/users/current/barters/:barterId/requests/:requestId/mark-as-completed', authMiddleware, barterController.markBarterAsCompleted);
 
 
 userRouter.get('/test/:query', async (req, res, next) => {

@@ -834,22 +834,7 @@ const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => 
     if (!lastStatus || lastStatus.status !== "confirmed")
         throw new ResponseError(400, "barter.cannot_mark_completed");
 
-    // 3. Validasi requestId adalah barter request ke barterId tsb
-    const barterApp = await prismaClient.barterApplication.findUnique({
-        where: { id: requestId }
-    });
-    if (!barterApp || barterApp.barter_id !== barterId)
-        throw new ResponseError(404, "barter_application.not_found");
-
-    // 4. Pastikan status terakhir barterApplication adalah confirmed
-    const lastAppStatus = await prismaClient.barterApplicationStatusHistory.findFirst({
-        where: { barter_application_id: requestId },
-        orderBy: { created_at: "desc" }
-    });
-    if (!lastAppStatus || lastAppStatus.status !== "confirmed")
-        throw new ResponseError(400, "barter_application.cannot_mark_completed");
-
-    // 5. Update barter_status_histories barterId jadi completed
+    // 3. Update barter_status_histories barterId jadi completed
     await prismaClient.barterStatusHistory.create({
         data: {
             barter_id: barterId,
@@ -858,7 +843,7 @@ const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => 
         }
     });
 
-    // 6. Update barter_application_status_histories requestId jadi completed
+    // 4. Update barter_application_status_histories requestId jadi completed
     await prismaClient.barterApplicationStatusHistory.create({
         data: {
             barter_application_id: requestId,

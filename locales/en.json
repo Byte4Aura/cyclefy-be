@@ -127,6 +127,7 @@
             "cancelled_detail": "The barter process was cancelled",
             "failed_auto_detail": "Other request has been accepted, your request automatically declined"
         },
+        "get_detail_successful": "Get barter request detail successful",
         "duplicate_existing_item": "Your barter post request is duplicate",
         "create_successful": "Barter request created successfully",
         "cannot_mark_completed": "Barter request status cannot be mark as completed"

@@ -5,6 +5,7 @@ import { prismaClient } from "../application/database.js";
 import { getPictureUrl } from "../helpers/fileHelper.js";
 import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
+import { calculateDistance } from "../helpers/geoHelper.js";
 
 const createBarterApplication = async (userId, barterId, requestBody, files, reqObject) => {
     // Validate barterId (must be other users' post)
@@ -151,4 +152,115 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
     };
 };
 
-export default { createBarterApplication };
+const getMyIncomingRequestDetail = async (userId, requestId, reqObject) => {
+    // 1. Ambil barterApplication (request) milik user login (other_items)
+    const barterApp = await prismaClient.barterApplication.findUnique({
+        where: { id: requestId },
+        include: {
+            images: true,
+            category: true,
+            barterApplicationStatusHistories: { orderBy: { created_at: "asc" } },
+            user: true,
+            address: true,
+            barter: {
+                include: {
+                    images: true,
+                    category: true,
+                    barterStatusHistories: {
+                        orderBy: { created_at: "desc" },
+                        take: 1
+                    }
+                }
+            }
+        }
+    });
+    if (!barterApp) throw new ResponseError(404, "barter_application.not_found");
+    // if (barterApp.user_id !== userId)
+    //     throw new ResponseError(403, "barter_application.forbidden");
+
+    // 2. Ambil address user login untuk distance
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    let distance = null;
+    if (userAddresses.length && barterApp.address) {
+        const distances = userAddresses.map(addr =>
+            calculateDistance(
+                { latitude: addr.latitude, longitude: addr.longitude },
+                { latitude: barterApp.address.latitude, longitude: barterApp.address.longitude }
+            )
+        );
+        distance = Math.min(...distances);
+    }
+
+    // 3. Mapping barter_with (barterId yang diajukan)
+    const barter_with = barterApp.barter
+        ? {
+            id: barterApp.barter.id,
+            item_name: barterApp.barter.item_name,
+            description: barterApp.barter.description,
+            images: barterApp.barter.images.map(img =>
+                (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                    ? getPictureUrl(reqObject, img.image_path)
+                    : img.image_path
+            ),
+            category: barterApp.barter.category
+                ? { id: barterApp.barter.category.id, name: barterApp.barter.category.name }
+                : null,
+            status: barterApp.barter.barterStatusHistories[0]
+                ? {
+                    id: barterApp.barter.barterStatusHistories[0].id,
+                    status: snakeToTitleCase(barterApp.barter.barterStatusHistories[0].status),
+                    updated_at: barterApp.barter.barterStatusHistories[0].updated_at
+                }
+                : null
+        }
+        : null;
+
+    // 4. Mapping status_histories
+    const status_histories = barterApp.barterApplicationStatusHistories.map(status => ({
+        id: status.id,
+        status: snakeToTitleCase(status.status),
+        status_detail: reqObject.__(status.status_detail),
+        updated_at: status.updated_at
+    }));
+
+    // 5. Mapping response
+    return {
+        id: barterApp.id,
+        item_name: barterApp.item_name,
+        description: barterApp.description,
+        images: barterApp.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        category: barterApp.category
+            ? { id: barterApp.category.id, name: barterApp.category.name }
+            : null,
+        status: barterApp.barterApplicationStatusHistories.length > 0
+            ? snakeToTitleCase(barterApp.barterApplicationStatusHistories[barterApp.barterApplicationStatusHistories.length - 1].status)
+            : null,
+        status_histories: status_histories,
+        address: barterApp.address
+            ? {
+                id: barterApp.address.id,
+                address: barterApp.address.address,
+                latitude: barterApp.address.latitude,
+                longitude: barterApp.address.longitude
+            }
+            : null,
+        distance: distance,
+        user: barterApp.user
+            ? {
+                id: barterApp.user.id,
+                profile_picture: (!barterApp.user.profile_picture?.startsWith("http") && !barterApp.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, barterApp.user.profile_picture)
+                    : barterApp.user.profile_picture,
+                username: barterApp.user.username,
+                fullname: barterApp.user.fullname
+            }
+            : null,
+        barter_with: barter_with
+    };
+};
+
+export default { createBarterApplication, getMyIncomingRequestDetail };

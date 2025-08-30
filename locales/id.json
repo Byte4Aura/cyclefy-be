@@ -127,6 +127,7 @@
             "cancelled_detail": "Proses barter dibatalkan",
             "failed_auto_detail": "Pengajuan barter lain telah diterima, pengajuan anda otomatis ditolak"
         },
+        "get_detail_successful": "Berhasil mendapatkan detail request barter",
         "duplicate_existing_item": "Item barter postingan anda duplikat",
         "create_successful": "Pengajuan barter berhasil dibuat",
         "cannot_mark_completed": "Status pengajuan barter tidak bisa ditandai sebagai selesai"
