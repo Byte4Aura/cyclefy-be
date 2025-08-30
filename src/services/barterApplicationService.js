@@ -118,7 +118,7 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
             barter_application_id: barterApplication.id,
             status: "request_submitted",
             status_detail: "barter_application.request_submitted_detail",
-            updated_by: userId
+            // updated_by: userId
         }
     });
 

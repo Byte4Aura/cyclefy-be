@@ -1,5 +1,5 @@
 import { validate } from "../validations/validation.js";
-import { createBarterValidation } from "../validations/barterValidation.js";
+import { createBarterValidation, processBarterRequestValidation } from "../validations/barterValidation.js";
 import { addressIdOwnershipValidate, phoneIdOwnershipValidate, isCategoryIdValid } from "../helpers/userHelper.js";
 import { prismaClient } from "../application/database.js";
 import { getPictureUrl } from "../helpers/fileHelper.js";
@@ -249,7 +249,7 @@ const createBarter = async (userId, requestBody, files, reqObject) => {
             barter_id: barter.id,
             status: "waiting_for_request",
             status_detail: "barter.posting.waiting_for_request_detail",
-            updated_by: userId
+            // updated_by: userId
         }
     });
 
@@ -600,7 +600,7 @@ const getMyBarterDetail = async (userId, barterId, reqObject) => {
             ? { id: barter.category.id, name: barter.category.name }
             : null,
         status: barter.barterStatusHistories.length > 0
-            ? barter.barterStatusHistories[barter.barterStatusHistories.length - 1].status
+            ? snakeToTitleCase(barter.barterStatusHistories[barter.barterStatusHistories.length - 1].status)
             : null,
         address: barter.address
             ? {
@@ -626,6 +626,7 @@ const getMyBarterIncomingRequestDetail = async (userId, barterId, requestId, req
         where: { id: barterId, user_id: userId },
         include: {
             images: true,
+            category: true,
             barterStatusHistories: { orderBy: { created_at: "asc" } }
         }
     });
@@ -671,6 +672,10 @@ const getMyBarterIncomingRequestDetail = async (userId, barterId, requestId, req
                 ? getPictureUrl(reqObject, img.image_path)
                 : img.image_path
         ),
+        category: {
+            id: barter.category.id,
+            name: barter.category.name
+        },
         status: barter.barterStatusHistories.length > 0
             ? snakeToTitleCase(barter.barterStatusHistories[barter.barterStatusHistories.length - 1].status)
             : null,
@@ -725,11 +730,95 @@ const getMyBarterIncomingRequestDetail = async (userId, barterId, requestId, req
     };
 };
 
+const processIncomingRequest = async (userId, barterId, requestId, action, decline_reason, reqObject) => {
+    // Validasi barterId milik user login
+    const barter = await prismaClient.barter.findUnique({
+        where: { id: barterId, user_id: userId },
+        include: {
+            barterStatusHistories: true,
+        }
+    });
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+
+    // Validasi requestId adalah barterApplication ke barterId tsb
+    const barterApp = await prismaClient.barterApplication.findUnique({
+        where: { id: requestId },
+        include: {
+            barterApplicationStatusHistories: true
+        }
+    });
+    if (!barterApp || barterApp.barter_id !== barterId)
+        throw new ResponseError(404, "barter_application.not_found");
+
+    validate(processBarterRequestValidation, { action, decline_reason }, reqObject);
+
+    if (action === "accept") {
+        // 1. Update barter_application_status_histories requestId jadi confirmed
+        await prismaClient.barterApplicationStatusHistory.create({
+            data: {
+                barter_application_id: requestId,
+                status: "confirmed",
+                status_detail: "barter_application.request.confirmed_detail"
+            }
+        });
+
+        // Update status pada barter_status_histories menjadi confirmed juga
+        await prismaClient.barterStatusHistory.create({
+            data: {
+                barter_id: barterId,
+                status: "confirmed",
+                status_detail: "barter.posting.waiting_for_request_detail"
+            }
+        });
+
+        // 2. Update barter_application requestId (jaga2 jika ada field decline_reason)
+        await prismaClient.barterApplication.update({
+            where: { id: requestId },
+            data: { decline_reason: null }
+        });
+        // 3. Semua barterApplication lain pada barterId, update status jadi failed
+        const otherApps = await prismaClient.barterApplication.findMany({
+            where: {
+                barter_id: barterId,
+                id: { not: requestId }
+            }
+        });
+        for (const app of otherApps) {
+            await prismaClient.barterApplicationStatusHistory.create({
+                data: {
+                    barter_application_id: app.id,
+                    status: "failed",
+                    status_detail: "barter_application.request.failed_auto_detail"
+                }
+            });
+            await prismaClient.barterApplication.update({
+                where: { id: app.id },
+                data: { decline_reason: "barter_application.request.failed_auto_detail" }
+            });
+        }
+    } else if (action === "decline") {
+        // 1. Update barterApplicationStatusHistories requestId jadi failed
+        await prismaClient.barterApplicationStatusHistory.create({
+            data: {
+                barter_application_id: requestId,
+                status: "failed",
+                status_detail: decline_reason
+            }
+        });
+        // 2. Update barter_application requestId (decline_reason)
+        await prismaClient.barterApplication.update({
+            where: { id: requestId },
+            data: { decline_reason }
+        });
+    }
+};
+
 export default {
     getBarters,
     getBarterDetail,
     createBarter,
     getBarterHistory,
     getMyBarterDetail,
-    getMyBarterIncomingRequestDetail
+    getMyBarterIncomingRequestDetail,
+    processIncomingRequest
 }

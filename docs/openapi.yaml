@@ -3613,6 +3613,7 @@ paths:
                           profile_picture:
                             type: string
                             format: uri
+                            example: "http://..."
                           username:
                             type: string
                           fullname:
@@ -3646,8 +3647,17 @@ paths:
                             items:
                               type: string
                               format: uri
-                          status:
-                            type: string
+                              example: "http://..."
+                          category:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              status:
+                                type: string
                           status_histories:
                             type: array
                             items:
@@ -3720,7 +3730,134 @@ paths:
                         type: string
                         example: null
 
-
+  /api/users/current/barters/{barterId}/requests/{requestId}/process:
+    post:
+      tags:
+        - Barter
+      summary: Proses (accept/decline) incoming request pada postingan barter milik user
+      description: |
+        Accept akan mengubah status requestId menjadi confirmed dan semua request lain pada barterId yang sama menjadi failed.
+        Decline akan mengubah status requestId menjadi failed dengan alasan yang diisi user.
+      parameters:
+        - name: barterId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID barter milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID barter application (request) yang ingin diproses
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [accept, decline]
+                  description: Pilihan aksi, "accept" untuk menerima, "decline" untuk menolak
+                decline_reason:
+                  type: string
+                  nullable: true
+                  description: Alasan penolakan, wajib jika action=decline
+              required:
+                - action
+            examples:
+              accept:
+                summary: Accept request
+                value:
+                  action: accept
+              decline:
+                summary: Decline request
+                value:
+                  action: decline
+                  decline_reason: "Maaf, barang sudah tidak tersedia"
+      responses:
+        '200':
+          description: Berhasil memproses request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Barter request accepted successfully
+        '400':
+          description: Bad request (action tidak valid atau alasan decline kosong)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Nilai action harus accept atau decline
+                  errors:
+                    type: object
+                    nullable: true
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized. Need Authorization Token
+                  errors:
+                    type: object
+                    nullable: true
+        '404':
+          description: Data tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Barter not found
+                  errors:
+                    type: object
+                    nullable: true
 
 
 

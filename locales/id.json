@@ -8,7 +8,9 @@
         "field_required": "Kolom {{field}} wajib diisi",
         "valid_email": "Email harus email yang valid",
         "password_length": "Panjang password minimal 8 karakter",
-        "not_allowed": "{{field}} tidak diperbolehkan"
+        "not_allowed": "{{field}} tidak diperbolehkan",
+        "invalid_action": "Nilai action harus {{value1}} atau {{value2}}",
+        "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline"
     },
     "auth": {
         "unauthorized": "Tidak diizinkan. Membutuhkan Token Otorisasi",
@@ -107,7 +109,9 @@
         "create_successful": "Barter berhasil dibuat",
         "get_posts_successful": "Berhasil mendapatkan daftar barter",
         "get_detail_successful": "Berhasil mendapatkan detail barter",
-        "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request barter yang masuk"
+        "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request barter yang masuk",
+        "request_accepted": "Pengajuan barter berhasil dikonfirmasi",
+        "request_declined": "Pengajuan barter berhasil ditolak"
     },
     "barter_application": {
         "not_found": "Request barter tidak ditemukan",
@@ -117,7 +121,8 @@
             "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",
             "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
-            "cancelled_detail": "Proses barter dibatalkan"
+            "cancelled_detail": "Proses barter dibatalkan",
+            "failed_auto_detail": "Pengajuan barter lain telah diterima, pengajuan anda otomatis ditolak"
         },
         "duplicate_existing_item": "Item barter postingan anda duplikat",
         "create_successful": "Pengajuan barter berhasil dibuat"

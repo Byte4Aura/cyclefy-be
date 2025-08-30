@@ -135,11 +135,36 @@ const getMyBarterIncomingRequestDetail = async (req, res, next) => {
     }
 };
 
+const processIncomingRequest = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const barterId = Number(req.params.barterId);
+        if (!isRequestParameterNumber(barterId)) throw new ResponseError(400, "barter.id_not_a_number");
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "barter.request_id_not_a_number");
+        const { action, decline_reason } = req.body;
+        // if (!["accept", "decline"].includes(action))
+        //     throw new ResponseError(400, "barter.invalid_action");
+        // if (action === "decline" && (!decline_reason || decline_reason.trim() === ""))
+        //     throw new ResponseError(400, "barter.decline_reason_required");
+        await barterService.processIncomingRequest(userId, barterId, requestId, action, decline_reason, req);
+        res.status(200).json({
+            success: true,
+            message: req.__(action === "accept"
+                ? "barter.request_accepted"
+                : "barter.request_declined")
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getBarters,
     getBarterDetail,
     createBarter,
     getBarterHistory,
     getMyBarterDetail,
-    getMyBarterIncomingRequestDetail
+    getMyBarterIncomingRequestDetail,
+    processIncomingRequest
 };
