@@ -318,6 +318,68 @@ paths:
                   success: { type: boolean, example: false }
                   message: { type: string, example: "Email not found" }
 
+  /api/verify-reset-password-otp:
+    post:
+      summary: Verifikasi OTP untuk Reset Password
+      description: |
+        Endpoint untuk verifikasi OTP untuk reset password
+      tags: [Auth]
+      parameters:
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Pengaturan bahasa (en, id) dengan callback ke bahasa Inggris.
+          schema:
+            type: string
+            example: en
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email user
+                  example: john@example.com
+                otp:
+                  type: string
+                  description: Kode OTP yang dikirim ke email
+                  example: "1234"
+              required: [email, otp]
+      responses:
+        "200":
+          description: Kode OTP Valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message:
+                    { type: string, example: "Your OTP Code for reset password is valid" }
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer, example: 1}
+                      otp: { type: string, example: "1234"}
+                      user:
+                        type: object
+                        properties:
+                          id: {type: integer, example: 1}
+                          email: {type: string, example: "johndoe@gmail.com"}
+        "404":
+          description: User atau Kode OTP reset password tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+  
   /api/reset-password:
     post:
       summary: Reset Password dengan OTP
