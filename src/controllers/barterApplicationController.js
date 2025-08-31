@@ -1,4 +1,5 @@
 import { logger } from "../application/logging.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import barterApplicationService from "../services/barterApplicationService.js";
 import fs from "fs/promises";
 
@@ -26,4 +27,22 @@ const createBarterApplication = async (req, res, next) => {
     }
 };
 
-export default { createBarterApplication };
+const getMyIncomingRequestDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId))
+            throw new ResponseError(400, "barter_application.id_not_a_number");
+        const result = await barterApplicationService.getMyIncomingRequestDetail(userId, requestId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter_application.get_detail_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+export default { createBarterApplication, getMyIncomingRequestDetail };

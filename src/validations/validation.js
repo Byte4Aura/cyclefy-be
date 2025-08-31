@@ -30,6 +30,8 @@ export const validate = (schema, request, req = null) => {
                     message = req.__('validation.password_length');
                 } else if (message.includes('is not allowed')) {
                     message = req.__('validation.not_allowed', { field: key });
+                } else if (message.includes('action must be one of')) {
+                    message = req.__('validation.invalid_action', { value1: 'accept', value2: 'decline' })
                 }
                 // console.log(`[validation.js] message: ${message}`);
             }

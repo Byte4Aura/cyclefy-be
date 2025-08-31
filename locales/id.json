@@ -8,7 +8,9 @@
         "field_required": "Kolom {{field}} wajib diisi",
         "valid_email": "Email harus email yang valid",
         "password_length": "Panjang password minimal 8 karakter",
-        "not_allowed": "{{field}} tidak diperbolehkan"
+        "not_allowed": "{{field}} tidak diperbolehkan",
+        "invalid_action": "Nilai action harus {{value1}} atau {{value2}}",
+        "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline"
     },
     "auth": {
         "unauthorized": "Tidak diizinkan. Membutuhkan Token Otorisasi",
@@ -94,6 +96,7 @@
     "barter": {
         "not_found": "Barter tidak ditemukan",
         "id_not_a_number": "Barter ID bukan angka",
+        "request_id_not_a_number": "Request ID bukan angka",
         "status_not_available": "Status item barter Anda tidak tersedia untuk diajukan",
         "posting": {
             "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan barter",
@@ -105,19 +108,29 @@
         "get_history_successful": "Berhasil mendapatkan riwayat barter",
         "create_successful": "Barter berhasil dibuat",
         "get_posts_successful": "Berhasil mendapatkan daftar barter",
-        "get_detail_successful": "Berhasil mendapatkan detail barter"
+        "get_detail_successful": "Berhasil mendapatkan detail barter",
+        "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request barter yang masuk",
+        "request_accepted": "Pengajuan barter berhasil dikonfirmasi",
+        "request_declined": "Pengajuan barter berhasil ditolak",
+        "mark_completed_successful": "Status barter berhasil ditandai sebagai selesai",
+        "cannot_confirmed": "Status barter tidak bisa mengkonfirmasi request",
+        "cannot_mark_completed": "Status barter tidak bisa ditandai sebagai selesai"
     },
     "barter_application": {
+        "not_found": "Request barter tidak ditemukan",
         "user_barter_id_invalid": "ID postingan barter user tidak valid",
         "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "request": {
             "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",
             "completed_detail": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
-            "cancelled_detail": "Proses barter dibatalkan"
+            "cancelled_detail": "Proses barter dibatalkan",
+            "failed_auto_detail": "Pengajuan barter lain telah diterima, pengajuan anda otomatis ditolak"
         },
+        "get_detail_successful": "Berhasil mendapatkan detail request barter",
         "duplicate_existing_item": "Item barter postingan anda duplikat",
-        "create_successful": "Pengajuan barter berhasil dibuat"
+        "create_successful": "Pengajuan barter berhasil dibuat",
+        "cannot_mark_completed": "Status pengajuan barter tidak bisa ditandai sebagai selesai"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",
