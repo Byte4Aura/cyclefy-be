@@ -13,6 +13,8 @@ import { uploadBarterImageMiddleware } from "../middlewares/barter/uploadBarterI
 import barterController from "../controllers/barterController.js";
 import { uploadBarterApplicationImageMiddleware } from "../middlewares/barter/uploadBarterApplicationImagMiddleware.js";
 import barterApplicationController from "../controllers/barterApplicationController.js";
+import { uploadBorrowImageMiddleware } from "../middlewares/borrow/uploadBorrowImageMiddleware.js";
+import borrowController from "../controllers/borrowController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -57,6 +59,8 @@ userRouter.post('/users/current/barters/:barterId/mark-as-completed', authMiddle
 userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);  //get incoming request detail
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
 
+// Borrow API
+userRouter.post('/borrows', authMiddleware, uploadBorrowImageMiddleware, borrowController.createBorrow);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

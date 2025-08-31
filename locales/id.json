@@ -10,7 +10,8 @@
         "password_length": "Panjang password minimal 8 karakter",
         "not_allowed": "{{field}} tidak diperbolehkan",
         "invalid_action": "Nilai action harus {{value1}} atau {{value2}}",
-        "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline"
+        "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline",
+        "iso_8601_date_format": "{{field}} harus dalam format tanggal ISO 8601"
     },
     "auth": {
         "unauthorized": "Tidak diizinkan. Membutuhkan Token Otorisasi",
@@ -133,6 +134,51 @@
         "duplicate_existing_item": "Item barter postingan anda duplikat",
         "create_successful": "Pengajuan barter berhasil dibuat",
         "cannot_mark_completed": "Status pengajuan barter tidak bisa ditandai sebagai selesai"
+    },
+    "borrow": {
+        "not_found": "Peminjaman tidak ditemukan",
+        "id_not_a_number": "Borrow ID bukan angka",
+        "request_id_not_a_number": "Request ID bukan angka",
+        "status_not_available": "Status item pinjaman Anda tidak tersedia untuk diajukan",
+        "posting": {
+            "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan pinjam",
+            "waiting_for_confirmation_detail": "Seseorang telah mengajukan permintaan pinjam, menunggu konfirmasi Anda",
+            "confirmed_detail": "Anda telah mengonfirmasi permintaan pinjam, dan barang siap dipinjamkan",
+            "lent_detail": "Barang telah berhasil dipinjamkan kepada peminjam",
+            "returned_detail": "Barang telah dikembalikan",
+            "overdue_detail": "Barang terlambat dikembalikan",
+            "completed_detail": "Proses peminjaman selesai, barang telah dipinjamkan dan dikembalikan",
+            "cancelled_detail": "Proses peminjaman dibatalkan"
+        },
+        "get_history_successful": "Berhasil mendapatkan riwayat peminjaman",
+        "create_successful": "Peminjaman berhasil dibuat",
+        "get_posts_successful": "Berhasil mendapatkan daftar peminjaman",
+        "get_detail_successful": "Berhasil mendapatkan detail peminjaman",
+        "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request peminjaman yang masuk",
+        "request_accepted": "Pengajuan peminjaman berhasil dikonfirmasi",
+        "request_declined": "Pengajuan peminjaman berhasil ditolak",
+        "mark_completed_successful": "Status peminjaman berhasil ditandai sebagai selesai",
+        "cannot_confirmed": "Status peminjaman tidak bisa mengkonfirmasi request",
+        "cannot_mark_completed": "Status peminjaman tidak bisa ditandai sebagai selesai"
+    },
+    "borrow_application": {
+        "not_found": "Request peminjaman tidak ditemukan",
+        "user_borrow_id_invalid": "ID postingan peminjaman user tidak valid",
+        "user_borrow_not_found": "Item peminjaman milik user saat ini tidak ditemukan",
+        "request": {
+            "request_submitted_detail": "Permintaan peminjaman telah diajukan, menunggu konfirmasi",
+            "confirmed_detail": "Permintaan peminjaman telah dikonfirmasi, dan barang siap dipinjamkan",
+            "borrowed_detail": "Barang telah berhasil dipinjam",
+            "returned_detail": "Barang telah dikembalikan",
+            "overdue_detail": "Anda melewati batas waktu pengembalian",
+            "completed_detail": "Proses peminjaman selesai, barang telah berhasil dipinjam dan dikembalikan",
+            "cancelled_detail": "Proses peminjaman dibatalkan",
+            "failed_auto_detail": "Pengajuan peminjaman lain telah diterima, pengajuan anda otomatis ditolak"
+        },
+        "get_detail_successful": "Berhasil mendapatkan detail request peminjaman",
+        "duplicate_existing_item": "Item peminjaman postingan anda duplikat",
+        "create_successful": "Pengajuan peminjaman berhasil dibuat",
+        "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",
