@@ -35,3 +35,8 @@ export const resetPasswordValidation = Joi.object({
         "any.only": 'confirmNewPassword must be equal with newPassword'
     })
 });
+
+export const verifyResetPasswordOTPValidation = Joi.object({
+    email: Joi.string().email().max(255).required(),
+    otp: Joi.string().length(4).required(),
+});

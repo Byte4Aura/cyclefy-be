@@ -1,4 +1,4 @@
-import { loginUserValidation, registerUserValidation, resendEmailVerificationOtpValidation, resetPasswordValidation, sendResetPasswordOtpValidation, verifyEmailValidation } from "../validations/authValidation.js";
+import { loginUserValidation, registerUserValidation, resendEmailVerificationOtpValidation, resetPasswordValidation, sendResetPasswordOtpValidation, verifyEmailValidation, verifyResetPasswordOTPValidation } from "../validations/authValidation.js";
 import { validate } from "../validations/validation.js";
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
@@ -228,6 +228,32 @@ const resetPassword = async (requestBody, reqObject) => {
     }
 }
 
+const verifyResetPasswordOTP = async (requestBody, reqObject) => {
+    const data = validate(verifyResetPasswordOTPValidation, requestBody, reqObject);
+
+    const userData = await prismaClient.user.findUnique({
+        where: { email: data.email },
+    });
+    if (!userData) throw new ResponseError(404, "user.not_found");
+
+    const resetPasswordData = await prismaClient.passwordReset.findUnique({
+        where: {
+            user_id: userData.id,
+            otp: data.otp
+        }
+    });
+    if (!resetPasswordData) throw new ResponseError(404, "auth.reset_password_otp_not_found");
+
+    return {
+        id: resetPasswordData.id,
+        otp: resetPasswordData.otp,
+        user: {
+            id: userData.id,
+            email: userData.email,
+        }
+    }
+}
+
 export default {
-    register, verifyEmail, resendEmailVerificationOtp, login, sendResetPasswordOTP, resetPassword
+    register, verifyEmail, resendEmailVerificationOtp, login, sendResetPasswordOTP, resetPassword, verifyResetPasswordOTP
 }
