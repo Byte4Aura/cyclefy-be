@@ -6,6 +6,8 @@ import { getPictureUrl } from "../helpers/fileHelper.js";
 import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
+import { logger } from "../application/logging.js";
+import fs from "fs/promises";
 
 const createBarterApplication = async (userId, barterId, requestBody, files, reqObject) => {
     // Validate barterId (must be other users' post)
@@ -64,6 +66,14 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
             image_size: image.image_size
         }));
         imagePaths = imagesToInsert.map(img => getPictureUrl(reqObject, img.image_path));
+
+        if (files && Array.isArray(files)) {
+            for (const file of files) {
+                if (file && file.path) {
+                    try { await fs.unlink(file.path); } catch (e) { logger.error("[BarterApplicationService:72]Failed to delete uploaded barter application image: ", e); }
+                }
+            }
+        }
     } else {
         const data = validate(createBarterApplicationValidation, requestBody, reqObject);
         if (!files || !Array.isArray(files) || files.length === 0)
