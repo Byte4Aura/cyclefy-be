@@ -5,6 +5,7 @@ import { validate } from "../validations/validation.js";
 import { createBorrowValidation } from "../validations/borrowValidation.js";
 import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
+import { calculateDistance } from "../helpers/geoHelper.js";
 
 const createBorrow = async (userId, requestBody, files, reqObject) => {
     if (!files || !Array.isArray(files) || files.length === 0)
@@ -76,6 +77,144 @@ const createBorrow = async (userId, requestBody, files, reqObject) => {
     };
 };
 
+const getBorrows = async (
+    userId, search, category, maxDistance, location, from, to, days, sort, page, size, reqObject
+) => {
+    // 1. Get all user addresses
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
+
+    // 2. Build where clause
+    const where = { user_id: { not: userId } };
+    if (category && category.length > 0) {
+        where.category = { name: { in: category } };
+    }
+    if (search) {
+        where.OR = [
+            { item_name: { contains: search } },
+            { description: { contains: search } }
+        ];
+    }
+    // Location filter (city/state/country)
+    if (!maxDistance && location) {
+        where.OR = [
+            ...(where.OR || []),
+            { address: { address: { contains: location } } },
+        ];
+    }
+
+    // 3. Query all borrows
+    const borrows = await prismaClient.borrow.findMany({
+        where,
+        include: {
+            address: true,
+            category: true,
+            user: true,
+            borrowStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1  //take last status
+            },
+            images: true
+        }
+    });
+
+    // 4. Filter status
+    const allowedStatuses = ["waiting_for_request", "waiting_for_confirmation"];
+    let filtered = borrows.filter(borrow =>
+        borrow.borrowStatusHistories.length > 0 &&
+        allowedStatuses.includes(borrow.borrowStatusHistories[0].status)
+    );
+
+    // 5. Filter by maxDistance (if set)
+    let data = filtered.map(borrow => {
+        const distances = userAddresses.map(address => {
+            const start = { latitude: address.latitude, longitude: address.longitude };
+            const end = { latitude: borrow.address.latitude, longitude: borrow.address.longitude };
+            return calculateDistance(start, end);
+        });
+        const minDistance = Math.min(...distances);
+        return {
+            ...borrow,
+            minDistance
+        };
+    });
+    if (maxDistance && typeof maxDistance === 'number' && !isNaN(maxDistance)) {
+        data = data.filter(item => item.minDistance <= maxDistance);
+    }
+
+    // 6. Filter by duration
+    if (from && to) {
+        const fromDate = new Date(from);
+        const toDate = new Date(to);
+        data = data.filter(item =>
+            item.duration_from <= fromDate && item.duration_to >= toDate
+        );
+    } else if (days && typeof days === 'number' && !isNaN(days)) {
+        data = data.filter(item => {
+            const duration = (item.duration_to - item.duration_from) / (1000 * 60 * 60 * 24);
+            return duration >= days;
+        });
+    }
+
+    // 7. Mapping final response
+    const mapped = data.map(borrow => ({
+        id: borrow.id,
+        item_name: borrow.item_name,
+        description: borrow.description,
+        category: {
+            id: borrow.category.id,
+            name: borrow.category.name,
+        },
+        address: {
+            id: borrow.address.id,
+            address: borrow.address.address,
+            latitude: borrow.address.latitude,
+            longitude: borrow.address.longitude
+        },
+        distance: borrow.minDistance,
+        user: {
+            id: borrow.user.id,
+            username: borrow.user.username,
+            fullname: borrow.user.fullname,
+            profile_picture: (!borrow.user.profile_picture?.startsWith("http") && !borrow.user.profile_picture?.startsWith("https"))
+                ? getPictureUrl(reqObject, borrow.user.profile_picture)
+                : borrow.user.profile_picture,
+        },
+        images: borrow.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        duration_from: borrow.duration_from,
+        duration_to: borrow.duration_to,
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24),
+    }));
+
+    // 8. Sorting
+    if (sort === "nearest") {
+        mapped.sort((a, b) => a.distance - b.distance);
+    } else if (sort === "newest") {
+        mapped.sort((a, b) => b.created_at - a.created_at);
+    } else if (sort === "borrowing_duration") {
+        mapped.sort((a, b) => b.borrowing_duration - a.borrowing_duration);
+    } // default: relevance
+
+    // 9. Pagination
+    const total = mapped.length;
+    const paged = mapped.slice((page - 1) * size, page * size);
+
+    return {
+        meta: {
+            total: total,
+            page: page,
+            size: size,
+            totalPages: Math.ceil(total / size)
+        },
+        data: paged
+    };
+};
+
 export default {
     createBorrow,
+    getBorrows
 };

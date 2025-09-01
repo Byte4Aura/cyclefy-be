@@ -4137,6 +4137,236 @@ paths:
                     nullable: true
 
   /api/borrows:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan daftar postingan borrow milik user lain (Discover borrow)
+      description: |
+        Endpoint untuk menampilkan daftar postingan borrow milik user lain (bukan milik user yang sedang login).
+        Mendukung pencarian, filter kategori, filter lokasi (maxDistance atau nama lokasi), filter durasi (from & to, atau jumlah hari), dan sorting.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pencarian pada item_name atau description
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "elektronik,perabot"
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma)
+        - name: maxDistance
+          in: query
+          required: false
+          schema:
+            type: number
+            example: 2
+          description: Filter postingan dengan jarak maksimum (km) dari address user login. Jika diisi, parameter location diabaikan.
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Bandung"
+          description: Filter berdasarkan nama lokasi. **Diabaikan jika maxDistance diisi**.
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-08-31"
+          description: Tanggal mulai interval pencarian (format YYYY-MM-DD)
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-09-21"
+          description: Tanggal akhir interval pencarian (format YYYY-MM-DD)
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 7
+          description: Filter postingan dengan minimal durasi available (dalam hari). **Diabaikan jika from & to diisi.**
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [relevance, newest, nearest, borrowing_duration]
+          description: Urutan hasil (relevance, newest, nearest, borrowing_duration). Default relevance
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: "Halaman (default: 1)"
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: "Jumlah data per halaman (default: 10)"
+      responses:
+        "200":
+          description: Daftar postingan borrow berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan daftar peminjaman
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 10
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 10
+                        item_name:
+                          type: string
+                          example: Kamera Canon EOS
+                        description:
+                          type: string
+                          example: Kamera DSLR, kondisi sangat baik, lengkap dengan lensa kit.
+                        category:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            name:
+                              type: string
+                              example: Elektronik
+                        address:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 3
+                            address:
+                              type: string
+                              example: "Jl. Mawar No. 1, Kabupaten Bandung, Indonesia"
+                            latitude:
+                              type: number
+                              example: -6.123
+                            longitude:
+                              type: number
+                              example: 106.123
+                        distance:
+                          type: number
+                          example: 2.5
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 5
+                            profile_picture:
+                              type: string
+                              example: "https://.../username.png"
+                            username:
+                              type: string
+                              example: "budi123"
+                            fullname:
+                              type: string
+                              example: "Budi Santoso"
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                          example:
+                            - https://api.cyclefi.id/assets/borrows/postings/borrow_post_1_1692950400000.jpg
+                            - https://api.cyclefi.id/assets/borrows/postings/borrow_post_1_1692950401000.jpg
+                        duration_from:
+                          type: string
+                          format: date-time
+                          example: "2025-09-01T00:00:00.000Z"
+                        duration_to:
+                          type: string
+                          format: date-time
+                          example: "2025-09-10T00:00:00.000Z"
+                        borrowing_duration:
+                          type: number
+                          example: 9
+                          description: "Durasi available (hari)"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User has no address
+
     post:
       tags:
         - Borrow

@@ -60,6 +60,7 @@ userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddl
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
 
 // Borrow API
+userRouter.get('/borrows', authMiddleware, borrowController.getBorrows);
 userRouter.post('/borrows', authMiddleware, uploadBorrowImageMiddleware, borrowController.createBorrow);
 
 userRouter.get('/test/:query', async (req, res, next) => {
