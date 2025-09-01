@@ -34,6 +34,8 @@ export const validate = (schema, request, req = null) => {
                     message = req.__('validation.invalid_action', { value1: 'accept', value2: 'decline' })
                 } else if (message.includes('must be in ISO 8601 date format')) {
                     message = req.__('validation.iso_8601_date_format', { field: key })
+                } else if (message.includes('duration_to must be greater than')) {
+                    message = req.__('validation.invalid_duration')
                 }
                 // console.log(`[validation.js] message: ${message}`);
             }

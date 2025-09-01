@@ -11,7 +11,8 @@
         "not_allowed": "{{field}} tidak diperbolehkan",
         "invalid_action": "Nilai action harus {{value1}} atau {{value2}}",
         "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline",
-        "iso_8601_date_format": "{{field}} harus dalam format tanggal ISO 8601"
+        "iso_8601_date_format": "{{field}} harus dalam format tanggal ISO 8601",
+        "invalid_duration": "Durasi tidak valid"
     },
     "auth": {
         "unauthorized": "Tidak diizinkan. Membutuhkan Token Otorisasi",
@@ -121,6 +122,7 @@
     },
     "barter_application": {
         "not_found": "Request barter tidak ditemukan",
+        "cannot_request_own_post": "Tidak bisa request postingan sendiri",
         "user_barter_id_invalid": "ID postingan barter user tidak valid",
         "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
         "request": {
@@ -138,6 +140,7 @@
     "borrow": {
         "not_found": "Peminjaman tidak ditemukan",
         "id_not_a_number": "Borrow ID bukan angka",
+        "invalid_duration": "Durasi peminjaman tidak valid",
         "request_id_not_a_number": "Request ID bukan angka",
         "status_not_available": "Status item pinjaman Anda tidak tersedia untuk diajukan",
         "posting": {
@@ -163,6 +166,8 @@
     },
     "borrow_application": {
         "not_found": "Request peminjaman tidak ditemukan",
+        "cannot_request_own_post": "Tidak bisa request postingan sendiri",
+        "invalid_duration": "Durasi request peminjaman tidak valid",
         "user_borrow_id_invalid": "ID postingan peminjaman user tidak valid",
         "user_borrow_not_found": "Item peminjaman milik user saat ini tidak ditemukan",
         "request": {
@@ -176,7 +181,7 @@
             "failed_auto_detail": "Pengajuan peminjaman lain telah diterima, pengajuan anda otomatis ditolak"
         },
         "get_detail_successful": "Berhasil mendapatkan detail request peminjaman",
-        "duplicate_existing_item": "Item peminjaman postingan anda duplikat",
+        "duplicate_active_request": "Item peminjaman postingan anda duplikat",
         "create_successful": "Pengajuan peminjaman berhasil dibuat",
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },

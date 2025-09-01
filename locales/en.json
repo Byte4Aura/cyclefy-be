@@ -11,7 +11,8 @@
         "not_allowed": "{{field}} is not allowed",
         "invalid_action": "Action must be {{value1}} or {{value2}}",
         "decline_reason_required": "Decline reason is required when action is decline",
-        "iso_8601_date_format": "{{field}} must be in ISO 8601 date format"
+        "iso_8601_date_format": "{{field}} must be in ISO 8601 date format",
+        "invalid_duration": "Invalid duration"
     },
     "auth": {
         "unauthorized": "Unauthorized. Need Authorization Token",
@@ -121,6 +122,7 @@
     },
     "barter_application": {
         "not_found": "Barter request not found",
+        "cannot_request_own_post": "Cannot request own post",
         "user_barter_id_invalid": "User barter post id is not valid",
         "user_barter_not_found": "Current user barter item not found",
         "request": {
@@ -138,6 +140,7 @@
     "borrow": {
         "not_found": "Borrow not found",
         "id_not_a_number": "Borrow id is not a number",
+        "invalid_duration": "Invalid borrow duration",
         "request_id_not_a_number": "Incoming request id is not a number",
         "status_not_available": "Your borrow item status is not available to be requested",
         "posting": {
@@ -163,6 +166,8 @@
     },
     "borrow_application": {
         "not_found": "Borrow request not found",
+        "cannot_request_own_post": "Cannot request own post",
+        "invalid_duration": "Invalid borrow request duration",
         "user_borrow_id_invalid": "User borrow post id is not valid",
         "user_borrow_not_found": "Current user borrow item not found",
         "request": {
@@ -176,7 +181,7 @@
             "failed_auto_detail": "Other request has been accepted, your request automatically declined"
         },
         "get_detail_successful": "Get borrow request detail successful",
-        "duplicate_existing_item": "Your borrow post request is duplicate",
+        "duplicate_active_request": "Your borrow post request is duplicate",
         "create_successful": "Borrow request created successfully",
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },

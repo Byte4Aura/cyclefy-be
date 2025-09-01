@@ -15,6 +15,7 @@ import { uploadBarterApplicationImageMiddleware } from "../middlewares/barter/up
 import barterApplicationController from "../controllers/barterApplicationController.js";
 import { uploadBorrowImageMiddleware } from "../middlewares/borrow/uploadBorrowImageMiddleware.js";
 import borrowController from "../controllers/borrowController.js";
+import borrowApplicationController from "../controllers/borrowApplicationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -63,6 +64,7 @@ userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', 
 userRouter.get('/borrows', authMiddleware, borrowController.getBorrows);
 userRouter.post('/borrows', authMiddleware, uploadBorrowImageMiddleware, borrowController.createBorrow);
 userRouter.get('/borrows/:borrowId', authMiddleware, borrowController.getBorrowDetail);
+userRouter.post('/borrows/:borrowId/request', authMiddleware, borrowApplicationController.createBorrowApplication);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

@@ -20,6 +20,10 @@ const createBorrow = async (userId, requestBody, files, reqObject) => {
     await phoneIdOwnershipValidate(userId, data.phone_id);
     await isCategoryIdValid(data.category_id);
 
+    const reqFrom = new Date(data.duration_from);
+    const reqTo = new Date(data.duration_to);
+    if (reqFrom > reqTo) throw new ResponseError(400, "borrow.invalid_duration");
+
     // Save borrow
     const borrow = await prismaClient.borrow.create({
         data: {

@@ -14,7 +14,8 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
     const barter = await prismaClient.barter.findUnique({
         where: { id: barterId }
     });
-    if (!barter || barter.user_id === userId) throw new ResponseError(404, "barter.not_found");
+    if (!barter) throw new ResponseError(404, "barter.not_found");
+    if (barter.user_id === userId) throw new ResponseError(403, 'barter_application.cannot_request_own_post');
 
     let applicationData, imagePaths = [], imagesToInsert = [];
 
