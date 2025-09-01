@@ -11,12 +11,13 @@ const getBarters = async (req, res, next) => {
             ? req.query.category.split(',').map(category => category.trim()).filter(Boolean)
             : [];
         const maxDistance = Number(req.query.maxDistance);
+        const location = req.query.location ?? null;
         const sortBy = req.query.sortBy ?? "relevance"
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const size = parseInt(req.query.size) > 0 ? parseInt(req.query.size) : 10;
         const userId = req.user.id;
 
-        const result = await barterService.getBarters(userId, searchParam, category, maxDistance, sortBy, page, size, req)
+        const result = await barterService.getBarters(userId, searchParam, category, maxDistance, location, sortBy, page, size, req)
         res.status(201).json({
             success: true,
             message: req.__('barter.get_posts_successful'),

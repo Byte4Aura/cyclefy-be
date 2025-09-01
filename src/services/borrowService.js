@@ -214,7 +214,96 @@ const getBorrows = async (
     };
 };
 
+const getBorrowDetail = async (userId, borrowId, reqObject) => {
+    // 1. Ambil data borrow beserta relasi
+    const borrow = await prismaClient.borrow.findUnique({
+        where: { id: borrowId, user_id: { not: userId } },
+        include: {
+            address: true,
+            category: true,
+            user: true,
+            phone: true,
+            borrowStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1  //take last status
+            },
+            images: true
+        }
+    });
+    if (!borrow) throw new ResponseError(404, "borrow.not_found");
+
+    // if (borrow.user_id === userId) throw new ResponseError(403, "borrow.forbidden_own_post");
+
+    // 2. Ambil status terakhir
+    const statusHistory = borrow.borrowStatusHistories[0] ?? null;
+
+    // 3. Hitung distance (ambil alamat user login, cari yang terdekat)
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    let distance = null;
+    if (userAddresses.length > 0) {
+        const distances = userAddresses.map(address => {
+            const start = { latitude: address.latitude, longitude: address.longitude };
+            const end = { latitude: borrow.address.latitude, longitude: borrow.address.longitude };
+            return calculateDistance(start, end);
+        });
+        distance = Math.min(...distances);
+    }
+
+    // 4. Mapping response
+    return {
+        id: borrow.id,
+        item_name: borrow.item_name,
+        description: borrow.description,
+        images: borrow.images.map(img =>
+            (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        category: borrow.category
+            ? { id: borrow.category.id, name: borrow.category.name }
+            : null,
+        status: statusHistory
+            ? {
+                id: statusHistory.id,
+                status: snakeToTitleCase(statusHistory.status),
+                updated_at: statusHistory.updated_at
+            }
+            : null,
+        user: borrow.user
+            ? {
+                id: borrow.user.id,
+                profile_picture: (!borrow.user.profile_picture?.startsWith("http") && !borrow.user.profile_picture?.startsWith("https"))
+                    ? getPictureUrl(reqObject, borrow.user.profile_picture)
+                    : borrow.user.profile_picture,
+                username: borrow.user.username,
+                fullname: borrow.user.fullname
+            }
+            : null,
+        address: borrow.address
+            ? {
+                id: borrow.address.id,
+                address: borrow.address.address,
+                latitude: borrow.address.latitude,
+                longitude: borrow.address.longitude
+            }
+            : null,
+        distance,
+        phone: borrow.phone
+            ? {
+                id: borrow.phone.id,
+                number: borrow.phone.number
+            }
+            : null,
+        duration_from: borrow.duration_from,
+        duration_to: borrow.duration_to,
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24)
+        // created_at: borrow.created_at,
+        // updated_at: borrow.updated_at
+    };
+};
+
 export default {
     createBorrow,
-    getBorrows
+    getBorrows,
+    getBorrowDetail
 };

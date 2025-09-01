@@ -62,6 +62,7 @@ userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', 
 // Borrow API
 userRouter.get('/borrows', authMiddleware, borrowController.getBorrows);
 userRouter.post('/borrows', authMiddleware, uploadBorrowImageMiddleware, borrowController.createBorrow);
+userRouter.get('/borrows/:borrowId', authMiddleware, borrowController.getBorrowDetail);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

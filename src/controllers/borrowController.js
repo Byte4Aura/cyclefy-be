@@ -1,4 +1,5 @@
 import { logger } from "../application/logging.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import borrowService from "../services/borrowService.js";
 import fs from "fs/promises"
 
@@ -54,7 +55,24 @@ const getBorrows = async (req, res, next) => {
     }
 };
 
+const getBorrowDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const borrowId = Number(req.params.borrowId);
+        if (!isRequestParameterNumber(borrowId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        const result = await borrowService.getBorrowDetail(userId, borrowId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("borrow.get_detail_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createBorrow,
-    getBorrows
+    getBorrows,
+    getBorrowDetail
 };

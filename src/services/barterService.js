@@ -7,7 +7,7 @@ import { ResponseError } from "../errors/responseError.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
 
-const getBarters = async (userId, search, category, maxDistance, sort, page, size, reqObject) => {
+const getBarters = async (userId, search, category, maxDistance, location, sort, page, size, reqObject) => {
     // Get all current user addresses
     const userAddresses = await prismaClient.address.findMany({
         where: { user_id: userId }
@@ -28,6 +28,12 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
             // { category: { name: { contains: search} } }
         ];
     }
+    if (!maxDistance && location) {
+        where.OR = [
+            ...(where.OR || []),
+            { address: { address: { contains: location } } },
+        ];
+    }
 
     // Get other user barter posts
     const barters = await prismaClient.barter.findMany({
@@ -41,7 +47,8 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
             barterStatusHistories: {
                 orderBy: { created_at: "desc" },
                 take: 1 //take last status
-            }
+            },
+            images: true
         }
     });
 
@@ -83,8 +90,12 @@ const getBarters = async (userId, search, category, maxDistance, sort, page, siz
                     ? getPictureUrl(reqObject, barter.user.profile_picture)
                     : barter.user.profile_picture,
             },
-            created_at: barter.created_at,
-            updated_at: barter.updated_at
+            images: barter.images.map(img =>
+                (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                    ? getPictureUrl(reqObject, img.image_path)
+                    : img.image_path),
+            // created_at: barter.created_at,
+            // updated_at: barter.updated_at
         }
     });
 
