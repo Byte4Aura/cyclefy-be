@@ -191,7 +191,7 @@ const getBorrows = async (
         ),
         duration_from: borrow.duration_from,
         duration_to: borrow.duration_to,
-        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24),
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24) + 1,
     }));
 
     // 8. Sorting
@@ -300,7 +300,7 @@ const getBorrowDetail = async (userId, borrowId, reqObject) => {
             : null,
         duration_from: borrow.duration_from,
         duration_to: borrow.duration_to,
-        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24)
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24) + 1
         // created_at: borrow.created_at,
         // updated_at: borrow.updated_at
     };
@@ -309,5 +309,5 @@ const getBorrowDetail = async (userId, borrowId, reqObject) => {
 export default {
     createBorrow,
     getBorrows,
-    getBorrowDetail
+    getBorrowDetail,
 };
