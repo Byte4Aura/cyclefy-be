@@ -429,9 +429,136 @@ const getMyBorrowDetail = async (userId, borrowId, reqObject) => {
     };
 };
 
+const getMyBorrowIncomingRequestDetail = async (userId, borrowId, requestId, reqObject) => {
+    // 1. Pastikan borrowId milik user login
+    const borrow = await prismaClient.borrow.findUnique({
+        where: { id: borrowId, user_id: userId },
+        include: {
+            images: true,
+            category: true,
+            address: true,
+            phone: true,
+            borrowStatusHistories: { orderBy: { created_at: 'desc' }, take: 1 },
+            user: true
+        }
+    });
+    if (!borrow) throw new ResponseError(404, 'borrow.not_found');
+
+    // 2. Ambil borrowApplication (request) spesifik
+    const borrowApp = await prismaClient.borrowApplication.findUnique({
+        where: { id: requestId },
+        include: {
+            user: true,
+            address: true,
+            phone: true,
+            borrowApplicationStatusHistories: {
+                orderBy: { created_at: 'desc' },
+                take: 1
+            }
+        }
+    });
+    if (!borrowApp || borrowApp.borrow_id !== borrowId)
+        throw new ResponseError(404, 'borrow_application.not_found');
+
+    // 3. Ambil address user login untuk distance
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    let distance = null;
+    if (userAddresses.length && borrowApp.address) {
+        const distances = userAddresses.map(addr =>
+            calculateDistance(
+                { latitude: addr.latitude, longitude: addr.longitude },
+                { latitude: borrowApp.address.latitude, longitude: borrowApp.address.longitude }
+            )
+        );
+        distance = Math.min(...distances);
+    }
+
+    // 4. Mapping requested_by (data requestId)
+    const requested_by = {
+        id: borrowApp.id,
+        reason: borrowApp.reason,
+        address: borrowApp.address
+            ? {
+                id: borrowApp.address.id,
+                address: borrowApp.address.address,
+                latitude: borrowApp.address.latitude,
+                longitude: borrowApp.address.longitude
+            }
+            : null,
+        distance: distance,
+        user: borrowApp.user
+            ? {
+                id: borrowApp.user.id,
+                profile_picture: (!borrowApp.user.profile_picture?.startsWith('http') && !borrowApp.user.profile_picture?.startsWith('https'))
+                    ? getPictureUrl(reqObject, borrowApp.user.profile_picture)
+                    : borrowApp.user.profile_picture,
+                fullname: borrowApp.user.fullname,
+                username: borrowApp.user.username
+            }
+            : null,
+        status: borrowApp.borrowApplicationStatusHistories[0]
+            ? {
+                id: borrowApp.borrowApplicationStatusHistories[0].id,
+                status: snakeToTitleCase(borrowApp.borrowApplicationStatusHistories[0].status),
+                updated_at: borrowApp.borrowApplicationStatusHistories[0].updated_at
+            }
+            : null,
+        phone: borrowApp.phone ? borrowApp.phone.number : null,
+        duration_from: borrowApp.duration_from,
+        duration_to: borrowApp.duration_to,
+        borrowing_duration: (borrowApp.duration_to - borrowApp.duration_from) / (1000 * 60 * 60 * 24) + 1
+    };
+
+    // 5. Mapping response
+    return {
+        id: borrow.id,
+        item_name: borrow.item_name,
+        description: borrow.description,
+        images: borrow.images.map(img =>
+            (!img.image_path.startsWith('http') && !img.image_path.startsWith('https'))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        category: borrow.category
+            ? { id: borrow.category.id, name: borrow.category.name }
+            : null,
+        status: borrow.borrowStatusHistories[0]
+            ? {
+                id: borrow.borrowStatusHistories[0].id,
+                status: snakeToTitleCase(borrow.borrowStatusHistories[0].status),
+                updated_at: borrow.borrowStatusHistories[0].updated_at
+            }
+            : null,
+        user: borrow.user
+            ? {
+                id: borrow.user.id,
+                profile_picture: (!borrow.user.profile_picture?.startsWith('http') && !borrow.user.profile_picture?.startsWith('https'))
+                    ? getPictureUrl(reqObject, borrow.user.profile_picture)
+                    : borrow.user.profile_picture,
+                username: borrow.user.username,
+                fullname: borrow.user.fullname
+            }
+            : null,
+        address: borrow.address
+            ? {
+                id: borrow.address.id,
+                address: borrow.address.address,
+                latitude: borrow.address.latitude,
+                longitude: borrow.address.longitude
+            }
+            : null,
+        phone: borrow.phone ? borrow.phone.number : null,
+        duration_from: borrow.duration_from,
+        duration_to: borrow.duration_to,
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24) + 1,
+        requested_by: requested_by
+    };
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
-    getMyBorrowDetail
+    getMyBorrowDetail,
+    getMyBorrowIncomingRequestDetail
 };

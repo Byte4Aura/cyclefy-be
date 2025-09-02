@@ -630,7 +630,8 @@ const getMyBarterIncomingRequestDetail = async (userId, barterId, requestId, req
                 take: 1
             },
             user: true,
-            address: true
+            address: true,
+            phone: true
         }
     });
     if (!barterApp || barterApp.barter_id !== barterId)
@@ -712,6 +713,7 @@ const getMyBarterIncomingRequestDetail = async (userId, barterId, requestId, req
                 longitude: barterApp.address.longitude
             }
             : null,
+        phone: barterApp.phone.number,
         distance: distance,
         barter_with: barter_with
     };

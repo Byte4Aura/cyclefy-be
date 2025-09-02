@@ -3930,6 +3930,9 @@ paths:
                       distance:
                         type: number
                         nullable: true
+                      phone: 
+                        type: string
+                        example: "+6281122334455"
                       barter_with:
                         type: object
                         properties:
@@ -5161,7 +5164,6 @@ paths:
                     properties:
                       token: { type: string, example: null }
 
-  
   /api/users/current/borrows/{borrowId}:
     get:
       tags:
@@ -5446,8 +5448,208 @@ paths:
         '401':
           description: Unauthorized
 
-
-
+  /api/users/current/borrows/{borrowId}/requests/{requestId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail request yang masuk ke borrowId
+      description: |
+        Mengambil detail borrow request yang masuk ke postingan borrow milik user saat ini.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Detail incoming borrow request berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Kamera DSLR Canon"
+                      description:
+                        type: string
+                        example: "Kamera masih mulus, lengkap dengan lensa kit."
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://cdn.cyclefi.id/borrow/10-1.jpg"]
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: "Elektronik"
+                      status:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          status:
+                            type: string
+                            example: "waiting_for_request"
+                          updated_at:
+                            type: string
+                            format: date-time
+                            example: "2025-09-03T10:00:00.000Z"
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          profile_picture:
+                            type: string
+                            example: "https://cdn.cyclefi.id/user/1.jpg"
+                          username:
+                            type: string
+                            example: "andi123"
+                          fullname:
+                            type: string
+                            example: "Andi"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          address:
+                            type: string
+                            example: "Jl. Merdeka No. 1, Bandung"
+                          latitude:
+                            type: number
+                            example: -6.914744
+                          longitude:
+                            type: number
+                            example: 107.609810
+                      phone:
+                        type: string
+                        example: "08123456789"
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-12"
+                      borrowing_duration:
+                        type: integer
+                        example: 7
+                      requested_by:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 21
+                          reason:
+                            type: string
+                            example: "Untuk tugas kuliah"
+                          address:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 5
+                              address:
+                                type: string
+                                example: "Jl. Asia Afrika No. 2, Bandung"
+                              latitude:
+                                type: number
+                                example: -6.921
+                              longitude:
+                                type: number
+                                example: 107.607
+                          distance:
+                            type: number
+                            example: 2.5
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 7
+                              profile_picture:
+                                type: string
+                                example: "https://cdn.cyclefi.id/user/7.jpg"
+                              fullname:
+                                type: string
+                                example: "Budi"
+                              username:
+                                type: string
+                                example: "budi123"
+                          status:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              status:
+                                type: string
+                                example: "pending"
+                              updated_at:
+                                type: string
+                                format: date-time
+                                example: "2025-09-03T10:00:00.000Z"
+                          phone:
+                            type: string
+                            example: "08123456789"
+                          duration_from:
+                            type: string
+                            format: date
+                            example: "2025-09-06"
+                          duration_to:
+                            type: string
+                            format: date
+                            example: "2025-09-10"
+                          borrowing_duration:
+                            type: integer
+                            example: 4
+        '404':
+          description: Borrow post atau request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
 
 
 

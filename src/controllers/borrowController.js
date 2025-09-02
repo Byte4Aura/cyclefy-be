@@ -88,9 +88,28 @@ const getMyBorrowDetail = async (req, res, next) => {
     }
 };
 
+const getMyBorrowIncomingRequestDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const borrowId = Number(req.params.borrowId);
+        if (!isRequestParameterNumber(borrowId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        const result = await borrowService.getMyBorrowIncomingRequestDetail(userId, borrowId, requestId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__('borrow_application.get_detail_successful'),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
-    getMyBorrowDetail
+    getMyBorrowDetail,
+    getMyBorrowIncomingRequestDetail
 };
