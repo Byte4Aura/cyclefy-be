@@ -5506,6 +5506,64 @@ paths:
         '404':
           description: Data tidak ditemukan
   
+  /api/users/current/borrows/{borrowId}/mark-as-returned:
+    post:
+      tags:
+        - Borrow
+      summary: Tandai borrow sebagai Returned
+      description: |
+        Hanya dapat dilakukan oleh pemilik borrowId jika status borrow sudah Lent dan status salah satu incoming requestnya Borrowed.
+        Akan mengubah status borrow dan borrow request terkait menjadi Returned.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow request
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      responses:
+        '200':
+          description: Berhasil menandai borrow sebagai Returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mark borrow as returned successfully
+        '400':
+          description: borrow belum berstatus returned atau request belum berstatus returned
+        '401':
+          description: Unauthorized
+        '404':
+          description: Data tidak ditemukan
+
   /api/users/current/borrows/{borrowId}/mark-as-completed:
     post:
       tags:

@@ -194,6 +194,7 @@
         "create_successful": "Pengajuan peminjaman berhasil dibuat",
         "cannot_confirmed": "Status pengajuan peminjaman tidak bisa mengkonfirmasi request",
         "cannot_mark_lent": "Status pengajuan peminjaman tidak bisa ditandai sebagai Lent",
+        "cannot_mark_returned": "Status pengajuan peminjaman tidak bisa ditandai sebagai Returned",
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "common": {

@@ -166,6 +166,7 @@
         "request_accepted": "Borrow request accepted successfully",
         "request_declined": "Borrow request declined successfully",
         "mark_lent_successful": "Mark borrow as lent successful",
+        "mark_returned_successful": "Mark borrow as returned successful",
         "mark_completed_successful": "Mark borrow as completed successful",
         "cannot_confirmed": "Borrow status cannot confirmed a request",
         "cannot_mark_lent": "Borrow status cannot be mark as lent",
@@ -194,6 +195,7 @@
         "create_successful": "Borrow request created successfully",
         "cannot_confirmed": "Borrow request status cannot confirmed a request",
         "cannot_mark_lent": "Borrow request status cannot be mark as lent",
+        "cannot_mark_returned": "Borrow request status cannot be mark as returned",
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
     "common": {

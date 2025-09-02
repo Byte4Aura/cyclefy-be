@@ -71,6 +71,7 @@ userRouter.get('/users/current/borrows', authMiddleware, borrowHistoryController
 userRouter.get('/users/current/borrows/:borrowId', authMiddleware, borrowController.getMyBorrowDetail);
 userRouter.get('/users/current/borrow-requests/:requestId', authMiddleware, borrowHistoryController.getMyBorrowRequestDetail);
 userRouter.post('/users/current/borrows/:borrowId/mark-as-lent', authMiddleware, borrowController.markBorrowAsLent);
+userRouter.post('/users/current/borrows/:borrowId/mark-as-returned', authMiddleware, borrowController.markBorrowAsReturned);
 userRouter.post('/users/current/borrows/:borrowId/mark-as-completed', authMiddleware, borrowController.markBorrowAsCompleted);
 userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddleware, borrowController.getMyBorrowIncomingRequestDetail);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);

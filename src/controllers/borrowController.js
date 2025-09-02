@@ -141,6 +141,21 @@ const markBorrowAsLent = async (req, res, next) => {
     }
 };
 
+const markBorrowAsReturned = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const borrowId = Number(req.params.borrowId);
+        if (!isRequestParameterNumber(borrowId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        await borrowService.markBorrowAsReturned(userId, borrowId);
+        res.status(200).json({
+            success: true,
+            message: req.__("borrow.mark_returned_successful")
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 const markBorrowAsCompleted = async (req, res, next) => {
     try {
         const userId = req.user.id;
@@ -164,5 +179,6 @@ export default {
     getMyBorrowIncomingRequestDetail,
     processIncomingRequest,
     markBorrowAsLent,
+    markBorrowAsReturned,
     markBorrowAsCompleted
 };
