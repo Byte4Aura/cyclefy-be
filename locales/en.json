@@ -101,7 +101,9 @@
         "not_found": "Barter not found",
         "id_not_a_number": "Barter id is not a number",
         "request_id_not_a_number": "Incoming request id is not a number",
-        "status_not_available": "Your barter item status is not available to be requested",
+        "status_not_available": "Barter item status is not available to be requested",
+        "exists_item_status_not_available": "Your item barter status is not available to be requested",
+        "no_confirmed_application": "There is not any barter request with confirmed status yet",
         "posting": {
             "waiting_for_request_detail": "The item has been posted and is waiting for someone else to submit a barter request",
             "waiting_for_confirmation_detail": "Someone has submitted a barter request, awaiting your confirmation",

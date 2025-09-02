@@ -359,142 +359,118 @@ const getBarterHistory = async (userId, search, category, userItemStatus, otherI
         };
     }
 
-    // Other user items
+    // User request (riwayat request to barter milik current user)
     if (ownership.includes("other_items")) {
-        const myBarterIds = (
-            await prismaClient.barter.findMany({
-                where: { user_id: userId },
-                select: { id: true }
-            })
-        ).map(barter => barter.id);
-
-        let filteredBarterApplications = [];
-        if (myBarterIds.length > 0) {
-            const whereBarterApplicationFilter = {
-                barter_id: { in: myBarterIds },
-                user_id: { not: userId }
-            }
-
-            if (category && category.length > 0) {
-                whereBarterApplicationFilter.category = { name: { in: category } };
-            }
-            if (search) {
-                whereBarterApplicationFilter.OR = [
-                    { item_name: { contains: search } },
-                    { description: { contains: search } },
-                    // { category: { name: { contains: search} } }
-                ];
-            }
-
-            const barterApplications = await prismaClient.barterApplication.findMany({
-                where: whereBarterApplicationFilter,
-                include: {
-                    images: true,
-                    category: true,
-                    barterApplicationStatusHistories: {
-                        orderBy: { created_at: "desc" },
-                        take: 1 //take last status
-                    },
-                    user: true,
-                    address: true
-                },
-                // skip: (otherItemPage - 1) * otherItemSize,
-                // take: otherItemSize
-            });
-
-            // Filter status
-            filteredBarterApplications = barterApplications;
-            if (otherItemStatus && otherItemStatus.length > 0) {
-                filteredBarterApplications = barterApplications.filter(barterApp =>
-                    barterApp.barterApplicationStatusHistories.length > 0 &&
-                    otherItemStatus.includes(barterApp.barterApplicationStatusHistories[0].status)
-                );
-            }
-
-            // Pagination
-            const totalOtherItems = filteredBarterApplications.length;
-            const pagedOtherItems = filteredBarterApplications.slice(
-                (otherItemPage - 1) * otherItemSize,
-                otherItemPage * otherItemSize
-            );
-
-            // Get user addresses for distance calculation
-            const userAddresses = await prismaClient.address.findMany({
-                where: { user_id: userId }
-            });
-            if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
-
-            data.other_items = pagedOtherItems.map(app => {
-                // Distance: min dari semua address user ke address barter application
-                let distance = null;
-                if (userAddresses.length && app.address) {
-                    const distances = userAddresses.map(addr =>
-                        calculateDistance(
-                            { latitude: addr.latitude, longitude: addr.longitude },
-                            { latitude: app.address.latitude, longitude: app.address.longitude }
-                        )
-                    );
-                    distance = Math.min(...distances);
-                }
-
-                const userProfilePicture = (!app.user.profile_picture.startsWith("http") || !app.user.profile_picture.startsWith("https"))
-                    ? getPictureUrl(reqObject, app.user.profile_picture)
-                    : app.user.profile_picture
-
-                return {
-                    id: app.id,
-                    item_name: app.item_name,
-                    description: app.description,
-                    images: app.images.map(img => {
-                        if (!img.image_path.startsWith("http") || !img.image_path.startsWith("https")) {
-                            return getPictureUrl(reqObject, img.image_path);
-                        };
-                        return img.image_path;
-                    }),
-                    category: app.category
-                        ? { id: app.category.id, name: app.category.name }
-                        : null,
-                    status: app.barterApplicationStatusHistories[0]
-                        ? {
-                            id: app.barterApplicationStatusHistories[0].id,
-                            status: snakeToTitleCase(app.barterApplicationStatusHistories[0].status),
-                            updated_at: app.barterApplicationStatusHistories[0].updated_at,
-                        }
-                        : null,
-                    user: app.user
-                        ? {
-                            id: app.user.id,
-                            profile_picture: userProfilePicture,
-                            username: app.user.username,
-                            fullname: app.user.fullname
-                        }
-                        : null,
-                    address: app.address
-                        ? {
-                            id: app.address.id,
-                            address: app.address.address,
-                            latitude: app.address.latitude,
-                            longitude: app.address.longitude
-                        }
-                        : null,
-                    distance: distance
-                };
-            });
-
-            meta.other_items = {
-                total: totalOtherItems,
-                page: otherItemPage,
-                size: otherItemSize,
-                totalPages: Math.ceil(totalOtherItems / otherItemSize)
-            };
-        } else {
-            meta.other_items = {
-                total: 0,
-                page: otherItemPage,
-                size: otherItemSize,
-                totalPages: 0
-            };
+        // Ambil semua barterApplication milik current user
+        const whereBarterApp = { user_id: userId };
+        if (category && category.length > 0 && !category.includes("all")) {
+            whereBarterApp.category = { name: { in: category } };
         }
+        if (search) {
+            whereBarterApp.OR = [
+                { item_name: { contains: search } },
+                { description: { contains: search } }
+            ];
+        }
+
+        const barterApps = await prismaClient.barterApplication.findMany({
+            where: whereBarterApp,
+            include: {
+                barter: {
+                    include: {
+                        user: true,
+                        address: true,
+                        category: true,
+                        images: true
+                    }
+                },
+                barterApplicationStatusHistories: {
+                    orderBy: { created_at: "desc" },
+                    take: 1
+                }
+            }
+        });
+
+        // Filter status
+        let filteredApps = barterApps;
+        if (otherItemStatus && otherItemStatus.length > 0) {
+            filteredApps = barterApps.filter(app =>
+                app.barterApplicationStatusHistories.length > 0 &&
+                otherItemStatus.includes(app.barterApplicationStatusHistories[0].status)
+            );
+        }
+
+        // Pagination
+        const totalOtherItems = filteredApps.length;
+        const pagedOtherItems = filteredApps.slice(
+            (otherItemPage - 1) * otherItemSize,
+            otherItemPage * otherItemSize
+        );
+
+        // Get user addresses for distance calculation
+        const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+        if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
+
+        data.other_items = pagedOtherItems.map(app => {
+            // Distance: min dari semua address user ke address postingan barter
+            let distance = null;
+            if (userAddresses.length && app.barter.address) {
+                const distances = userAddresses.map(addr =>
+                    calculateDistance(
+                        { latitude: addr.latitude, longitude: addr.longitude },
+                        { latitude: app.barter.address.latitude, longitude: app.barter.address.longitude }
+                    )
+                );
+                distance = Math.min(...distances);
+            }
+
+            return {
+                id: app.id,
+                item_name: app.barter.item_name,
+                description: app.barter.description,
+                images: app.barter.images.map(img =>
+                    (!img.image_path.startsWith("http") && !img.image_path.startsWith("https"))
+                        ? getPictureUrl(reqObject, img.image_path)
+                        : img.image_path
+                ),
+                category: app.barter.category
+                    ? { id: app.barter.category.id, name: app.barter.category.name }
+                    : null,
+                status: app.barterApplicationStatusHistories[0]
+                    ? {
+                        id: app.barterApplicationStatusHistories[0].id,
+                        status: snakeToTitleCase(app.barterApplicationStatusHistories[0].status),
+                        updated_at: app.barterApplicationStatusHistories[0].updated_at
+                    }
+                    : null,
+                user: app.barter.user
+                    ? {
+                        id: app.barter.user.id,
+                        profile_picture: (!app.barter.user.profile_picture?.startsWith("http") && !app.barter.user.profile_picture?.startsWith("https"))
+                            ? getPictureUrl(reqObject, app.barter.user.profile_picture)
+                            : app.barter.user.profile_picture,
+                        username: app.barter.user.username,
+                        fullname: app.barter.user.fullname
+                    }
+                    : null,
+                address: app.barter.address
+                    ? {
+                        id: app.barter.address.id,
+                        address: app.barter.address.address,
+                        latitude: app.barter.address.latitude,
+                        longitude: app.barter.address.longitude
+                    }
+                    : null,
+                distance: distance
+            };
+        });
+
+        meta.other_items = {
+            total: totalOtherItems,
+            page: otherItemPage,
+            size: otherItemSize,
+            totalPages: Math.ceil(totalOtherItems / otherItemSize)
+        };
     }
 
     return {
@@ -827,7 +803,7 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
     }
 };
 
-const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => {
+const markBarterAsCompleted = async (userId, barterId) => {
     // 1. Validasi barterId milik user login
     const barter = await prismaClient.barter.findUnique({
         where: { id: barterId, user_id: userId },
@@ -845,6 +821,22 @@ const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => 
     if (!lastStatus || lastStatus.status !== "confirmed")
         throw new ResponseError(400, "barter.cannot_mark_completed");
 
+    const confirmedApp = await prismaClient.barterApplication.findFirst({
+        where: {
+            barter_id: barterId,
+            barterApplicationStatusHistories: {
+                some: { status: "confirmed" }
+            }
+        },
+        include: {
+            barterApplicationStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1,
+            }
+        }
+    });
+    if (!confirmedApp || confirmedApp.barterApplicationStatusHistories[0].status === 0) throw new ResponseError(400, "barter.no_confirmed_application");
+
     // 3. Update barter_status_histories barterId jadi completed
     await prismaClient.barterStatusHistory.create({
         data: {
@@ -857,7 +849,7 @@ const markBarterAsCompleted = async (userId, barterId, requestId, reqObject) => 
     // 4. Update barter_application_status_histories requestId jadi completed
     await prismaClient.barterApplicationStatusHistory.create({
         data: {
-            barter_application_id: requestId,
+            barter_application_id: confirmedApp.id,
             status: "completed",
             status_detail: "barter_application.request.completed_detail"
         }

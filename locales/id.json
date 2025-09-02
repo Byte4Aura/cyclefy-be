@@ -101,7 +101,9 @@
         "not_found": "Barter tidak ditemukan",
         "id_not_a_number": "Barter ID bukan angka",
         "request_id_not_a_number": "Request ID bukan angka",
-        "status_not_available": "Status item barter Anda tidak tersedia untuk diajukan",
+        "status_not_available": "Status item tidak tersedia untuk diajukan",
+        "exists_item_status_not_available": "Status item barter anda tidak tersedia untuk diajukan",
+        "no_confirmed_application": "Belum ada permintaan barter dengan status terkonfirmasi",
         "posting": {
             "waiting_for_request_detail": "Barang telah diposting dan menunggu orang lain untuk mengajukan permintaan barter",
             "waiting_for_confirmation_detail": "Seseorang telah mengajukan permintaan barter, menunggu konfirmasi Anda",

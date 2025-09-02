@@ -165,9 +165,7 @@ const markBarterAsCompleted = async (req, res, next) => {
         const userId = req.user.id;
         const barterId = Number(req.params.barterId);
         if (!isRequestParameterNumber(barterId)) throw new ResponseError(400, "barter.id_not_a_number");
-        const requestId = Number(req.params.requestId);
-        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "barter.request_id_not_a_number");
-        await barterService.markBarterAsCompleted(userId, barterId, requestId, req);
+        await barterService.markBarterAsCompleted(userId, barterId);
         res.status(200).json({
             success: true,
             message: req.__("barter.mark_completed_successful")
