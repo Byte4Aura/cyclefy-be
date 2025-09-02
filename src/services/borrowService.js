@@ -656,7 +656,7 @@ const processIncomingRequest = async (userId, borrowId, requestId, action, decli
     }
 };
 
-const markBorrowAsCompleted = async (userId, borrowId) => {
+const markBorrowAsLent = async (userId, borrowId) => {
     // 1. Validasi borrowId milik user login
     const borrow = await prismaClient.borrow.findUnique({
         where: { id: borrowId, user_id: userId },
@@ -671,8 +671,8 @@ const markBorrowAsCompleted = async (userId, borrowId) => {
 
     // 2. Pastikan status terakhir borrow adalah confirmed
     const lastStatus = borrow.borrowStatusHistories[0];
-    if (!lastStatus || lastStatus.status !== "returned")
-        throw new ResponseError(400, "borrow.cannot_mark_completed");
+    if (!lastStatus || lastStatus.status !== "confirmed")
+        throw new ResponseError(400, "borrow.cannot_mark_lent");
 
     const confirmedApp = await prismaClient.borrowApplication.findFirst({
         where: {
@@ -689,7 +689,61 @@ const markBorrowAsCompleted = async (userId, borrowId) => {
         }
     });
     if (!confirmedApp || confirmedApp.borrowApplicationStatusHistories[0].status === 0) throw new ResponseError(400, "borrow.no_confirmed_application");
-    if (!confirmedApp || confirmedApp.borrowApplicationStatusHistories[0].status !== "returned") throw new ResponseError(400, "borrow_application.cannot_mark_completed");
+    if (!confirmedApp || confirmedApp.borrowApplicationStatusHistories[0].status !== "confirmed") throw new ResponseError(400, "borrow_application.cannot_mark_lent");
+
+    // 3. Update borrow_status_histories borrowId jadi completed
+    await prismaClient.borrowStatusHistory.create({
+        data: {
+            borrow_id: borrowId,
+            status: "lent",
+            status_detail: "borrow.posting.lent_detail"
+        }
+    });
+
+    // 4. Update borrow_application_status_histories requestId jadi completed
+    await prismaClient.borrowApplicationStatusHistory.create({
+        data: {
+            borrow_application_id: confirmedApp.id,
+            status: "borrowed",
+            status_detail: "borrow_application.request.borrowed_detail"
+        }
+    });
+};
+
+const markBorrowAsCompleted = async (userId, borrowId) => {
+    // 1. Validasi borrowId milik user login
+    const borrow = await prismaClient.borrow.findUnique({
+        where: { id: borrowId, user_id: userId },
+        include: {
+            borrowStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1 //take last status
+            }
+        }
+    });
+    if (!borrow) throw new ResponseError(404, "borrow.not_found");
+
+    // 2. Pastikan status terakhir borrow adalah returned
+    const lastStatus = borrow.borrowStatusHistories[0];
+    if (!lastStatus || lastStatus.status !== "returned")
+        throw new ResponseError(400, "borrow.cannot_mark_completed");
+
+    const returnedApp = await prismaClient.borrowApplication.findFirst({
+        where: {
+            borrow_id: borrowId,
+            borrowApplicationStatusHistories: {
+                some: { status: "returned" }
+            }
+        },
+        include: {
+            borrowApplicationStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1,
+            }
+        }
+    });
+    if (!returnedApp || returnedApp.borrowApplicationStatusHistories[0].status === 0) throw new ResponseError(400, "borrow.no_confirmed_application");
+    if (!returnedApp || returnedApp.borrowApplicationStatusHistories[0].status !== "returned") throw new ResponseError(400, "borrow_application.cannot_mark_completed");
 
     // 3. Update borrow_status_histories borrowId jadi completed
     await prismaClient.borrowStatusHistory.create({
@@ -717,5 +771,6 @@ export default {
     getMyBorrowDetail,
     getMyBorrowIncomingRequestDetail,
     processIncomingRequest,
+    markBorrowAsLent,
     markBorrowAsCompleted
 };

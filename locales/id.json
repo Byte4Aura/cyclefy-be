@@ -165,8 +165,10 @@
         "get_incoming_request_detail_successful": "Berhasil mendapatkan detail request peminjaman yang masuk",
         "request_accepted": "Pengajuan peminjaman berhasil dikonfirmasi",
         "request_declined": "Pengajuan peminjaman berhasil ditolak",
+        "mark_lent_successful": "Status peminjaman berhasil ditandai sebagai lent",
         "mark_completed_successful": "Status peminjaman berhasil ditandai sebagai selesai",
         "cannot_confirmed": "Status peminjaman tidak bisa mengkonfirmasi request",
+        "cannot_mark_lent": "Status peminjaman tidak bisa ditandai sebagai Lent",
         "cannot_mark_completed": "Status peminjaman tidak bisa ditandai sebagai selesai"
     },
     "borrow_application": {
@@ -191,6 +193,7 @@
         "duplicate_active_request": "Item peminjaman postingan anda duplikat",
         "create_successful": "Pengajuan peminjaman berhasil dibuat",
         "cannot_confirmed": "Status pengajuan peminjaman tidak bisa mengkonfirmasi request",
+        "cannot_mark_lent": "Status pengajuan peminjaman tidak bisa ditandai sebagai Lent",
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "common": {

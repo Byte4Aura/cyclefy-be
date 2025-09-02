@@ -165,8 +165,10 @@
         "get_incoming_request_detail_successful": "Get incoming request detail successful",
         "request_accepted": "Borrow request accepted successfully",
         "request_declined": "Borrow request declined successfully",
+        "mark_lent_successful": "Mark borrow as lent successful",
         "mark_completed_successful": "Mark borrow as completed successful",
         "cannot_confirmed": "Borrow status cannot confirmed a request",
+        "cannot_mark_lent": "Borrow status cannot be mark as lent",
         "cannot_mark_completed": "Borrow status cannot be mark as completed"
     },
     "borrow_application": {
@@ -191,6 +193,7 @@
         "duplicate_active_request": "Your borrow post request is duplicate",
         "create_successful": "Borrow request created successfully",
         "cannot_confirmed": "Borrow request status cannot confirmed a request",
+        "cannot_mark_lent": "Borrow request status cannot be mark as lent",
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
     "common": {
