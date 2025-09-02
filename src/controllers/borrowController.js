@@ -19,7 +19,7 @@ const createBorrow = async (req, res, next) => {
         if (req.files && Array.isArray(req.files)) {
             for (const file of req.files) {
                 if (file && file.path) {
-                    try { await fs.unlink(file.path); } catch (e) { logger.error("Failed to delete uploaded barter image", e); }
+                    try { await fs.unlink(file.path); } catch (e) { logger.error("Failed to delete uploaded borrow image", e); }
                 }
             }
         }
@@ -126,11 +126,27 @@ const processIncomingRequest = async (req, res, next) => {
     }
 };
 
+const markBorrowAsCompleted = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const borrowId = Number(req.params.borrowId);
+        if (!isRequestParameterNumber(borrowId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        await borrowService.markBorrowAsCompleted(userId, borrowId);
+        res.status(200).json({
+            success: true,
+            message: req.__("borrow.mark_completed_successful")
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
     getMyBorrowDetail,
     getMyBorrowIncomingRequestDetail,
-    processIncomingRequest
+    processIncomingRequest,
+    markBorrowAsCompleted
 };

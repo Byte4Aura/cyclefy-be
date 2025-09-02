@@ -847,7 +847,7 @@ const markBarterAsCompleted = async (userId, barterId) => {
         }
     });
     if (!confirmedApp || confirmedApp.barterApplicationStatusHistories[0].status === 0) throw new ResponseError(400, "barter.no_confirmed_application");
-
+    if (!confirmedApp || confirmedApp.barterApplicationStatusHistories[0].status !== "confirmed") throw new ResponseError(400, "barter_application.cannot_mark_completed");
     // 3. Update barter_status_histories barterId jadi completed
     await prismaClient.barterStatusHistory.create({
         data: {

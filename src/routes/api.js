@@ -70,6 +70,7 @@ userRouter.post('/borrows/:borrowId/request', authMiddleware, borrowApplicationC
 userRouter.get('/users/current/borrows', authMiddleware, borrowHistoryController.getBorrowHistory);
 userRouter.get('/users/current/borrows/:borrowId', authMiddleware, borrowController.getMyBorrowDetail);
 userRouter.get('/users/current/borrow-requests/:requestId', authMiddleware, borrowHistoryController.getMyBorrowRequestDetail);
+userRouter.post('/users/current/borrows/:borrowId/mark-as-completed', authMiddleware, borrowController.markBorrowAsCompleted);
 userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddleware, borrowController.getMyBorrowIncomingRequestDetail);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
 
