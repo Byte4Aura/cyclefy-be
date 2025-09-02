@@ -124,9 +124,11 @@
     },
     "barter_application": {
         "not_found": "Request barter tidak ditemukan",
+        "id_not_a_number": "Request Barter ID bukan angka",
         "cannot_request_own_post": "Tidak bisa request postingan sendiri",
         "user_barter_id_invalid": "ID postingan barter user tidak valid",
         "user_barter_not_found": "Item barter milik user saat ini tidak ditemukan",
+        "forbidden": "Anda tidak punya akses ke detail pengajuan barter ini",
         "request": {
             "request_submitted_detail": "Permintaan barter telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan barter telah dikonfirmasi, dan pertukaran siap dilanjutkan",
@@ -168,10 +170,12 @@
     },
     "borrow_application": {
         "not_found": "Request peminjaman tidak ditemukan",
+        "id_not_a_number": "Request Borrow ID bukan angka",
         "cannot_request_own_post": "Tidak bisa request postingan sendiri",
         "invalid_duration": "Durasi request peminjaman tidak valid",
         "user_borrow_id_invalid": "ID postingan peminjaman user tidak valid",
         "user_borrow_not_found": "Item peminjaman milik user saat ini tidak ditemukan",
+        "forbidden": "Anda tidak punya akses ke detail pengajuan peminjaman ini",
         "request": {
             "request_submitted_detail": "Permintaan peminjaman telah diajukan, menunggu konfirmasi",
             "confirmed_detail": "Permintaan peminjaman telah dikonfirmasi, dan barang siap dipinjamkan",

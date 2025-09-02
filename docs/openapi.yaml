@@ -5161,8 +5161,104 @@ paths:
                     properties:
                       token: { type: string, example: null }
 
-
-
+  /api/users/current/borrow-requests/{requestId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail other_items pada user borrow histories
+      description: |
+        Mengambil detail borrow request yang diajukan oleh user saat ini terhadap suatu item. Hanya dapat mengakses request milik user sendiri.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari borrow request yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Detail borrow request berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail request barter
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer }
+                      item_name: { type: string }
+                      description: { type: string }
+                      images:
+                        type: array
+                        items: { type: string, format: uri }
+                      category:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          name: { type: string }
+                      status: { type: string }
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: int }
+                            status: { type: string }
+                            status_detail: { type: string }
+                            updated_at: { type: string, format: date-time }
+                      address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          address: { type: string }
+                          latitude: { type: number }
+                          longitude: { type: number }
+                      distance: { type: number }
+                      user:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          profile_picture: { type: string, format: uri }
+                          fullname: { type: string }
+                          username: { type: string }
+                      duration_from: { type: string, format: date-time }
+                      duration_to: { type: string, format: date-time }
+                      borrowing_duration: { type: int } 
+                      reason: { type: string } 
+                      current_user_address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          address: { type: string }
+                          latitude: { type: number }
+                          longitude: { type: number }
+        '404':
+          description: Borrow request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
 
 
 

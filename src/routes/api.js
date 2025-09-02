@@ -56,7 +56,7 @@ userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplic
 
 userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);  //get user barters (my_items & other_items (incoming requests)) list
 userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get my_items detail
-userRouter.get('/users/current/barter-requests/:requestId', authMiddleware, barterApplicationController.getMyIncomingRequestDetail);  //get other_items detail
+userRouter.get('/users/current/barter-requests/:requestId', authMiddleware, barterApplicationController.getMyRequestDetail);  //get other_items detail
 userRouter.post('/users/current/barters/:barterId/mark-as-completed', authMiddleware, barterController.markBarterAsCompleted);
 userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);  //get incoming request detail
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
@@ -68,6 +68,8 @@ userRouter.get('/borrows/:borrowId', authMiddleware, borrowController.getBorrowD
 userRouter.post('/borrows/:borrowId/request', authMiddleware, borrowApplicationController.createBorrowApplication);
 
 userRouter.get('/users/current/borrows', authMiddleware, borrowHistoryController.getBorrowHistory);
+userRouter.get('/users/current/borrows/:borrowId', authMiddleware,);
+userRouter.get('/users/current/borrow-requests/:requestId', authMiddleware, borrowHistoryController.getMyBorrowRequestDetail);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

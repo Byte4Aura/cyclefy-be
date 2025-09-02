@@ -124,9 +124,11 @@
     },
     "barter_application": {
         "not_found": "Barter request not found",
+        "id_not_a_number": "Barter request id is not a number",
         "cannot_request_own_post": "Cannot request own post",
         "user_barter_id_invalid": "User barter post id is not valid",
         "user_barter_not_found": "Current user barter item not found",
+        "forbidden": "You do not access to this barter request detail",
         "request": {
             "request_submitted_detail": "A barter request has been submitted, awaiting confirmation",
             "confirmed_detail": "The barter request has been confirmed, and the exchange is ready to proceed",
@@ -168,10 +170,12 @@
     },
     "borrow_application": {
         "not_found": "Borrow request not found",
+        "id_not_a_number": "Borrow request id is not a number",
         "cannot_request_own_post": "Cannot request own post",
         "invalid_duration": "Invalid borrow request duration",
         "user_borrow_id_invalid": "User borrow post id is not valid",
         "user_borrow_not_found": "Current user borrow item not found",
+        "forbidden": "You do not access to this borrow request detail",
         "request": {
             "request_submitted_detail": "A borrowing request has been submitted, awaiting confirmation",
             "confirmed_detail": "The borrowing request has been confirmed, and the item is ready to be borrowed",

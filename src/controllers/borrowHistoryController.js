@@ -1,3 +1,4 @@
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import borrowHistoryService from "../services/borrowHistoryService.js";
 import borrowService from "../services/borrowService.js";
 import fs from "fs/promises"
@@ -38,6 +39,24 @@ const getBorrowHistory = async (req, res, next) => {
     }
 };
 
+const getMyBorrowRequestDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId))
+            throw new ResponseError(400, "borrow_application.id_not_a_number");
+        const result = await borrowHistoryService.getMyBorrowRequestDetail(userId, requestId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("barter_application.get_detail_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
-    getBorrowHistory
+    getBorrowHistory,
+    getMyBorrowRequestDetail
 };

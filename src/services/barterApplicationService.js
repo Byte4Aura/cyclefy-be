@@ -172,7 +172,7 @@ const createBarterApplication = async (userId, barterId, requestBody, files, req
     };
 };
 
-const getMyIncomingRequestDetail = async (userId, requestId, reqObject) => {
+const getMyRequestDetail = async (userId, requestId, reqObject) => {
     // 1. Ambil barterApplication milik current user
     const barterApp = await prismaClient.barterApplication.findUnique({
         where: { id: requestId },
@@ -187,7 +187,8 @@ const getMyIncomingRequestDetail = async (userId, requestId, reqObject) => {
                     user: true,
                     address: true
                 }
-            }
+            },
+            address: true
         }
     });
     if (!barterApp) throw new ResponseError(404, "barter_application.not_found");
@@ -225,7 +226,13 @@ const getMyIncomingRequestDetail = async (userId, requestId, reqObject) => {
                 status: snakeToTitleCase(barterApp.barterApplicationStatusHistories[barterApp.barterApplicationStatusHistories.length - 1].status),
                 updated_at: barterApp.barterApplicationStatusHistories[barterApp.barterApplicationStatusHistories.length - 1].updated_at
             }
-            : null
+            : null,
+        address: {
+            id: barterApp.address.id,
+            address: barterApp.address.address,
+            latitude: barterApp.address.latitude,
+            longitude: barterApp.address.longitude
+        }
     };
 
     // 4. Mapping status_histories dari barterApplication
@@ -276,4 +283,4 @@ const getMyIncomingRequestDetail = async (userId, requestId, reqObject) => {
     };
 };
 
-export default { createBarterApplication, getMyIncomingRequestDetail };
+export default { createBarterApplication, getMyRequestDetail };

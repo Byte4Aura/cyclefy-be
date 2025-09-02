@@ -27,13 +27,13 @@ const createBarterApplication = async (req, res, next) => {
     }
 };
 
-const getMyIncomingRequestDetail = async (req, res, next) => {
+const getMyRequestDetail = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const requestId = Number(req.params.requestId);
         if (!isRequestParameterNumber(requestId))
             throw new ResponseError(400, "barter_application.id_not_a_number");
-        const result = await barterApplicationService.getMyIncomingRequestDetail(userId, requestId, req);
+        const result = await barterApplicationService.getMyRequestDetail(userId, requestId, req);
         res.status(200).json({
             success: true,
             message: req.__("barter_application.get_detail_successful"),
@@ -45,4 +45,4 @@ const getMyIncomingRequestDetail = async (req, res, next) => {
 };
 
 
-export default { createBarterApplication, getMyIncomingRequestDetail };
+export default { createBarterApplication, getMyRequestDetail };
