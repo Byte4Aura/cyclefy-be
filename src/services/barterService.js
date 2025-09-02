@@ -759,7 +759,7 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
             data: {
                 barter_id: barterId,
                 status: "confirmed",
-                status_detail: "barter.posting.waiting_for_request_detail"
+                status_detail: "barter.posting.confirmed_detail"
             }
         });
 
@@ -773,9 +773,18 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
             where: {
                 barter_id: barterId,
                 id: { not: requestId }
+            },
+            include: {
+                barterApplicationStatusHistories: {
+                    orderBy: { created_at: "desc" },
+                    take: 1
+                }
             }
         });
         for (const app of otherApps) {
+            const lastStatus = app.barterApplicationStatusHistories[0];
+            if (lastStatus && lastStatus.status === "failed") continue;
+
             await prismaClient.barterApplicationStatusHistory.create({
                 data: {
                     barter_application_id: app.id,

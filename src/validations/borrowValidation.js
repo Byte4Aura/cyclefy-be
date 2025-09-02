@@ -9,3 +9,8 @@ export const createBorrowValidation = Joi.object({
     duration_from: Joi.date().iso().required(), // format: YYYY-MM-DD or ISO string
     duration_to: Joi.date().iso().greater(Joi.ref('duration_from')).required()
 });
+
+export const processBorrowRequestValidation = Joi.object({
+    action: Joi.string().max(255).valid("accept", "decline").required(),
+    decline_reason: Joi.string().max(255).when("action", { is: "decline", then: Joi.required(), otherwise: Joi.optional })
+});

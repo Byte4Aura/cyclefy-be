@@ -139,6 +139,7 @@
         "get_detail_successful": "Get barter request detail successful",
         "duplicate_existing_item": "Your barter post request is duplicate",
         "create_successful": "Barter request created successfully",
+        "cannot_confirmed": "Barter request status cannot confirmed a request",
         "cannot_mark_completed": "Barter request status cannot be mark as completed"
     },
     "borrow": {
@@ -189,6 +190,7 @@
         "get_detail_successful": "Get borrow request detail successful",
         "duplicate_active_request": "Your borrow post request is duplicate",
         "create_successful": "Borrow request created successfully",
+        "cannot_confirmed": "Borrow request status cannot confirmed a request",
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
     "common": {

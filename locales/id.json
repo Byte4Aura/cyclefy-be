@@ -139,6 +139,7 @@
         "get_detail_successful": "Berhasil mendapatkan detail request barter",
         "duplicate_existing_item": "Item barter postingan anda duplikat",
         "create_successful": "Pengajuan barter berhasil dibuat",
+        "cannot_confirmed": "Status pengajuan barter tidak bisa mengkonfirmasi request",
         "cannot_mark_completed": "Status pengajuan barter tidak bisa ditandai sebagai selesai"
     },
     "borrow": {
@@ -189,6 +190,7 @@
         "get_detail_successful": "Berhasil mendapatkan detail request peminjaman",
         "duplicate_active_request": "Item peminjaman postingan anda duplikat",
         "create_successful": "Pengajuan peminjaman berhasil dibuat",
+        "cannot_confirmed": "Status pengajuan peminjaman tidak bisa mengkonfirmasi request",
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "common": {

@@ -2,7 +2,7 @@ import { prismaClient } from "../application/database.js";
 import { addressIdOwnershipValidate, phoneIdOwnershipValidate, isCategoryIdValid } from "../helpers/userHelper.js";
 import { getPictureUrl } from "../helpers/fileHelper.js";
 import { validate } from "../validations/validation.js";
-import { createBorrowValidation } from "../validations/borrowValidation.js";
+import { createBorrowValidation, processBorrowRequestValidation } from "../validations/borrowValidation.js";
 import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
@@ -555,10 +555,112 @@ const getMyBorrowIncomingRequestDetail = async (userId, borrowId, requestId, req
     };
 };
 
+const processIncomingRequest = async (userId, borrowId, requestId, action, decline_reason, reqObject) => {
+    validate(processBorrowRequestValidation, { action, decline_reason }, reqObject);
+
+    // 1. Validasi borrowId milik user login
+    const borrow = await prismaClient.borrow.findUnique({
+        where: { id: borrowId, user_id: userId },
+        include: {
+            borrowStatusHistories: { orderBy: { created_at: 'desc' }, take: 1 }
+        }
+    });
+    if (!borrow) throw new ResponseError(404, 'borrow.not_found');
+
+    // 2. Validasi status borrowId
+    const currentBorrowStatus = borrow.borrowStatusHistories[0];
+    if (!currentBorrowStatus || currentBorrowStatus.status !== 'waiting_for_confirmation') {
+        throw new ResponseError(400, 'borrow.cannot_confirmed');
+    }
+
+    // 3. Ambil borrowApplication (request) spesifik
+    const borrowApp = await prismaClient.borrowApplication.findUnique({
+        where: { id: requestId },
+        include: {
+            borrowApplicationStatusHistories: { orderBy: { created_at: 'desc' }, take: 1 }
+        }
+    });
+    if (!borrowApp || borrowApp.borrow_id !== borrowId)
+        throw new ResponseError(404, 'borrow_application.not_found');
+
+    // 4. Validasi status requestId
+    const currentAppStatus = borrowApp.borrowApplicationStatusHistories[0];
+    if (!currentAppStatus || currentAppStatus.status !== 'request_submitted') {
+        throw new ResponseError(400, 'borrow_application.cannot_confirmed');
+    }
+
+    // 5. Proses action
+    if (action === 'decline') {
+        // Update status borrowApplication: cancelled
+        await prismaClient.borrowApplicationStatusHistory.create({
+            data: {
+                borrow_application_id: requestId,
+                status: 'cancelled',
+                status_detail: decline_reason,
+                updated_by: userId
+            }
+        });
+        await prismaClient.borrowApplication.update({
+            where: { id: requestId },
+            data: { decline_reason }
+        });
+    } else if (action === 'accept') {
+        // 1. Update status requestId: confirmed
+        await prismaClient.borrowApplicationStatusHistory.create({
+            data: {
+                borrow_application_id: requestId,
+                status: 'confirmed',
+                status_detail: 'borrow_application.request.confirmed_detail',
+                // updated_by: userId
+            }
+        });
+        // 2. Update status borrow: confirmed
+        await prismaClient.borrowStatusHistory.create({
+            data: {
+                borrow_id: borrowId,
+                status: 'confirmed',
+                status_detail: 'borrow.posting.confirmed_detail',
+                // updated_by: userId
+            }
+        });
+        // 3. Update semua borrowApplication lain (selain requestId) menjadi cancelled
+        const otherApps = await prismaClient.borrowApplication.findMany({
+            where: {
+                borrow_id: borrowId,
+                id: { not: requestId }
+            },
+            include: {
+                borrowApplicationStatusHistories: {
+                    orderBy: { created_at: 'desc' },
+                    take: 1
+                }
+            }
+        });
+        for (const app of otherApps) {
+            const lastStatus = app.borrowApplicationStatusHistories[0];
+            if (lastStatus && lastStatus.status === 'cancelled') continue;
+
+            await prismaClient.borrowApplicationStatusHistory.create({
+                data: {
+                    borrow_application_id: app.id,
+                    status: 'cancelled',
+                    status_detail: 'borrow_application.request.failed_auto_detail',
+                    // updated_by: userId
+                }
+            });
+            await prismaClient.borrowApplication.update({
+                where: { id: app.id },
+                data: { decline_reason: 'borrow_application.request.failed_auto_detail' }
+            });
+        }
+    }
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
     getMyBorrowDetail,
-    getMyBorrowIncomingRequestDetail
+    getMyBorrowIncomingRequestDetail,
+    processIncomingRequest
 };

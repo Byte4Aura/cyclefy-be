@@ -106,10 +106,31 @@ const getMyBorrowIncomingRequestDetail = async (req, res, next) => {
     }
 };
 
+const processIncomingRequest = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const borrowId = Number(req.params.borrowId);
+        if (!isRequestParameterNumber(borrowId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        const requestId = Number(req.params.requestId);
+        if (!isRequestParameterNumber(requestId)) throw new ResponseError(400, "borrow.id_not_a_number");
+        const { action, decline_reason } = req.body;
+        const result = await borrowService.processIncomingRequest(userId, borrowId, requestId, action, decline_reason, req);
+        res.status(200).json({
+            success: true,
+            message: req.__(action === "accept"
+                ? "borrow.request_accepted"
+                : "borrow.request_declined")
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
     getMyBorrowDetail,
-    getMyBorrowIncomingRequestDetail
+    getMyBorrowIncomingRequestDetail,
+    processIncomingRequest
 };

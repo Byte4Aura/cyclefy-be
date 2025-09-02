@@ -5651,7 +5651,74 @@ paths:
         '401':
           description: Unauthorized
 
-
+  /api/users/current/borrows/{borrowId}/requests/{requestId}/process:
+    post:
+      tags:
+        - Borrow
+      summary: Process incoming borrow request (accept/decline)
+      description: |
+        Memproses incoming request ke postingan borrow milik user saat ini. Bisa accept (menerima) atau decline (menolak) request. Jika accept, request lain otomatis cancelled.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin diproses
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [accept, decline]
+                  description: Aksi yang ingin dilakukan (accept/decline)
+                  example: accept
+                decline_reason:
+                  type: string
+                  description: Alasan penolakan **(wajib jika action=decline)**
+                  example: "Maaf, barang sedang tidak tersedia"
+      responses:
+        '200':
+          description: Request berhasil diproses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Pengajuan peminjaman berhasil dikonfirmasi      
+        '400':
+          description: Validasi gagal atau status tidak sesuai
+        '404':
+          description: Borrow post atau request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
 
 
 
