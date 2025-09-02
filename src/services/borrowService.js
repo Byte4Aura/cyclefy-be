@@ -306,8 +306,132 @@ const getBorrowDetail = async (userId, borrowId, reqObject) => {
     };
 };
 
+const getMyBorrowDetail = async (userId, borrowId, reqObject) => {
+    // 1. Ambil postingan borrow milik user login
+    const borrow = await prismaClient.borrow.findUnique({
+        where: {
+            id: borrowId,
+            user_id: userId
+        },
+        include: {
+            images: true,
+            category: true,
+            address: true,
+            borrowStatusHistories: {
+                orderBy: { created_at: 'asc' }
+            }
+        }
+    });
+    if (!borrow) throw new ResponseError(404, 'borrow.not_found');
+
+    // 2. Ambil semua borrowApplication (request) yang masuk ke postingan borrow ini
+    const borrowApplications = await prismaClient.borrowApplication.findMany({
+        where: { borrow_id: borrowId },
+        include: {
+            user: true,
+            address: true,
+            borrowApplicationStatusHistories: {
+                orderBy: { created_at: 'desc' },
+                take: 1
+            }
+        }
+    });
+
+    // 3. Ambil address user login untuk hitung distance
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+
+    // 4. Mapping incoming_requests
+    const incoming_requests = borrowApplications.map(app => {
+        // Hitung distance (min dari semua address user ke address borrow application)
+        let distance = null;
+        if (userAddresses.length && app.address) {
+            const distances = userAddresses.map(addr =>
+                calculateDistance(
+                    { latitude: addr.latitude, longitude: addr.longitude },
+                    { latitude: app.address.latitude, longitude: app.address.longitude }
+                )
+            );
+            distance = Math.min(...distances);
+        }
+
+        return {
+            id: app.id,
+            reason: app.reason,
+            address: app.address
+                ? {
+                    id: app.address.id,
+                    address: app.address.address,
+                    latitude: app.address.latitude,
+                    longitude: app.address.longitude
+                }
+                : null,
+            distance: distance,
+            user: app.user
+                ? {
+                    id: app.user.id,
+                    profile_picture: (!app.user.profile_picture?.startsWith('http') && !app.user.profile_picture?.startsWith('https'))
+                        ? getPictureUrl(reqObject, app.user.profile_picture)
+                        : app.user.profile_picture,
+                    fullname: app.user.fullname,
+                    username: app.user.username
+                }
+                : null,
+            status: app.borrowApplicationStatusHistories[0]
+                ? {
+                    id: app.borrowApplicationStatusHistories[0].id,
+                    status: snakeToTitleCase(app.borrowApplicationStatusHistories[0].status),
+                    updated_at: app.borrowApplicationStatusHistories[0].updated_at
+                }
+                : null,
+            duration_from: app.duration_from,
+            duration_to: app.duration_to,
+            borrowing_duration: (app.duration_to - app.duration_from) / (1000 * 60 * 60 * 24) + 1
+        };
+    });
+
+    // 5. Mapping status_histories
+    const status_histories = borrow.borrowStatusHistories.map(status => ({
+        id: status.id,
+        status: snakeToTitleCase(status.status),
+        status_detail: reqObject.__(status.status_detail),
+        updated_at: status.updated_at
+    }));
+
+    // 6. Mapping response
+    return {
+        id: borrow.id,
+        item_name: borrow.item_name,
+        description: borrow.description,
+        category: borrow.category
+            ? { id: borrow.category.id, name: borrow.category.name }
+            : null,
+        images: borrow.images.map(img =>
+            (!img.image_path.startsWith('http') && !img.image_path.startsWith('https'))
+                ? getPictureUrl(reqObject, img.image_path)
+                : img.image_path
+        ),
+        status: borrow.borrowStatusHistories.length > 0
+            ? snakeToTitleCase(borrow.borrowStatusHistories[borrow.borrowStatusHistories.length - 1].status)
+            : null,
+        status_histories: status_histories,
+        address: borrow.address
+            ? {
+                id: borrow.address.id,
+                address: borrow.address.address,
+                latitude: borrow.address.latitude,
+                longitude: borrow.address.longitude
+            }
+            : null,
+        duration_from: borrow.duration_from,
+        duration_to: borrow.duration_to,
+        borrowing_duration: (borrow.duration_to - borrow.duration_from) / (1000 * 60 * 60 * 24) + 1,
+        incoming_requests: incoming_requests
+    };
+};
+
 export default {
     createBorrow,
     getBorrows,
     getBorrowDetail,
+    getMyBorrowDetail
 };

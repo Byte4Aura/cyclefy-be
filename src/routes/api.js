@@ -68,7 +68,7 @@ userRouter.get('/borrows/:borrowId', authMiddleware, borrowController.getBorrowD
 userRouter.post('/borrows/:borrowId/request', authMiddleware, borrowApplicationController.createBorrowApplication);
 
 userRouter.get('/users/current/borrows', authMiddleware, borrowHistoryController.getBorrowHistory);
-userRouter.get('/users/current/borrows/:borrowId', authMiddleware,);
+userRouter.get('/users/current/borrows/:borrowId', authMiddleware, borrowController.getMyBorrowDetail);
 userRouter.get('/users/current/borrow-requests/:requestId', authMiddleware, borrowHistoryController.getMyBorrowRequestDetail);
 
 userRouter.get('/test/:query', async (req, res, next) => {
