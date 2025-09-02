@@ -4970,7 +4970,7 @@ paths:
         - Borrow
       summary: Mendapatkan riwayat borrow user (posting & incoming request)
       description: |
-        Mengambil daftar borrow milik user saat ini (my_items) dan request pinjam yang masuk ke postingan user (other_requests), dengan filter kategori, status, search, dan pagination terpisah.
+        Mengambil daftar borrow milik user saat ini (my_items) dan daftar request user saat ini (other_items), dengan filter kategori, status, search, dan pagination terpisah.
       parameters:
         - name: Authorization
           in: header
@@ -5004,16 +5004,16 @@ paths:
           schema:
             type: string
             example: waiting_for_request,waiting_for_confirmation
-        - name: otherRequestStatus
+        - name: otherItemStatus
           in: query
-          description: "Filter status aplikasi pinjam yang masuk (request_submitted,confirmed,borrowed,returned,overdue,completed,cancelled)"
+          description: "Filter status other_items (request_submitted,confirmed,borrowed,returned,overdue,completed,cancelled)"
           required: false
           schema:
             type: string
             example: request_submitted,confirmed
         - name: ownership
           in: query
-          description: "Pilih data yang diambil: my_items, other_requests, all (pisahkan dengan koma, default: all)"
+          description: "Pilih data yang diambil: my_items, other_items, all (pisahkan dengan koma, default: all)"
           required: false
           schema:
             type: string
@@ -5032,16 +5032,16 @@ paths:
           schema:
             type: integer
             default: 10
-        - name: otherRequestPage
+        - name: otherItemPage
           in: query
-          description: "Halaman data aplikasi pinjam yang masuk (default: 1)"
+          description: "Halaman data other_items (default: 1)"
           required: false
           schema:
             type: integer
             default: 1
-        - name: otherRequestSize
+        - name: otherItemSize
           in: query
-          description: "Jumlah data per halaman aplikasi pinjam yang masuk (default: 10)"
+          description: "Jumlah data per halaman other_items (default: 10)"
           required: false
           schema:
             type: integer
@@ -5070,7 +5070,7 @@ paths:
                           page: { type: integer, example: 1 }
                           size: { type: integer, example: 10 }
                           totalPages: { type: integer, example: 2 }
-                      other_requests:
+                      other_items:
                         type: object
                         properties:
                           total: { type: integer, example: 5 }
@@ -5106,16 +5106,23 @@ paths:
                                 updated_at: { type: string, format: date-time }
                             duration_from: { type: string, format: date-time }
                             duration_to: { type: string, format: date-time }
-                      other_requests:
+                      other_items:
                         type: array
                         items:
                           type: object
                           properties:
                             id: { type: integer }
-                            reason: { type: string }
-                            duration_from: { type: string, format: date-time }
-                            duration_to: { type: string, format: date-time }
-                            borrowing_duration: { type: integer }
+                            item_name: { type: string }
+                            description: { type: string }
+                            images:
+                              type: array
+                              items: { type: string, format: uri }
+                            category:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                name: { type: string }
                             status:
                               type: object
                               nullable: true
