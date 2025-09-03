@@ -101,7 +101,7 @@ CREATE TABLE `borrows` (
 CREATE TABLE `borrow_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `borrow_id` INTEGER NOT NULL,
-    `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'lent', 'returned', 'overdue', 'completed', 'cancelled') NOT NULL DEFAULT 'waiting_for_request',
+    `status` ENUM('waiting_for_request', 'waiting_for_confirmation', 'confirmed', 'lent', 'returned', 'overdue', 'extended', 'completed', 'cancelled') NOT NULL DEFAULT 'waiting_for_request',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -143,7 +143,7 @@ CREATE TABLE `borrow_applications` (
 CREATE TABLE `borrow_application_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `borrow_application_id` INTEGER NOT NULL,
-    `status` ENUM('request_submitted', 'confirmed', 'borrowed', 'returned', 'overdue', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
+    `status` ENUM('request_submitted', 'confirmed', 'borrowed', 'returned', 'overdue', 'extended', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
