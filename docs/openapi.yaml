@@ -5894,7 +5894,150 @@ paths:
         '401':
           description: Unauthorized
 
-
+  /api/users/current/borrows/{borrowId}/requests/{requestId}/extend:
+    post:
+      tags:
+        - Borrow
+      summary: Perpanjang durasi peminjaman dari request yang di accept
+      description: |
+        Memperpanjang (extend) duration_to pada request peminjaman (borrow request) yang sudah di-accept (dengan status Borrowed/Overdue) pada postingan borrow milik user saat ini.
+        - Hanya dapat dilakukan oleh pemilik borrowId.
+        - Status terakhir borrowId harus Lent atau Overdue.
+        - Status terakhir requestId harus Borrowed atau Overdue.
+        - duration_to baru pada requestId harus lebih dari duration_to sebelumnya dan tidak boleh melebihi duration_to pada borrowId.
+        - Setelah extend, status history pada borrow dan borrowApplication akan ditambah dengan status Extended.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin di-extend
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration_to:
+                  type: string
+                  format: date
+                  example: "2025-09-15"
+                  description: Tanggal baru pengembalian (harus lebih dari duration_to sebelumnya dan <= duration_to milik borrowId)
+              required:
+                - duration_to
+      responses:
+        "201":
+          description: Extend borrow request berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Borrow request extended successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      borrow_id:
+                        type: integer
+                        example: 10
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-15"
+                      status:
+                        type: string
+                        example: "Extended"
+        "400":
+          description: "Validasi gagal atau status tidak sesuai (misal: duration_to tidak valid, status tidak sesuai)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Validasi gagal"
+                  errors:
+                    type: object
+                    example:
+                      duration_to: "Tanggal extend tidak valid"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Data borrow atau borrow request tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Data tidak ditemukan"
+                  errors:
+                    type: object
+                    example: null
 
 
 

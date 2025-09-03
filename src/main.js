@@ -8,8 +8,8 @@ web.listen(env.port, "::", () => {
     logger.info(`App start on port ${env.port}`);
 });
 
-// Jalankan setiap 5 menit
-cron.schedule("*/10 * * * * *", async () => {
+// Jalankan setiap 1 jam
+cron.schedule("0 0 * * * *", async () => {
     try {
         await checkAndUpdateOverdueBorrows();
         console.log("Checked overdue borrows at", new Date());

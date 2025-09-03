@@ -74,6 +74,7 @@ userRouter.post('/users/current/borrows/:borrowId/mark-as-lent', authMiddleware,
 userRouter.post('/users/current/borrows/:borrowId/mark-as-returned', authMiddleware, borrowController.markBorrowAsReturned);
 userRouter.post('/users/current/borrows/:borrowId/mark-as-completed', authMiddleware, borrowController.markBorrowAsCompleted);
 userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddleware, borrowController.getMyBorrowIncomingRequestDetail);
+userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/extend', authMiddleware, borrowApplicationController.extendBorrowApplication);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
 
 userRouter.get('/test/:query', async (req, res, next) => {

@@ -1,7 +1,7 @@
 import { prismaClient } from "../application/database.js";
 import { addressIdOwnershipValidate, phoneIdOwnershipValidate } from "../helpers/userHelper.js";
 import { validate } from "../validations/validation.js";
-import { createBorrowApplicationValidation } from "../validations/borrowApplicationValidation.js";
+import { createBorrowApplicationValidation, extendBorrowApplicationValidation } from "../validations/borrowApplicationValidation.js";
 import { ResponseError } from "../errors/responseError.js";
 
 const createBorrowApplication = async (userId, borrowId, requestBody, reqObject) => {
@@ -23,6 +23,7 @@ const createBorrowApplication = async (userId, borrowId, requestBody, reqObject)
     // 4. Validasi duration
     const reqFrom = new Date(data.duration_from);
     const reqTo = new Date(data.duration_to);
+    reqTo.setHours(23, 59, 59, 999);
     if (
         reqFrom < borrow.duration_from ||
         reqTo > borrow.duration_to ||
@@ -97,6 +98,86 @@ const createBorrowApplication = async (userId, borrowId, requestBody, reqObject)
     };
 };
 
+const extendBorrowApplication = async (userId, borrowId, requestId, requestBody, reqObject) => {
+    // 1. Validasi input
+    const data = validate(extendBorrowApplicationValidation, requestBody, reqObject);
+
+    // 2. Ambil borrow dan pastikan milik user login
+    const borrow = await prismaClient.borrow.findUnique({
+        where: { id: borrowId },
+        include: {
+            borrowStatusHistories: { orderBy: { created_at: "desc" }, take: 1 }
+        }
+    });
+    if (!borrow) throw new ResponseError(404, "borrow.not_found");
+    if (borrow.user_id !== userId) throw new ResponseError(403, "borrow.forbidden");
+
+    // 3. Status terakhir borrow harus lent/overdue
+    const lastBorrowStatus = borrow.borrowStatusHistories[0];
+    if (!lastBorrowStatus || !["lent", "overdue"].includes(lastBorrowStatus.status))
+        throw new ResponseError(400, "borrow.cannot_extend_status");
+
+    // 4. Ambil borrowApplication (request) dan pastikan milik borrowId
+    const borrowApp = await prismaClient.borrowApplication.findUnique({
+        where: { id: requestId },
+        include: {
+            borrowApplicationStatusHistories: { orderBy: { created_at: "desc" }, take: 1 }
+        }
+    });
+    if (!borrowApp) throw new ResponseError(404, "borrow_application.not_found");
+    if (borrowApp.borrow_id !== borrowId) throw new ResponseError(404, "borrow_application.not_found");
+
+    // 5. Status terakhir request harus borrowed/overdue
+    const lastAppStatus = borrowApp.borrowApplicationStatusHistories[0];
+    if (!lastAppStatus || !["borrowed", "overdue"].includes(lastAppStatus.status))
+        throw new ResponseError(400, "borrow_application.cannot_extend_status");
+
+    // 6. Validasi duration_to baru
+    const prevDurationTo = new Date(borrowApp.duration_to);
+    const newDurationTo = new Date(data.duration_to);
+    newDurationTo.setHours(23, 59, 59, 999);
+    const maxDurationTo = new Date(borrow.duration_to);
+
+    if (newDurationTo <= prevDurationTo)
+        throw new ResponseError(400, "borrow_application.invalid_extend_duration");
+    if (newDurationTo > maxDurationTo)
+        throw new ResponseError(400, "borrow_application.extend_exceed_borrow_duration");
+
+    // 7. Update duration_to pada borrowApplication
+    await prismaClient.borrowApplication.update({
+        where: { id: requestId },
+        data: { duration_to: newDurationTo }
+    });
+
+    // 8. Tambahkan status history extended pada borrowApplication
+    await prismaClient.borrowApplicationStatusHistory.create({
+        data: {
+            borrow_application_id: requestId,
+            status: "extended",
+            status_detail: "borrow_application.request.extended_detail" // i18n key, gunakan {date: dd/mm/yyyy}
+        }
+    });
+
+    // 9. Tambahkan status history extended pada borrow
+    await prismaClient.borrowStatusHistory.create({
+        data: {
+            borrow_id: borrowId,
+            status: "extended",
+            status_detail: "borrow.posting.extended_detail" // i18n key, gunakan {date: dd/mm/yyyy}
+        }
+    });
+
+    // 10. Response
+    return {
+        id: borrowApp.id,
+        borrow_id: borrowId,
+        duration_from: borrowApp.duration_from,
+        duration_to: newDurationTo,
+        status: "extended"
+    };
+};
+
 export default {
-    createBorrowApplication
+    createBorrowApplication,
+    extendBorrowApplication
 }

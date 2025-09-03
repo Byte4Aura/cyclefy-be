@@ -23,6 +23,7 @@ const createBorrow = async (userId, requestBody, files, reqObject) => {
 
     const reqFrom = new Date(data.duration_from);
     const reqTo = new Date(data.duration_to);
+    reqTo.setHours(23, 59, 59, 999);
     if (reqFrom > reqTo) throw new ResponseError(400, "borrow.invalid_duration");
 
     // Save borrow

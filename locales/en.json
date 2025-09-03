@@ -169,6 +169,7 @@
         "mark_lent_successful": "Mark borrow as lent successful",
         "mark_returned_successful": "Mark borrow as returned successful",
         "mark_completed_successful": "Mark borrow as completed successful",
+        "cannot_extend_status": "Borrow status cannot be extended",
         "cannot_confirmed": "Borrow status cannot confirmed a request",
         "cannot_mark_lent": "Borrow status cannot be mark as lent",
         "cannot_mark_completed": "Borrow status cannot be mark as completed"
@@ -195,6 +196,10 @@
         "get_detail_successful": "Get borrow request detail successful",
         "duplicate_active_request": "Your borrow post request is duplicate",
         "create_successful": "Borrow request created successfully",
+        "extend_successful": "Borrow request extended successfully",
+        "cannot_extend_status": "Borrow request status cannot be extended",
+        "invalid_extend_duration": "Invalid extend duration",
+        "extend_exceed_borrow_duration": "Extend exceed available borrow duration",
         "cannot_confirmed": "Borrow request status cannot confirmed a request",
         "cannot_mark_lent": "Borrow request status cannot be mark as lent",
         "cannot_mark_returned": "Borrow request status cannot be mark as returned",

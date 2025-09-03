@@ -7,3 +7,7 @@ export const createBorrowApplicationValidation = Joi.object({
     duration_from: Joi.date().iso().required(),
     duration_to: Joi.date().iso().greater(Joi.ref('duration_from')).required()
 });
+
+export const extendBorrowApplicationValidation = Joi.object({
+    duration_to: Joi.date().iso().required(),
+});

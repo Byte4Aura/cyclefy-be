@@ -155,6 +155,7 @@
             "lent_detail": "Barang telah berhasil dipinjamkan kepada peminjam",
             "returned_detail": "Barang telah dikembalikan",
             "overdue_detail": "Barang terlambat dikembalikan",
+            "extended_detail": "Periode peminjaman sudah diperpanjang. Tanggal pengembalian terbaru adalah {{date}}",
             "completed_detail": "Proses peminjaman selesai, barang telah dipinjamkan dan dikembalikan",
             "cancelled_detail": "Proses peminjaman dibatalkan"
         },
@@ -166,7 +167,9 @@
         "request_accepted": "Pengajuan peminjaman berhasil dikonfirmasi",
         "request_declined": "Pengajuan peminjaman berhasil ditolak",
         "mark_lent_successful": "Status peminjaman berhasil ditandai sebagai lent",
+        "mark_returned_successful": "Status peminjaman berhasil ditandai sebagai Returned",
         "mark_completed_successful": "Status peminjaman berhasil ditandai sebagai selesai",
+        "cannot_extend_status": "Status peminjaman tidak bisa diperpanjang",
         "cannot_confirmed": "Status peminjaman tidak bisa mengkonfirmasi request",
         "cannot_mark_lent": "Status peminjaman tidak bisa ditandai sebagai Lent",
         "cannot_mark_completed": "Status peminjaman tidak bisa ditandai sebagai selesai"
@@ -193,6 +196,10 @@
         "get_detail_successful": "Berhasil mendapatkan detail request peminjaman",
         "duplicate_active_request": "Item peminjaman postingan anda duplikat",
         "create_successful": "Pengajuan peminjaman berhasil dibuat",
+        "extend_successful": "Durasi pengajuan peminjaman berhasil diperpanjang",
+        "cannot_extend_status": "Status pengajuan peminjaman tidak bisa diperpanjang",
+        "invalid_extend_duration": "Durasi perpanjangan tidak valid",
+        "extend_exceed_borrow_duration": "Perpanjangan melebihi durasi peminjaman yang tersedia",
         "cannot_confirmed": "Status pengajuan peminjaman tidak bisa mengkonfirmasi request",
         "cannot_mark_lent": "Status pengajuan peminjaman tidak bisa ditandai sebagai Lent",
         "cannot_mark_returned": "Status pengajuan peminjaman tidak bisa ditandai sebagai Returned",
