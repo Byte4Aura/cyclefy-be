@@ -240,6 +240,7 @@ CREATE TABLE `recycle_locations` (
     `phone` VARCHAR(255) NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
+    `description` TEXT NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 

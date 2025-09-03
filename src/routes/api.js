@@ -81,6 +81,7 @@ userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', 
 
 // Recycle
 userRouter.get('/recycle-locations', authMiddleware, recycleController.getRecycleLocations);
+userRouter.get('/recycle-locations/:recycleLocationId', authMiddleware, recycleController.getRecycleLocationDetail);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

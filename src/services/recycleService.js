@@ -88,6 +88,52 @@ const getRecycleLocations = async (userId, search, category, maxDistance, locati
     return { meta: meta, data: paged };
 };
 
+const getRecycleLocationDetail = async (userId, recycleLocationId, reqObject) => {
+    // 1. Ambil semua address user login
+    const userAddresses = await prismaClient.address.findMany({ where: { user_id: userId } });
+    if (!userAddresses.length) throw new ResponseError(404, "user.no_address");
+
+    // 2. Ambil recycle location beserta relasi
+    const loc = await prismaClient.recycleLocation.findUnique({
+        where: { id: recycleLocationId },
+        include: {
+            recycleLocationCategories: { include: { category: true } },
+            RecycleLocationImage: true
+        }
+    });
+    if (!loc) throw new ResponseError(404, "recycle_location.not_found");
+
+    // 3. Hitung distance terdekat dari semua address user login
+    let minDistance = null;
+    if (userAddresses.length) {
+        const distances = userAddresses.map(addr =>
+            calculateDistance(
+                { latitude: addr.latitude, longitude: addr.longitude },
+                { latitude: loc.latitude, longitude: loc.longitude }
+            )
+        );
+        minDistance = Math.min(...distances);
+    }
+
+    // 4. Mapping response
+    return {
+        id: loc.id,
+        location_name: loc.location_name,
+        address: loc.address,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        phone: loc.phone,
+        description: loc.description,
+        distance: minDistance,
+        categories: loc.recycleLocationCategories.map(cat => ({
+            id: cat.category.id,
+            name: cat.category.name
+        })),
+        images: loc.RecycleLocationImage.map(img => img.image_path)
+    };
+};
+
 export default {
-    getRecycleLocations
+    getRecycleLocations,
+    getRecycleLocationDetail
 };

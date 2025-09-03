@@ -206,7 +206,10 @@
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
     "recycle_location": {
-        "get_list_successful": "Get list of recycle locations successful"
+        "not_found": "Recycle location not found",
+        "id_not_a_number": "Recycle location id is not a number",
+        "get_list_successful": "Get list of recycle locations successful",
+        "get_detail_successful": "Get detail of recycle location successful"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

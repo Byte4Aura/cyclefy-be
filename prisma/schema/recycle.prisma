@@ -64,6 +64,7 @@ model RecycleLocation {
     phone         String   @db.VarChar(255)
     latitude      Float    @db.Double
     longitude     Float    @db.Double
+    description   String   @db.Text
     created_at    DateTime @default(now())
     updated_at    DateTime @updatedAt
 

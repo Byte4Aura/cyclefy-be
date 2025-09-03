@@ -45,7 +45,8 @@ export default async function recycleLocationSeeder(prisma) {
             address: alamat.formattedAddress,
             latitude: alamat.latitude,
             longitude: alamat.longitude,
-            phone: faker.phone.number({ style: 'international' })
+            phone: faker.phone.number({ style: 'international' }),
+            description: faker.lorem.paragraph({ min: 3, max: 9 })
         });
     }
 

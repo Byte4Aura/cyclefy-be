@@ -6213,6 +6213,128 @@ paths:
                     example: User does not have an address yet
 
 
+  /api/recycle-locations/{recyleLocationId}:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan detail recycle locations (tempat daur ulang)
+      description: |
+        Mengambil detail recycle locations (tempat daur ulang) beserta kategori, gambar, dan jarak terdekat dari semua alamat user login
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: recycleLocationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID Recycle Location yang ingin diambil detailnya
+      responses:
+        "200":
+          description: Daftar recycle locations berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail tempat daur ulang
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        location_name:
+                          type: string
+                          example: "Recycle Center Bandung"
+                        address:
+                          type: string
+                          example: "Jl. Merdeka No. 1, Bandung"
+                        latitude:
+                          type: string
+                          example: "-6.914744"
+                        longitude:
+                          type: string
+                          example: "107.609810"
+                        distance:
+                          type: string
+                          example: "2.5"
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        phone:
+                          type: string
+                          example: "+6213737865862"
+                        description:
+                          type: string
+                          example: "Absque sopor comedo. Id pariatur aggero. Accusator surgo modi ullam ulciscor. Aliqua itaque conforto despecto. Curatio auctor vulgus acer admoveo compello stillicidium spectaculum. Cui beatus viscus cribro timidus. Expedita aeger tergo confugo timidus ipsam desino. Decens desolo volaticus paulatim calco volubilis aequitas."
+                        categories:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: int
+                                example: 1
+                              name:
+                                type: string
+                                example: clothes
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-1"
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-2"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User does not have an address yet
+
+
 
 
 

@@ -1,4 +1,5 @@
 import { ResponseError } from "../errors/responseError.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import recycleService from "../services/recycleService.js";
 
 const getRecycleLocations = async (req, res, next) => {
@@ -28,6 +29,23 @@ const getRecycleLocations = async (req, res, next) => {
     }
 };
 
+const getRecycleLocationDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const recycleLocationId = Number(req.params.recycleLocationId);
+        if (!isRequestParameterNumber(recycleLocationId)) throw new ResponseError(400, "recycle_location.id_not_a_number");
+        const result = await recycleService.getRecycleLocationDetail(userId, recycleLocationId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__("recycle_location.get_detail_successful"),
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
-    getRecycleLocations
+    getRecycleLocations,
+    getRecycleLocationDetail
 };

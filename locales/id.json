@@ -206,7 +206,10 @@
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "recycle_location": {
-        "get_list_successful": "Berhasil mendapatkan daftar tempat daur ulang"
+        "not_found": "Tempat daur ulang tidak ditemukan",
+        "id_not_a_number": "ID Recycle Location bukan angka",
+        "get_list_successful": "Berhasil mendapatkan daftar tempat daur ulang",
+        "get_detail_successful": "Berhasil mendapatkan detail tempat daur ulang"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",
