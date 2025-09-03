@@ -201,6 +201,7 @@ CREATE TABLE `recycles` (
     `address_id` INTEGER NOT NULL,
     `category_id` INTEGER NOT NULL,
     `phone_id` INTEGER NOT NULL,
+    `recycle_location_id` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -211,7 +212,7 @@ CREATE TABLE `recycles` (
 CREATE TABLE `recycle_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `recycle_id` INTEGER NOT NULL,
-    `status` ENUM('submitted', 'confirmed', 'in_transit', 'picked_up', 'completed', 'cancelled') NOT NULL DEFAULT 'submitted',
+    `status` ENUM('submitted', 'confirmed', 'completed', 'failed') NOT NULL DEFAULT 'submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -292,7 +293,7 @@ CREATE TABLE `repairs` (
 CREATE TABLE `repair_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
-    `status` ENUM('request_submitted', 'confirmed', 'in_transit', 'picked_up', 'under_repair', 'courier_return', 'returned', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
+    `status` ENUM('request_submitted', 'confirmed', 'under_repair', 'completed', 'failed') NOT NULL DEFAULT 'request_submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -581,6 +582,9 @@ ALTER TABLE `recycles` ADD CONSTRAINT `recycles_category_id_fkey` FOREIGN KEY (`
 
 -- AddForeignKey
 ALTER TABLE `recycles` ADD CONSTRAINT `recycles_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `recycle_locations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `recycle_status_histories` ADD CONSTRAINT `recycle_status_histories_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `recycles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

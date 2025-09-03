@@ -1,6 +1,8 @@
+import { logger } from "../application/logging.js";
 import { ResponseError } from "../errors/responseError.js";
 import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import recycleService from "../services/recycleService.js";
+import fs from "fs/promises";
 
 const getRecycleLocations = async (req, res, next) => {
     try {
@@ -45,7 +47,32 @@ const getRecycleLocationDetail = async (req, res, next) => {
     }
 };
 
+const createRecycle = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const requestBody = req.body;
+        const files = req.files;
+        const result = await recycleService.createRecycle(userId, requestBody, files, req);
+        res.status(201).json({
+            success: true,
+            message: req.__('recycle.create_successful'),
+            data: result
+        });
+    } catch (error) {
+        // Hapus semua file jika gagal
+        if (req.files && Array.isArray(req.files)) {
+            for (const file of req.files) {
+                if (file && file.path) {
+                    try { await fs.unlink(file.path); } catch (e) { logger.error("Failed to delete uploaded donation image", e); }
+                }
+            }
+        }
+        next(error);
+    }
+}
+
 export default {
     getRecycleLocations,
-    getRecycleLocationDetail
+    getRecycleLocationDetail,
+    createRecycle
 };

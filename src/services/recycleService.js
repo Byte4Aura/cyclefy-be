@@ -1,6 +1,11 @@
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../errors/responseError.js";
+import { getPictureUrl } from "../helpers/fileHelper.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
+import { snakeToTitleCase } from "../helpers/statusHelper.js";
+import { addressIdOwnershipValidate, isCategoryIdValid, phoneIdOwnershipValidate } from "../helpers/userHelper.js";
+import { createRecycleValidation } from "../validations/recycleValidation.js";
+import { validate } from "../validations/validation.js";
 
 const getRecycleLocations = async (userId, search, category, maxDistance, location, sortBy, size, page, reqObject) => {
     // 1. Ambil semua address user login
@@ -133,7 +138,90 @@ const getRecycleLocationDetail = async (userId, recycleLocationId, reqObject) =>
     };
 };
 
+const createRecycle = async (userId, requestBody, files, reqObject) => {
+    if (!files || !Array.isArray(files) || files.length === 0)
+        throw new ResponseError(400, "file.no_file_uploaded");
+    // if (files.length > 5)
+    //     throw new ResponseError(400, "file.too_many_files");
+
+    const data = validate(createRecycleValidation, requestBody, reqObject);
+
+    // Make sure the address and phone is owned by userId (ownership checking)
+    await addressIdOwnershipValidate(userId, data.address_id);
+    await phoneIdOwnershipValidate(userId, data.phone_id);
+    await isCategoryIdValid(data.category_id);
+
+    const recycleLocation = await prismaClient.recycleLocation.findUnique({
+        where: { id: data.recycle_location_id }
+    });
+    if (!recycleLocation) throw new ResponseError(404, "recycle.recycle_location_not_found");
+
+    // Save recycle
+    const recycle = await prismaClient.recycle.create({
+        data: {
+            user_id: userId,
+            item_name: data.item_name,
+            description: data.description,
+            category_id: data.category_id,
+            address_id: data.address_id,
+            phone_id: data.phone_id,
+            recycle_location_id: data.recycle_location_id
+        },
+        include: {
+            category: true,
+            recycle_location: true
+        }
+    });
+
+    // Save all images
+    const imagePaths = [];
+    for (const file of files) {
+        const imagePath = `/assets/recycles/posts/${file.filename}`;
+        await prismaClient.recycleImage.create({
+            data: {
+                recycle_id: recycle.id,
+                image_path: imagePath,
+                image_name: file.originalname,
+                image_size: file.size
+            }
+        });
+        imagePaths.push(getPictureUrl(reqObject, imagePath));
+    }
+
+    // Create Donation Status
+    const recycleStatus = await prismaClient.recycleStatusHistory.create({
+        data: {
+            // donation_id: donation.id,
+            recycle_id: recycle.id,
+            status: "submitted",
+            status_detail: "recycle.submitted_detail",
+            // updated_by: userId
+        }
+    });
+
+    return {
+        id: recycle.id,
+        item_name: recycle.item_name,
+        description: recycle.description,
+        category: {
+            id: recycle.category.id,
+            name: recycle.category.name
+        },
+        address_id: recycle.address_id,
+        phone_id: recycle.phone_id,
+        image: imagePaths,
+        status: snakeToTitleCase(recycleStatus.status),
+        location: {
+            id: recycle.recycle_location.id,
+            name: recycle.recycle_location.location_name,
+            latitude: recycle.recycle_location.latitude,
+            longitude: recycle.recycle_location.longitude,
+        }
+    };
+};
+
 export default {
     getRecycleLocations,
-    getRecycleLocationDetail
+    getRecycleLocationDetail,
+    createRecycle
 };

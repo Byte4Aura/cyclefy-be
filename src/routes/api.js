@@ -18,6 +18,7 @@ import borrowController from "../controllers/borrowController.js";
 import borrowApplicationController from "../controllers/borrowApplicationController.js";
 import borrowHistoryController from "../controllers/borrowHistoryController.js";
 import recycleController from "../controllers/recycleController.js";
+import { uploadRecycleImageMiddleware } from "../middlewares/recycle/uploadRecycleImageMiddleware.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -78,8 +79,8 @@ userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddl
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/extend', authMiddleware, borrowApplicationController.extendBorrowApplication);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
 
-
 // Recycle
+userRouter.post('/recycle', authMiddleware, uploadRecycleImageMiddleware, recycleController.createRecycle);
 userRouter.get('/recycle-locations', authMiddleware, recycleController.getRecycleLocations);
 userRouter.get('/recycle-locations/:recycleLocationId', authMiddleware, recycleController.getRecycleLocationDetail);
 

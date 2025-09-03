@@ -72,7 +72,7 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
         address_id: donation.address_id,
         phone_id: donation.phone_id,
         image: imagePaths,
-        status: donationStatus.status
+        status: snakeToTitleCase(donationStatus.status)
     };
 };
 
