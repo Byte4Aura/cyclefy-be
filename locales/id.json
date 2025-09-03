@@ -206,6 +206,8 @@
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
     "recycle": {
+        "not_found": "Postingan daur ulang tidak ditemukan",
+        "id_not_a_number": "ID Recycle bukan angka",
         "recycle_location_not_found": "Recycle location not found",
         "post": {
             "submitted_detail": "Barang telah diajukan untuk didaur ulang dan sedang menunggu konfirmasi dari fasilitas daur ulang.",
@@ -213,7 +215,9 @@
             "completed_detail": "Proses daur ulang telah berhasil diselesaikan.",
             "failed_detail": "Proses daur ulang dibatalkan."
         },
-        "create_successful": "Berhasil membuat postingan daur ulang"
+        "create_successful": "Berhasil membuat postingan daur ulang",
+        "get_history_successful": "Berhasil mendapatkan riwayat daur ulang",
+        "get_detail_successful": "Berhasil mendapatkan detail daur ulang"
     },
     "recycle_location": {
         "not_found": "Tempat daur ulang tidak ditemukan",

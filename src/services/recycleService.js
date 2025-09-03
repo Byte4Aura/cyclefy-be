@@ -214,6 +214,7 @@ const createRecycle = async (userId, requestBody, files, reqObject) => {
         location: {
             id: recycle.recycle_location.id,
             name: recycle.recycle_location.location_name,
+            address: recycle.recycle_location.address,
             latitude: recycle.recycle_location.latitude,
             longitude: recycle.recycle_location.longitude,
         }

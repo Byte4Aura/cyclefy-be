@@ -6458,6 +6458,24 @@ paths:
                       status:
                         type: string
                         example: submitted
+                      location:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          name:
+                            type: string
+                            example: Luettgen and Sons Recycle Center
+                          address:
+                            type: string
+                            example: Gang Babakan Jati Mulya IV, Gumuruh, Batununggal, Kota Bandung, Jawa Barat, Jawa, 40275, Indonesia
+                          latitude:
+                            type: int 
+                            example: -6.9229148
+                          longitude:
+                            type: int 
+                            example: 107.7026636
         '400':
           description: Validasi gagal atau request tidak sesuai
           content:
@@ -6496,7 +6514,321 @@ paths:
                         type: string
                         example: null
 
+  /api/users/current/recycles:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan riwayat recycle user
+      description: |
+        Mengambil daftar recycle milik user saat ini dengan filter kategori, status, search, dan pagination.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+        - name: search
+          in: query
+          description: Pencarian nama item atau deskripsi (optional)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: status
+          in: query
+          description: "Filter status recycle **(value: submitted, confirmed, confirmed, completed, failed)**"
+          required: false
+          schema:
+            type: string
+            example: submitted,confirmed
+        - name: page
+          in: query
+          description: "Halaman data recycle milik user (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: "Jumlah data per halaman recycle milik user (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Berhasil mendapatkan riwayat recycle user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan riwayat recycle
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 12
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 2
+                  data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          item_name:
+                            type: string
+                          description:
+                            type: string
+                          images:
+                            type: array
+                            items:
+                              type: string
+                              format: uri
+                          category:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                          status:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              status:
+                                type: string
+                              updated_at:
+                                type: string
+                                format: date-time
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
+
+  /api/users/current/recycles/{recycleId}:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan detail postingan recycle milik user sendiri
+      description: |
+        Mengambil detail postingan recycle milik user saat ini berdasarkan recycleId
+      parameters:
+        - name: recycleId
+          in: path
+          required: true
+          description: ID recycle milik user login
+          schema:
+            type: integer
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail recycle milik user sendiri
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail daur ulang
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Sepeda Bekas"
+                      description:
+                        type: string
+                        example: "Sepeda bekas, masih layak pakai, warna biru."
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: "Sepeda"
+                      status:
+                        type: string
+                        example: "waiting_for_confirmation"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          address:
+                            type: string
+                            example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia"
+                          latitude:
+                            type: number
+                            example: -6.123
+                          longitude:
+                            type: number
+                            example: 106.123
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - "https://..."
+                          - "https://..."
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "waiting_for_request"
+                            status_detail:
+                              type: string
+                              example: "Menunggu permintaan barter"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2025-08-26T10:00:00.000Z"
+        '400':
+          description: recycleId tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: ID Recycle bukan angka
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        '404':
+          description: Recycle tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Postingan daur ulang tidak ditemukan
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
 
 

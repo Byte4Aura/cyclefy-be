@@ -206,6 +206,8 @@
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
     "recycle": {
+        "not_found": "Recycle not found",
+        "id_not_a_number": "Recycle id is not a number",
         "recycle_location_not_found": "Recycle location not found",
         "post": {
             "submitted_detail": "The item has been submitted for recycling and is awaiting confirmation from the recycling facility",
@@ -213,7 +215,9 @@
             "completed_detail": "The recycling process has been successfully completed.",
             "failed_detail": "The recycling process was cancelled."
         },
-        "create_successful": "Create recycle successful"
+        "create_successful": "Create recycle successful",
+        "get_history_successful": "Get recycle history successful",
+        "get_detail_successful": "Get recycle detail successful"
     },
     "recycle_location": {
         "not_found": "Recycle location not found",
