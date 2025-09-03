@@ -49,6 +49,9 @@ web.use('/api', userRouter);
 web.use('/assets/profiles', express.static(path.join(__dirname, '../../src/assets/profiles')));
 web.use('/assets/donations/offers', express.static(path.join(__dirname, '../../src/assets/donations/offers')));
 web.use('/assets/barters/postings', express.static(path.join(__dirname, '../../src/assets/barters/postings')));
+web.use('/assets/barters/applications', express.static(path.join(__dirname, '../../src/assets/barters/applications')));
+web.use('/assets/borrows/postings', express.static(path.join(__dirname, '../../src/assets/borrows/postings')));
+web.use('/assets/borrows/applications', express.static(path.join(__dirname, '../../src/assets/borrows/applications')));
 web.use((req, res, next) => {
     res.status(404).json({
         success: false,

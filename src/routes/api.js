@@ -13,6 +13,10 @@ import { uploadBarterImageMiddleware } from "../middlewares/barter/uploadBarterI
 import barterController from "../controllers/barterController.js";
 import { uploadBarterApplicationImageMiddleware } from "../middlewares/barter/uploadBarterApplicationImagMiddleware.js";
 import barterApplicationController from "../controllers/barterApplicationController.js";
+import { uploadBorrowImageMiddleware } from "../middlewares/borrow/uploadBorrowImageMiddleware.js";
+import borrowController from "../controllers/borrowController.js";
+import borrowApplicationController from "../controllers/borrowApplicationController.js";
+import borrowHistoryController from "../controllers/borrowHistoryController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -52,11 +56,26 @@ userRouter.post('/barters/:barterId/request', authMiddleware, uploadBarterApplic
 
 userRouter.get('/users/current/barters', authMiddleware, barterController.getBarterHistory);  //get user barters (my_items & other_items (incoming requests)) list
 userRouter.get('/users/current/barters/:barterId', authMiddleware, barterController.getMyBarterDetail);  //get my_items detail
-userRouter.get('/users/current/barter-requests/:requestId', authMiddleware, barterApplicationController.getMyIncomingRequestDetail);  //get other_items detail
+userRouter.get('/users/current/barter-requests/:requestId', authMiddleware, barterApplicationController.getMyRequestDetail);  //get other_items detail
 userRouter.post('/users/current/barters/:barterId/mark-as-completed', authMiddleware, barterController.markBarterAsCompleted);
 userRouter.get('/users/current/barters/:barterId/requests/:requestId', authMiddleware, barterController.getMyBarterIncomingRequestDetail);  //get incoming request detail
 userRouter.post('/users/current/barters/:barterId/requests/:requestId/process', authMiddleware, barterController.processIncomingRequest);
 
+// Borrow API
+userRouter.get('/borrows', authMiddleware, borrowController.getBorrows);
+userRouter.post('/borrows', authMiddleware, uploadBorrowImageMiddleware, borrowController.createBorrow);
+userRouter.get('/borrows/:borrowId', authMiddleware, borrowController.getBorrowDetail);
+userRouter.post('/borrows/:borrowId/request', authMiddleware, borrowApplicationController.createBorrowApplication);
+
+userRouter.get('/users/current/borrows', authMiddleware, borrowHistoryController.getBorrowHistory);
+userRouter.get('/users/current/borrows/:borrowId', authMiddleware, borrowController.getMyBorrowDetail);
+userRouter.get('/users/current/borrow-requests/:requestId', authMiddleware, borrowHistoryController.getMyBorrowRequestDetail);
+userRouter.post('/users/current/borrows/:borrowId/mark-as-lent', authMiddleware, borrowController.markBorrowAsLent);
+userRouter.post('/users/current/borrows/:borrowId/mark-as-returned', authMiddleware, borrowController.markBorrowAsReturned);
+userRouter.post('/users/current/borrows/:borrowId/mark-as-completed', authMiddleware, borrowController.markBorrowAsCompleted);
+userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddleware, borrowController.getMyBorrowIncomingRequestDetail);
+userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/extend', authMiddleware, borrowApplicationController.extendBorrowApplication);
+userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

@@ -5,6 +5,7 @@ enum BorrowStatus {
     lent
     returned
     overdue
+    extended
     completed
     cancelled
 }
@@ -69,6 +70,7 @@ enum BorrowApplicationStatus {
     borrowed
     returned
     overdue
+    extended
     completed
     cancelled
 }

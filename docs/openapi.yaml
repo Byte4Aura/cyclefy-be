@@ -22,6 +22,12 @@ tags:
     description: Dokumentasi seputar fitur donation
   - name: Barter
     description: Dokumentasi seputar fitur barter
+  - name: Borrow
+    description: Dokumentasi seputar fitur borrow
+  - name: Recycle
+    description: Dokumentasi seputar fitur recycle
+  - name: Repair
+    description: Dokumentasi seputar fitur repair
   
 
 paths:
@@ -2540,8 +2546,17 @@ paths:
         - name: maxDistance
           in: query
           required: false
-          schema: { type: string, example: "2" }
-          description: Filter postingan dengan jarak maksimum (km) dari address user
+          schema:
+            type: number
+            example: 2
+          description: Filter postingan dengan jarak maksimum (km) dari address user login. Jika diisi, parameter location diabaikan.
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Bandung"
+          description: Filter berdasarkan nama lokasi. **Diabaikan jika maxDistance diisi**.
         - name: sortBy
           in: query
           required: false
@@ -2602,6 +2617,14 @@ paths:
                             profile_picture: { type: string, example: "https://.../username.png" }
                             username: { type: string, example: "budi123" }
                             fullname: { type: string, example: "Budi Santoso" }
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                          example:
+                            - https://...
+                            - https://...
         "401":
           description: Unauthorized (token tidak valid/expired)
           content:
@@ -2741,7 +2764,7 @@ paths:
                           - https://api.cyclefi.id/assets/barters/postings/barter_post_1_1692950401000.jpg
                       status:
                         type: string
-                        example: waiting_for_request
+                        example: Waiting For Request
         "400":
           description: Validasi gagal atau request tidak sesuai
           content:
@@ -2862,7 +2885,7 @@ paths:
                             example: 1
                           status:
                             type: string
-                            example: "Request Submitted"
+                            example: "Waiting For Request"
                           updated_at:
                             type: string
                             format: date-time
@@ -2942,7 +2965,7 @@ paths:
     post:
       summary: Ajukan Permintaan Barter ke Postingan Barter User lain
       description: |
-        Endpoint untuk mengajukan permintaan barter ke postingan barter milik user lain. User dapat memilih menggunakan item barter yang sudah ada (milik sendiri dengan status 'waiting for request' atau 'waiting for confirmation', data dapat diambil dari GET /api/users/current/barters dengan filter status), atau mengisi data item baru beserta upload gambar. 
+        Endpoint untuk mengajukan permintaan barter ke postingan barter milik user lain. User dapat memilih menggunakan item barter yang sudah ada (data dapat diambil dari GET /api/users/current/barters dengan filter ownership=my_items), atau mengisi data item baru beserta upload gambar. 
         - Hanya bisa mengajukan ke postingan barter milik user lain.
         - Tidak boleh mengajukan barter dengan item postingan milik anda yang sama lebih dari satu kali.
         - Jika menggunakan item yang sudah ada, gambar akan otomatis diambil dari item tersebut.
@@ -2983,7 +3006,7 @@ paths:
               properties:
                 use_existing_barter_id:
                   type: integer
-                  description: ID barter milik sendiri yang ingin digunakan sebagai item barter (opsional, jika ingin pakai item milik user yang sudah ada dengan status 'waiting for request' atau 'waiting for confirmation')
+                  description: ID barter milik sendiri yang ingin digunakan sebagai item barter (opsional, jika ingin pakai item milik user yang sudah ada)
                 item_name:
                   type: string
                   maxLength: 255
@@ -3092,6 +3115,10 @@ paths:
                       token:
                         type: string
                         example: null
+        "403":
+          description: |
+            - Tidak bisa request to barter pada postingan sendiri
+            - Postingan yang diajukan untuk barter berada dalam status yang tidak available
         "404":
           description: Barter tidak ditemukan, barter milik sendiri, atau barter item milik sendiri tidak ditemukan
         "409":
@@ -3146,7 +3173,7 @@ paths:
             example: waiting_for_request,waiting_for_confirmation
         - name: otherItemStatus
           in: query
-          description: "Filter status aplikasi barter yang masuk **(value: request_submitted,confirmed,completed,failed)**"
+          description: "Filter status: **(value: request_submitted,confirmed,completed,failed)**"
           required: false
           schema:
             type: string
@@ -3174,14 +3201,14 @@ paths:
             default: 10
         - name: otherItemPage
           in: query
-          description: "Halaman data aplikasi barter yang masuk (default: 1)"
+          description: "Halaman data other items (default: 1)"
           required: false
           schema:
             type: integer
             default: 1
         - name: otherItemSize
           in: query
-          description: "Jumlah data per halaman aplikasi barter yang masuk (default: 10)"
+          description: "Jumlah data per halaman other items (default: 10)"
           required: false
           schema:
             type: integer
@@ -3743,7 +3770,7 @@ paths:
         - Barter
       summary: Tandai barter sebagai selesai (mark as completed)
       description: |
-        Hanya dapat dilakukan oleh pemilik barterId jika status barter sudah confirmed.
+        Hanya dapat dilakukan oleh pemilik barterId jika status barter sudah confirmed dan salah satu incomin requestnya confirmed
         Akan mengubah status barter dan barter request terkait menjadi completed.
       parameters:
         - name: barterId
@@ -3903,6 +3930,9 @@ paths:
                       distance:
                         type: number
                         nullable: true
+                      phone: 
+                        type: string
+                        example: "+6281122334455"
                       barter_with:
                         type: object
                         properties:
@@ -4130,6 +4160,1900 @@ paths:
                     type: object
                     nullable: true
 
+  /api/borrows:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan daftar postingan borrow milik user lain (Discover borrow)
+      description: |
+        Endpoint untuk menampilkan daftar postingan borrow milik user lain (bukan milik user yang sedang login).
+        Mendukung pencarian, filter kategori, filter lokasi (maxDistance atau nama lokasi), filter durasi (from & to, atau jumlah hari), dan sorting.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pencarian pada item_name atau description
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "elektronik,perabot"
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma)
+        - name: maxDistance
+          in: query
+          required: false
+          schema:
+            type: number
+            example: 2
+          description: Filter postingan dengan jarak maksimum (km) dari address user login. Jika diisi, parameter location diabaikan.
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Bandung"
+          description: Filter berdasarkan nama lokasi. **Diabaikan jika maxDistance diisi**.
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-08-31"
+          description: Tanggal mulai interval pencarian (format YYYY-MM-DD)
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-09-21"
+          description: Tanggal akhir interval pencarian (format YYYY-MM-DD)
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 7
+          description: Filter postingan dengan minimal durasi available (dalam hari). **Diabaikan jika from & to diisi.**
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [relevance, newest, nearest, borrowing_duration]
+          description: Urutan hasil (relevance, newest, nearest, borrowing_duration). Default relevance
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: "Halaman (default: 1)"
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: "Jumlah data per halaman (default: 10)"
+      responses:
+        "200":
+          description: Daftar postingan borrow berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan daftar peminjaman
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 10
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 10
+                        item_name:
+                          type: string
+                          example: Kamera Canon EOS
+                        description:
+                          type: string
+                          example: Kamera DSLR, kondisi sangat baik, lengkap dengan lensa kit.
+                        category:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            name:
+                              type: string
+                              example: Elektronik
+                        address:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 3
+                            address:
+                              type: string
+                              example: "Jl. Mawar No. 1, Kabupaten Bandung, Indonesia"
+                            latitude:
+                              type: number
+                              example: -6.123
+                            longitude:
+                              type: number
+                              example: 106.123
+                        distance:
+                          type: number
+                          example: 2.5
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 5
+                            profile_picture:
+                              type: string
+                              example: "https://.../username.png"
+                            username:
+                              type: string
+                              example: "budi123"
+                            fullname:
+                              type: string
+                              example: "Budi Santoso"
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                          example:
+                            - https://...
+                            - https://...
+                        duration_from:
+                          type: string
+                          format: date-time
+                          example: "2025-09-01T00:00:00.000Z"
+                        duration_to:
+                          type: string
+                          format: date-time
+                          example: "2025-09-10T00:00:00.000Z"
+                        borrowing_duration:
+                          type: number
+                          example: 9
+                          description: "Durasi available (hari)"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User has no address
+
+    post:
+      tags:
+        - Borrow
+      summary: Membuat postingan borrow baru
+      description: |
+        Endpoint untuk membuat postingan peminjaman barang (borrow). User mengisi data item, kategori, alamat, kontak, durasi available, dan upload gambar.
+        Status awal borrow adalah `waiting_for_request`.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten yang dikirim dalam format multipart/form-data karena ada file yang disertakan
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Kamera Canon EOS
+                  description: Nama barang yang ingin dipinjamkan
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Kamera DSLR, kondisi sangat baik, lengkap dengan lensa kit.
+                  description: Deskripsi barang
+                category_id:
+                  type: integer
+                  example: 2
+                  description: ID kategori barang
+                address_id:
+                  type: integer
+                  example: 3
+                  description: ID alamat user
+                phone_id:
+                  type: integer
+                  example: 4
+                  description: ID nomor kontak user
+                duration_from:
+                  type: string
+                  format: date
+                  example: "2025-09-01"
+                  description: Tanggal mulai barang tersedia untuk dipinjam (format YYYY-MM-DD)
+                duration_to:
+                  type: string
+                  format: date
+                  example: "2025-09-10"
+                  description: Tanggal akhir barang tersedia untuk dipinjam (format YYYY-MM-DD)
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Daftar file gambar barang (maksimal 5 gambar)
+              required:
+                - item_name
+                - description
+                - category_id
+                - address_id
+                - phone_id
+                - duration_from
+                - duration_to
+                - images
+      responses:
+        "201":
+          description: Borrow berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Borrow created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: Kamera Canon EOS
+                      description:
+                        type: string
+                        example: Kamera DSLR, kondisi sangat baik, lengkap dengan lensa kit.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: Elektronik
+                      address_id:
+                        type: integer
+                        example: 3
+                      phone_id:
+                        type: integer
+                        example: 4
+                      duration_from:
+                        type: string
+                        format: date-time
+                        example: "2025-09-01T00:00:00.000Z"
+                      duration_to:
+                        type: string
+                        format: date-time
+                        example: "2025-09-10T00:00:00.000Z"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - https://...
+                          - https://...
+                      status:
+                        type: string
+                        example: Waiting For Request
+        "400":
+          description: Validasi gagal atau request tidak sesuai (seperti durasi from & to tidak valid)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Kolom item_name wajib diisi
+                      description:
+                        - Kolom description wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized. Need Authorization Token
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Data kategori/alamat/phone tidak ditemukan atau tidak dimiliki user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Data tidak ditemukan
+
+  /api/borrows/{borrowId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail postingan borrow user lain
+      description: |
+        Mengambil detail postingan borrow milik user lain berdasarkan borrowId.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID borrow yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail borrow
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail borrow
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      item_name:
+                        type: string
+                        example: "Kamera Canon EOS"
+                      description:
+                        type: string
+                        example: "Kamera DSLR, kondisi sangat baik, lengkap dengan lensa kit."
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - "https://..."
+                          - "https://..."
+                      category:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: "Elektronik"
+                      status:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          status:
+                            type: string
+                            example: "Waiting For Request"
+                          updated_at:
+                            type: string
+                            format: date-time
+                            example: "2025-08-28T10:27:14.759Z"
+                      user:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 5
+                          profile_picture:
+                            type: string
+                            format: uri
+                            example: "https://.../username.png"
+                          username:
+                            type: string
+                            example: "budi123"
+                          fullname:
+                            type: string
+                            example: "Budi Santoso"
+                      address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          address:
+                            type: string
+                            example: "Jl. Mawar No. 1, Kabupaten Bandung, Indonesia"
+                          latitude:
+                            type: number
+                            example: -6.123
+                          longitude:
+                            type: number
+                            example: 106.123
+                      distance:
+                        type: number
+                        nullable: true
+                        example: 2.5
+                      phone:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: integer
+                            example: 4
+                          number:
+                            type: string
+                            example: "08123456789"
+                      duration_from:
+                        type: string
+                        format: date-time
+                        example: "2025-09-01T00:00:00.000Z"
+                      duration_to:
+                        type: string
+                        format: date-time
+                        example: "2025-09-10T00:00:00.000Z"
+                      borrowing_duration:
+                          type: number
+                          example: 9
+                          description: "Durasi available (hari)"
+        '400':
+          description: Borrow id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Borrow ID bukan angka
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        '404':
+          description: Data borrow tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Borrow not found"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+
+  /api/borrows/{borrowId}/request:
+    post:
+      tags:
+        - Borrow
+      summary: Ajukan Permintaan Pinjam ke Postingan Borrow User Lain
+      description: |
+        Endpoint untuk mengajukan permintaan pinjam ke postingan borrow milik user lain.
+        - Hanya bisa mengajukan ke postingan borrow milik user lain.
+        - Status awal request adalah `request_submitted`.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID borrow yang akan diajukan permintaan pinjam
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration_from:
+                  type: string
+                  format: date
+                  example: "2025-09-05"
+                  description: Tanggal mulai pinjam (format YYYY-MM-DD)
+                duration_to:
+                  type: string
+                  format: date
+                  example: "2025-09-08"
+                  description: Tanggal akhir pinjam (format YYYY-MM-DD)
+                reason:
+                  type: string
+                  maxLength: 255
+                  example: "Saya butuh kamera untuk acara kampus."
+                  description: Pesan tambahan
+                address_id:
+                  type: int
+                  example: 1
+                phone_id:
+                  type: int
+                  example: 1
+              required:
+                - duration_from
+                - duration_to
+                - reason
+                - address_id
+                - phone_id
+      responses:
+        "201":
+          description: Permintaan pinjam berhasil diajukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Permintaan pinjam berhasil diajukan
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ID borrow application
+                        example: 12
+                      borrow_id:
+                        type: integer
+                        description: ID postingan borrow yang diajukan
+                        example: 10
+                      reason:
+                        type: string
+                        description: Reason for borrowing yang diisikan user
+                        example: "Saya butuh kamera untuk acara kampus"
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-08"
+                      status:
+                        type: string
+                        example: Request Submitted
+                        description: Status borrow request
+        "400":
+          description: Validasi gagal atau request tidak sesuai (tanggal tidak valid, dsb)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      reason: "Kolom reason wajib diisi"
+                      borrow_from: "Tanggal mulai pinjam wajib diisi"
+                      borrow_to: "Tanggal akhir pinjam wajib diisi"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized. Need Authorization Token
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "403":
+          description: Tidak bisa request ke postingan sendiri
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Tidak bisa mengajukan permintaan ke postingan sendiri
+                  errors:
+                    type: object
+                    example: null
+        "404":
+          description: Data borrow tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Data borrow tidak ditemukan
+                  errors:
+                    type: object
+                    example: null
+
+  /api/users/current/borrows:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan riwayat borrow user (posting & incoming request)
+      description: |
+        Mengambil daftar borrow milik user saat ini (my_items) dan daftar request user saat ini (other_items), dengan filter kategori, status, search, dan pagination terpisah.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          description: Pencarian nama item atau deskripsi (optional)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: userItemStatus
+          in: query
+          description: "Filter status borrow milik user (waiting_for_request, waiting_for_confirmation, confirmed, lent, returned, overdue, completed, cancelled)"
+          required: false
+          schema:
+            type: string
+            example: waiting_for_request,waiting_for_confirmation
+        - name: otherItemStatus
+          in: query
+          description: "Filter status other_items (request_submitted,confirmed,borrowed,returned,overdue,completed,cancelled)"
+          required: false
+          schema:
+            type: string
+            example: request_submitted,confirmed
+        - name: ownership
+          in: query
+          description: "Pilih data yang diambil: my_items, other_items, all (pisahkan dengan koma, default: all)"
+          required: false
+          schema:
+            type: string
+            example: my_items,other_requests
+        - name: userItemPage
+          in: query
+          description: "Halaman data borrow milik user (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: userItemSize
+          in: query
+          description: "Jumlah data per halaman borrow milik user (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: otherItemPage
+          in: query
+          description: "Halaman data other_items (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: otherItemSize
+          in: query
+          description: "Jumlah data per halaman other_items (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Berhasil mendapatkan riwayat borrow user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan riwayat borrow
+                  meta:
+                    type: object
+                    properties:
+                      my_items:
+                        type: object
+                        properties:
+                          total: { type: integer, example: 12 }
+                          page: { type: integer, example: 1 }
+                          size: { type: integer, example: 10 }
+                          totalPages: { type: integer, example: 2 }
+                      other_items:
+                        type: object
+                        properties:
+                          total: { type: integer, example: 5 }
+                          page: { type: integer, example: 1 }
+                          size: { type: integer, example: 10 }
+                          totalPages: { type: integer, example: 1 }
+                  data:
+                    type: object
+                    properties:
+                      my_items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer }
+                            item_name: { type: string }
+                            description: { type: string }
+                            images:
+                              type: array
+                              items: { type: string, format: uri }
+                            category:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                name: { type: string }
+                            status:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                status: { type: string }
+                                updated_at: { type: string, format: date-time }
+                            duration_from: { type: string, format: date-time }
+                            duration_to: { type: string, format: date-time }
+                      other_items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer }
+                            item_name: { type: string }
+                            description: { type: string }
+                            images:
+                              type: array
+                              items: { type: string, format: uri }
+                            category:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                name: { type: string }
+                            status:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                status: { type: string }
+                                updated_at: { type: string, format: date-time }
+                            address:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                address: { type: string }
+                                latitude: { type: number }
+                                longitude: { type: number }
+                            distance: { type: number }
+                            user:
+                              type: object
+                              nullable: true
+                              properties:
+                                id: { type: integer }
+                                profile_picture: { type: string, format: uri }
+                                fullname: { type: string }
+                                username: { type: string }
+        '401':
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: false }
+                  message: { type: string, example: "Unauthorized. Need Authorization Token" }
+                  errors:
+                    type: object
+                    properties:
+                      token: { type: string, example: null }
+
+  /api/users/current/borrows/{borrowId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail postingan borrow user saat ini
+      description: |
+        Mengambil detail postingan borrow milik user saat ini, beserta daftar incoming request dari user lain ke postingan ini.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari postingan borrow yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Detail borrow post berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Kamera DSLR Canon"
+                      description:
+                        type: string
+                        example: "Kamera masih mulus, lengkap dengan lensa kit."
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: "Elektronik"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://...", "https://..."]
+                      status:
+                        type: string
+                        example: "waiting_for_request"
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "waiting_for_request"
+                            status_detail:
+                              type: string
+                              example: "Menunggu permintaan peminjam"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2025-09-03T10:00:00.000Z"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          address:
+                            type: string
+                            example: "Jl. Merdeka No. 1, Bandung"
+                          latitude:
+                            type: number
+                            example: -6.914744
+                          longitude:
+                            type: number
+                            example: 107.609810
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-12"
+                      borrowing_duration:
+                        type: integer
+                        example: 7
+                      incoming_requests:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 21
+                            reason:
+                              type: string
+                              example: "Untuk tugas kuliah"
+                            address:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 5
+                                address:
+                                  type: string
+                                  example: "Jl. Asia Afrika No. 2, Bandung"
+                                latitude:
+                                  type: number
+                                  example: -6.921
+                                longitude:
+                                  type: number
+                                  example: 107.607
+                            distance:
+                              type: number
+                              example: 2.5
+                            user:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 7
+                                profile_picture:
+                                  type: string
+                                  example: https://...
+                                fullname:
+                                  type: string
+                                  example: "Budi"
+                                username:
+                                  type: string
+                                  example: "budi123"
+                            status:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 1
+                                status:
+                                  type: string
+                                  example: "pending"
+                                updated_at:
+                                  type: string
+                                  format: date-time
+                                  example: "2025-09-03T10:00:00.000Z"
+                            duration_from:
+                              type: string
+                              format: date
+                              example: "2025-09-06"
+                            duration_to:
+                              type: string
+                              format: date
+                              example: "2025-09-10"
+                            borrowing_duration:
+                              type: integer
+                              example: 4
+        '404':
+          description: Borrow post tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
   
+  /api/users/current/borrow-requests/{requestId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail other_items pada user borrow histories
+      description: |
+        Mengambil detail borrow request yang diajukan oleh user saat ini terhadap suatu item. Hanya dapat mengakses request milik user sendiri.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari borrow request yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Detail borrow request berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail request barter
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer }
+                      item_name: { type: string }
+                      description: { type: string }
+                      images:
+                        type: array
+                        items: { type: string, format: uri }
+                      category:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          name: { type: string }
+                      status: { type: string }
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: int }
+                            status: { type: string }
+                            status_detail: { type: string }
+                            updated_at: { type: string, format: date-time }
+                      address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          address: { type: string }
+                          latitude: { type: number }
+                          longitude: { type: number }
+                      distance: { type: number }
+                      user:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          profile_picture: { type: string, format: uri }
+                          fullname: { type: string }
+                          username: { type: string }
+                      duration_from: { type: string, format: date-time }
+                      duration_to: { type: string, format: date-time }
+                      borrowing_duration: { type: int } 
+                      reason: { type: string } 
+                      current_user_address:
+                        type: object
+                        nullable: true
+                        properties:
+                          id: { type: integer }
+                          address: { type: string }
+                          latitude: { type: number }
+                          longitude: { type: number }
+        '404':
+          description: Borrow request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
+
+  /api/users/current/borrows/{borrowId}/mark-as-lent:
+    post:
+      tags:
+        - Borrow
+      summary: Tandai borrow sebagai Lent
+      description: |
+        Hanya dapat dilakukan oleh pemilik borrowId jika status borrow sudah confirmed dan status salah satu incoming requestnya confirmed.
+        Akan mengubah status borrow dan borrow request terkait menjadi Lent dan Borrowed.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow request
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      responses:
+        '200':
+          description: Berhasil menandai borrow sebagai Lent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mark borrow as lent successfully
+        '400':
+          description: borrow belum berstatus returned atau request belum berstatus returned
+        '401':
+          description: Unauthorized
+        '404':
+          description: Data tidak ditemukan
+  
+  /api/users/current/borrows/{borrowId}/mark-as-returned:
+    post:
+      tags:
+        - Borrow
+      summary: Tandai borrow sebagai Returned
+      description: |
+        Hanya dapat dilakukan oleh pemilik borrowId jika status borrow sudah Lent dan status salah satu incoming requestnya Borrowed.
+        Akan mengubah status borrow dan borrow request terkait menjadi Returned.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow request
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      responses:
+        '200':
+          description: Berhasil menandai borrow sebagai Returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mark borrow as returned successfully
+        '400':
+          description: borrow belum berstatus returned atau request belum berstatus returned
+        '401':
+          description: Unauthorized
+        '404':
+          description: Data tidak ditemukan
+
+  /api/users/current/borrows/{borrowId}/mark-as-completed:
+    post:
+      tags:
+        - Borrow
+      summary: Tandai borrow sebagai selesai (mark as completed)
+      description: |
+        Hanya dapat dilakukan oleh pemilik borrowId jika status borrow sudah returned dan status salah satu incoming requestnya returned.
+        Akan mengubah status borrow dan borrow request terkait menjadi completed.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow milik user login
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID borrow request
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+      responses:
+        '200':
+          description: Berhasil menandai borrow sebagai selesai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mark borrow as completed successfully
+        '400':
+          description: borrow belum berstatus returned atau request belum berstatus returned
+        '401':
+          description: Unauthorized
+        '404':
+          description: Data tidak ditemukan
+  
+  /api/users/current/borrows/{borrowId}/requests/{requestId}:
+    get:
+      tags:
+        - Borrow
+      summary: Mendapatkan detail request yang masuk ke borrowId
+      description: |
+        Mengambil detail borrow request yang masuk ke postingan borrow milik user saat ini.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin diambil detailnya
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '200':
+          description: Detail incoming borrow request berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Kamera DSLR Canon"
+                      description:
+                        type: string
+                        example: "Kamera masih mulus, lengkap dengan lensa kit."
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://cdn.cyclefi.id/borrow/10-1.jpg"]
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: "Elektronik"
+                      status:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          status:
+                            type: string
+                            example: "waiting_for_request"
+                          updated_at:
+                            type: string
+                            format: date-time
+                            example: "2025-09-03T10:00:00.000Z"
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          profile_picture:
+                            type: string
+                            example: "https://cdn.cyclefi.id/user/1.jpg"
+                          username:
+                            type: string
+                            example: "andi123"
+                          fullname:
+                            type: string
+                            example: "Andi"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          address:
+                            type: string
+                            example: "Jl. Merdeka No. 1, Bandung"
+                          latitude:
+                            type: number
+                            example: -6.914744
+                          longitude:
+                            type: number
+                            example: 107.609810
+                      phone:
+                        type: string
+                        example: "08123456789"
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-12"
+                      borrowing_duration:
+                        type: integer
+                        example: 7
+                      requested_by:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 21
+                          reason:
+                            type: string
+                            example: "Untuk tugas kuliah"
+                          address:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 5
+                              address:
+                                type: string
+                                example: "Jl. Asia Afrika No. 2, Bandung"
+                              latitude:
+                                type: number
+                                example: -6.921
+                              longitude:
+                                type: number
+                                example: 107.607
+                          distance:
+                            type: number
+                            example: 2.5
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 7
+                              profile_picture:
+                                type: string
+                                example: "https://cdn.cyclefi.id/user/7.jpg"
+                              fullname:
+                                type: string
+                                example: "Budi"
+                              username:
+                                type: string
+                                example: "budi123"
+                          status:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              status:
+                                type: string
+                                example: "pending"
+                              updated_at:
+                                type: string
+                                format: date-time
+                                example: "2025-09-03T10:00:00.000Z"
+                          phone:
+                            type: string
+                            example: "08123456789"
+                          duration_from:
+                            type: string
+                            format: date
+                            example: "2025-09-06"
+                          duration_to:
+                            type: string
+                            format: date
+                            example: "2025-09-10"
+                          borrowing_duration:
+                            type: integer
+                            example: 4
+        '404':
+          description: Borrow post atau request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
+
+  /api/users/current/borrows/{borrowId}/requests/{requestId}/process:
+    post:
+      tags:
+        - Borrow
+      summary: Process incoming borrow request (accept/decline)
+      description: |
+        Memproses incoming request ke postingan borrow milik user saat ini. Bisa accept (menerima) atau decline (menolak) request. Jika accept, request lain otomatis cancelled.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin diproses
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [accept, decline]
+                  description: Aksi yang ingin dilakukan (accept/decline)
+                  example: accept
+                decline_reason:
+                  type: string
+                  description: Alasan penolakan **(wajib jika action=decline)**
+                  example: "Maaf, barang sedang tidak tersedia"
+      responses:
+        '200':
+          description: Request berhasil diproses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Pengajuan peminjaman berhasil dikonfirmasi      
+        '400':
+          description: Validasi gagal atau status tidak sesuai
+        '404':
+          description: Borrow post atau request tidak ditemukan atau bukan milik user
+        '401':
+          description: Unauthorized
+
+  /api/users/current/borrows/{borrowId}/requests/{requestId}/extend:
+    post:
+      tags:
+        - Borrow
+      summary: Perpanjang durasi peminjaman dari request yang di accept
+      description: |
+        Memperpanjang (extend) duration_to pada request peminjaman (borrow request) yang sudah di-accept (dengan status Borrowed/Overdue) pada postingan borrow milik user saat ini.
+        - Hanya dapat dilakukan oleh pemilik borrowId.
+        - Status terakhir borrowId harus Lent atau Overdue.
+        - Status terakhir requestId harus Borrowed atau Overdue.
+        - duration_to baru pada requestId harus lebih dari duration_to sebelumnya dan tidak boleh melebihi duration_to pada borrowId.
+        - Setelah extend, status history pada borrow dan borrowApplication akan ditambah dengan status Extended.
+      parameters:
+        - name: borrowId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID postingan borrow milik user saat ini
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID request peminjaman yang ingin di-extend
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration_to:
+                  type: string
+                  format: date
+                  example: "2025-09-15"
+                  description: Tanggal baru pengembalian (harus lebih dari duration_to sebelumnya dan <= duration_to milik borrowId)
+              required:
+                - duration_to
+      responses:
+        "201":
+          description: Extend borrow request berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Borrow request extended successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      borrow_id:
+                        type: integer
+                        example: 10
+                      duration_from:
+                        type: string
+                        format: date
+                        example: "2025-09-05"
+                      duration_to:
+                        type: string
+                        format: date
+                        example: "2025-09-15"
+                      status:
+                        type: string
+                        example: "Extended"
+        "400":
+          description: "Validasi gagal atau status tidak sesuai (misal: duration_to tidak valid, status tidak sesuai)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Validasi gagal"
+                  errors:
+                    type: object
+                    example:
+                      duration_to: "Tanggal extend tidak valid"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Data borrow atau borrow request tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Data tidak ditemukan"
+                  errors:
+                    type: object
+                    example: null
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
