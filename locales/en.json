@@ -205,6 +205,9 @@
         "cannot_mark_returned": "Borrow request status cannot be mark as returned",
         "cannot_mark_completed": "Borrow request status cannot be mark as completed"
     },
+    "recycle_location": {
+        "get_list_successful": "Get list of recycle locations successful"
+    },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",
         "internal_server_error": "Internal Server Error"

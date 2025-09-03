@@ -205,6 +205,9 @@
         "cannot_mark_returned": "Status pengajuan peminjaman tidak bisa ditandai sebagai Returned",
         "cannot_mark_completed": "Status pengajuan peminjaman tidak bisa ditandai sebagai selesai"
     },
+    "recycle_location": {
+        "get_list_successful": "Berhasil mendapatkan daftar tempat daur ulang"
+    },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",
         "internal_server_error": "Kesalahan Server Internal"

@@ -6039,7 +6039,178 @@ paths:
                     type: object
                     example: null
 
-
+  /api/recycle-locations:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan daftar recycle locations (tempat daur ulang)
+      description: |
+        Mengambil daftar recycle locations (tempat daur ulang) beserta kategori, gambar, dan jarak terdekat dari semua alamat user login.
+        Mendukung pencarian nama tempat lokasi, filter kategori, filter lokasi (maxDistance atau nama lokasi), dan sorting.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pencarian pada location_name (case-insensitive, partial match)
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "furniture,clothes"
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma)
+        - name: maxDistance
+          in: query
+          required: false
+          schema:
+            type: number
+            example: 5
+          description: Filter lokasi dengan jarak maksimum (km) dari address user login. Jika diisi, parameter location diabaikan.
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Bandung"
+          description: Filter berdasarkan nama lokasi (address). Diabaikan jika maxDistance diisi.
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [relevance, nearest]
+          description: Urutan hasil (relevance, nearest). Default relevance
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: "Halaman (default: 1)"
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: "Jumlah data per halaman (default: 10)"
+      responses:
+        "200":
+          description: Daftar recycle locations berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan daftar recycle locations
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 10
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        location_name:
+                          type: string
+                          example: "Recycle Center Bandung"
+                        address:
+                          type: string
+                          example: "Jl. Merdeka No. 1, Bandung"
+                        latitude:
+                          type: string
+                          example: "-6.914744"
+                        longitude:
+                          type: string
+                          example: "107.609810"
+                        distance:
+                          type: string
+                          example: "2.5"
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        categories:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: int
+                                example: 1
+                              name:
+                                type: string
+                                example: clothes
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-1"
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-2"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User does not have an address yet
 
 
 

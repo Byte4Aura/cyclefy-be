@@ -61,6 +61,7 @@ model RecycleLocation {
     id            Int      @id @default(autoincrement())
     location_name String   @db.VarChar(255)
     address       String   @db.VarChar(255)
+    phone         String   @db.VarChar(255)
     latitude      Float    @db.Double
     longitude     Float    @db.Double
     created_at    DateTime @default(now())

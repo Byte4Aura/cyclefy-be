@@ -237,6 +237,7 @@ CREATE TABLE `recycle_locations` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `location_name` VARCHAR(255) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
+    `phone` VARCHAR(255) NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
