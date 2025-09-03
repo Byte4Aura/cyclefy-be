@@ -80,7 +80,7 @@ userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/extend', a
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
 
 // Recycle
-userRouter.post('/recycle', authMiddleware, uploadRecycleImageMiddleware, recycleController.createRecycle);
+userRouter.post('/recycles', authMiddleware, uploadRecycleImageMiddleware, recycleController.createRecycle);
 userRouter.get('/recycle-locations', authMiddleware, recycleController.getRecycleLocations);
 userRouter.get('/recycle-locations/:recycleLocationId', authMiddleware, recycleController.getRecycleLocationDetail);
 

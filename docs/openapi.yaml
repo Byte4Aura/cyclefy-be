@@ -6212,7 +6212,6 @@ paths:
                     type: string
                     example: User does not have an address yet
 
-
   /api/recycle-locations/{recyleLocationId}:
     get:
       tags:
@@ -6334,7 +6333,168 @@ paths:
                     type: string
                     example: User does not have an address yet
 
-
+  /api/recycles:
+    post:
+      tags:
+        - Recycle
+      summary: Membuat recycle baru
+      description: |
+        Endpoint untuk membuat postingan recycle baru. Hanya user yang sudah login yang dapat mengakses endpoint ini.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten yang dikirim dalam format multipart/form-data karena ada file yang disertakan
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda Bekas
+                  description: Nama barang yang didonasikan
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda bekas, masih layak pakai, warna biru.
+                  description: Deskripsi barang donasi
+                category_id:
+                  type: integer
+                  example: 1
+                  description: ID kategori donasi
+                address_id:
+                  type: integer
+                  example: 2
+                  description: ID alamat pengambilan barang
+                phone_id:
+                  type: integer
+                  example: 3
+                  description: ID nomor kontak yang bisa dihubungi
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  # description: Daftar file gambar donasi (maksimal 5 gambar)
+                recycle_location_id:
+                  type: integer
+                  example: 1
+                  description: ID recycle location
+              required:
+                - item_name
+                - description
+                - category_id
+                - address_id
+                - phone_id
+                - images
+                - recycle_location_id
+      responses:
+        '201':
+          description: Donasi berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Donasi berhasil dibuat
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: Sepeda Bekas
+                      description:
+                        type: string
+                        example: Sepeda bekas, masih layak pakai, warna biru.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Sepeda
+                      address_id:
+                        type: integer
+                        example: 2
+                      phone_id:
+                        type: integer
+                        example: 3
+                      image:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - https://.../donation_1_1692950400000.jpg
+                          - https://.../donation_1_1692950401000.jpg
+                      status:
+                        type: string
+                        example: submitted
+        '400':
+          description: Validasi gagal atau request tidak sesuai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Field item_name wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
 
 
