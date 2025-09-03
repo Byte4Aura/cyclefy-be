@@ -232,12 +232,22 @@ const getMyBorrowRequestDetail = async (userId, requestId, reqObject) => {
     }
 
     // 3. Mapping status_histories dari borrowApplication
-    const status_histories = borrowApp.borrowApplicationStatusHistories.map(status => ({
-        id: status.id,
-        status: snakeToTitleCase(status.status),
-        status_detail: reqObject.__(status.status_detail),
-        updated_at: status.updated_at
-    }));
+    const status_histories = borrowApp.borrowApplicationStatusHistories.map(status => {
+        let statusDetail;
+
+        if (status.status === "extended") {
+            statusDetail = reqObject.__(status.status_detail, { date: borrowApp.duration_to });
+        } else {
+            statusDetail = reqObject.__(status.status_detail);
+        }
+
+        return {
+            id: status.id,
+            status: snakeToTitleCase(status.status),
+            status_detail: statusDetail,
+            updated_at: status.updated_at
+        }
+    });
 
     // 4. Mapping response utama (data postingan borrow user lain)
     return {

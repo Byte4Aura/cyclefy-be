@@ -185,6 +185,7 @@
             "borrowed_detail": "Barang telah berhasil dipinjam",
             "returned_detail": "Barang telah dikembalikan",
             "overdue_detail": "Anda melewati batas waktu pengembalian",
+            "extended_detail": "Periode peminjaman sudah diperpanjang. Tanggal pengembalian terbaru adalah {{date}}",
             "completed_detail": "Proses peminjaman selesai, barang telah berhasil dipinjam dan dikembalikan",
             "cancelled_detail": "Proses peminjaman dibatalkan",
             "failed_auto_detail": "Pengajuan peminjaman lain telah diterima, pengajuan anda otomatis ditolak"

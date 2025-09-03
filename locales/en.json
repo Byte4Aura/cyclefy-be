@@ -155,6 +155,7 @@
             "lent_detail": "The item has been successfully lent to the borrower",
             "returned_detail": "The item has been returned",
             "overdue_detail": "The item is overdue",
+            "extended_detail": "This borrowing period has been extended. The new return date is {{date}}",
             "completed_detail": "The borrowing process is complete, and the item has been borrowed and returned",
             "cancelled_detail": "The borrowing process was cancelled"
         },
@@ -186,6 +187,7 @@
             "borrowed_detail": "The item has been successfully borrowed",
             "returned_detail": "The item has been returned",
             "overdue_detail": "You have missed the return date",
+            "extended_detail": "This borrowing period has been extended. The new return date is {{date}}",
             "completed_detail": "The borrowing process is complete, and the item has been successfully borrowed and returned",
             "cancelled_detail": "The borrowing process was cancelled",
             "failed_auto_detail": "Other request has been accepted, your request automatically declined"

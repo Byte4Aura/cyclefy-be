@@ -6,6 +6,7 @@ import { createBorrowValidation, processBorrowRequestValidation } from "../valid
 import { ResponseError } from "../errors/responseError.js";
 import { snakeToTitleCase } from "../helpers/statusHelper.js";
 import { calculateDistance } from "../helpers/geoHelper.js";
+import { stat } from "fs";
 
 const createBorrow = async (userId, requestBody, files, reqObject) => {
     if (!files || !Array.isArray(files) || files.length === 0)
@@ -390,12 +391,32 @@ const getMyBorrowDetail = async (userId, borrowId, reqObject) => {
     });
 
     // 5. Mapping status_histories
-    const status_histories = borrow.borrowStatusHistories.map(status => ({
-        id: status.id,
-        status: snakeToTitleCase(status.status),
-        status_detail: reqObject.__(status.status_detail),
-        updated_at: status.updated_at
-    }));
+    const status_histories = borrow.borrowStatusHistories.map(status => {
+        let statusDetail;
+
+        if (status.status === "extended") {
+            const extendedApp = borrowApplications.find((app) => {
+                return app.borrowApplicationStatusHistories[0] &&
+                    app.borrowApplicationStatusHistories[0].status === "extended"
+            });
+
+            let extendedDate = null;
+            if (extendedApp) {
+                extendedDate = extendedApp.duration_to;
+            }
+
+            statusDetail = reqObject.__(status.status_detail, { date: extendedDate });
+        } else {
+            reqObject.__(status.status_detail)
+        }
+
+        return {
+            id: status.id,
+            status: snakeToTitleCase(status.status),
+            status_detail: statusDetail,
+            updated_at: status.updated_at
+        }
+    });
 
     // 6. Mapping response
     return {
