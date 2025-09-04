@@ -106,7 +106,7 @@ const getMyRecycleDetail = async (userId, recycleId, reqObject) => {
     const status_histories = recycle.recycleStatusHistories.map(status => ({
         id: status.id,
         status: snakeToTitleCase(status.status),
-        status_detail: reqObject.__(status.status),
+        status_detail: reqObject.__(status.status_detail),
         updated_at: status.updated_at
     }));
 

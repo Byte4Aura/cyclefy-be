@@ -7,6 +7,8 @@ import phoneSeeder from './seeders/phoneSeeder.js';
 import donationSeeder from './seeders/donationSeeder.js';
 import recycleLocationSeeder from './seeders/recycleLocationSeeder.js';
 import repairPriceSeeder from './seeders/repairPriceSeeder.js';
+import { recycleSeeder } from './seeders/recycleSeeder.js';
+import { repairSeeder } from './seeders/repairSeeder.js';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -24,6 +26,8 @@ async function main() {
     await donationSeeder(prisma, users, categories, addresses, phones);
     await recycleLocationSeeder(prisma);
     await repairPriceSeeder(prisma);
+    await recycleSeeder(prisma, users, categories, addresses, phones);
+    await repairSeeder(prisma, users, categories, addresses, phones);
 }
 
 main()

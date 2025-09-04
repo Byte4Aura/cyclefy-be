@@ -440,6 +440,7 @@ const getMyBorrowDetail = async (userId, borrowId, reqObject) => {
         address: borrow.address
             ? {
                 id: borrow.address.id,
+                name: borrow.address.name,
                 address: borrow.address.address,
                 latitude: borrow.address.latitude,
                 longitude: borrow.address.longitude

@@ -3566,7 +3566,9 @@ paths:
                               nullable: true
                               properties:
                                 id:
-                                  type: integer
+                                  type: intege
+                                name:
+                                  type: string
                                 address:
                                   type: string
                                 latitude:
@@ -3780,6 +3782,19 @@ paths:
                               updated_at:
                                 type: string
                                 format: date-time
+                          address:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              address:
+                                type: string
+                              latitude:
+                                type: number
+                              longitude:
+                                type: number
         '400':
           description: requestId tidak valid
         '401':
@@ -5321,9 +5336,12 @@ paths:
                                 id:
                                   type: integer
                                   example: 5
+                                name:
+                                  type: string
+                                  example: Rumah
                                 address:
                                   type: string
-                                  example: "Jl. Asia Afrika No. 2, Bandung"
+                                  example: "Jl. Asia Afrika No. 2, Bandung ..."
                                 latitude:
                                   type: number
                                   example: -6.921
@@ -5471,6 +5489,7 @@ paths:
                         nullable: true
                         properties:
                           id: { type: integer }
+                          name: { type: string }
                           address: { type: string }
                           latitude: { type: number }
                           longitude: { type: number }
