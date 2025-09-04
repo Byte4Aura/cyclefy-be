@@ -7364,7 +7364,170 @@ paths:
         '404':
           description: Repair/payment not found
 
-
+  /api/users/current/repairs:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan riwayat recycle user
+      description: |
+        Mengambil daftar perbaikan milik user saat ini dengan filter kategori, status, search, dan pagination.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+        - name: search
+          in: query
+          description: Pencarian nama item atau deskripsi (optional)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: status
+          in: query
+          description: "Filter status recycle **(value: all, request_submitted, confirmed, under_repair, completed, failed)**"
+          required: false
+          schema:
+            type: string
+            example: request_submitted,confirmed
+        - name: repairLocation
+          in: query
+          description: "Filter lokasi perbaikan **(value: all, my_location, warehouse)**"
+          required: false
+          schema:
+            type: string
+            example: my_location
+        - name: repairType
+          in: query
+          description: "Filter jenis perbaikan **(value: all, minor_repair, moderate_repair, major_repair)**"
+          required: false
+          schema:
+            type: string
+            example: all
+        - name: page
+          in: query
+          description: "Halaman data recycle milik user (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: "Jumlah data per halaman recycle milik user (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Berhasil mendapatkan riwayat repair user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan riwayat perbaikan
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 12
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 2
+                  data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          item_name:
+                            type: string
+                          description:
+                            type: string
+                          images:
+                            type: array
+                            items:
+                              type: string
+                              format: uri
+                          category:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                          repair_location:
+                            type: string
+                            example: Warehouse
+                          repair_type:
+                            type: string
+                            example: Moderate Repair
+                          status:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              status:
+                                type: string
+                              updated_at:
+                                type: string
+                                format: date-time
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
  
 
 

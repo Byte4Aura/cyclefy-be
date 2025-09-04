@@ -248,6 +248,7 @@
         "payment_request_successful": "Request payment berhasil",
         "get_price_list_successful": "Berhasil mendapatkan daftar harga perbaikan sebuah kategori",
         "get_detail_successful": "Berhasil mendapatkan detail perbaikan",
+        "get_history_successful": "Berhasil mendapatkan riwayat perbaikan",
         "create_successful": "Berhasil membuat postingan perbaikan"
     },
     "payment": {

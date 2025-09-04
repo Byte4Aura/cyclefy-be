@@ -23,6 +23,7 @@ import recycleHistoryController from "../controllers/recycleHistoryController.js
 import repairController from "../controllers/repairController.js";
 import { uploadRepairImageMiddleware } from "../middlewares/repair/uploadRepairImageMiddleware.js";
 import paymentNotificationController from "../controllers/paymentNotificationController.js";
+import repairHistoryController from "../controllers/repairHistoryController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -97,6 +98,9 @@ userRouter.post('/repairs', authMiddleware, uploadRepairImageMiddleware, repairC
 userRouter.get('/repairs/:repairId', authMiddleware, repairController.getRepairDetail);
 userRouter.post('/repairs/:repairId/pay', authMiddleware, repairController.requestRepairPayment);
 userRouter.get('/repairs/:repairId/payment-status', authMiddleware, repairController.getRepairPaymentStatus);
+
+userRouter.get('/users/current/repairs', authMiddleware, repairHistoryController.getMyRepairHistory);
+userRouter.get('/users/current/repairs/:repairId', authMiddleware,);
 
 userRouter.post('/payment/notification', paymentNotificationController.midtransNotification);
 

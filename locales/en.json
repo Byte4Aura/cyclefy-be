@@ -248,6 +248,7 @@
         "payment_request_successful": "Payment request successful",
         "get_price_list_successful": "Get repair price list of a categories succesful",
         "get_detail_successful": "Get repair detail successful",
+        "get_history_successful": "Get repair histories successful",
         "create_successful": "Create repair post successful"
     },
     "payment": {
