@@ -200,6 +200,7 @@ const getDonationDetail = async (userId, donationId, reqObject) => {
         status: snakeToTitleCase(donation.donationStatusHistories[donation.donationStatusHistories.length - 1]?.status) || null,
         address: {
             id: donation.address.id,
+            name: donation.address.address_name,
             address: donation.address.address,
             latitue: donation.address.latitude,
             longitude: donation.address.longitude

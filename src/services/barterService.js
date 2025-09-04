@@ -592,6 +592,7 @@ const getMyBarterDetail = async (userId, barterId, reqObject) => {
         address: barter.address
             ? {
                 id: barter.address.id,
+                name: barter.address.address_name,
                 address: barter.address.address,
                 latitude: barter.address.latitude,
                 longitude: barter.address.longitude

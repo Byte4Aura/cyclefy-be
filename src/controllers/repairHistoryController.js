@@ -1,3 +1,5 @@
+import { ResponseError } from "../errors/responseError.js";
+import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
 import repairHistoryService from "../services/repairHistoryService.js";
 
 const getMyRepairHistory = async (req, res, next) => {
@@ -34,6 +36,23 @@ const getMyRepairHistory = async (req, res, next) => {
     }
 };
 
+const getMyRepairDetail = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const repairId = Number(req.params.repairId);
+        if (!isRequestParameterNumber(repairId)) throw new ResponseError(400, "repair.id_not_a_number");
+        const result = await repairHistoryService.getMyRepairDetail(userId, repairId, req);
+        res.status(200).json({
+            success: true,
+            message: req.__('repair.get_detail_successful'),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
-    getMyRepairHistory
+    getMyRepairHistory,
+    getMyRepairDetail
 };

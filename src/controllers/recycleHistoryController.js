@@ -34,7 +34,6 @@ const getMyRecycleDetail = async (req, res, next) => {
         const userId = req.user.id;
         const recycleId = Number(req.params.recycleId);
         if (!isRequestParameterNumber(recycleId)) throw new ResponseError(400, "recycle.id_not_a_number");
-        // const result = await borrowService.getMyBorrowDetail(userId, recycleId, req);
         const result = await recycleHistoryService.getMyRecycleDetail(userId, recycleId, req);
         res.status(200).json({
             success: true,

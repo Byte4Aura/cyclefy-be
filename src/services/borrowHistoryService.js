@@ -269,6 +269,7 @@ const getMyBorrowRequestDetail = async (userId, requestId, reqObject) => {
         address: borrowApp.borrow.address
             ? {
                 id: borrowApp.borrow.address.id,
+                name: borrowApp.borrow.address.address_name,
                 address: borrowApp.borrow.address.address,
                 latitude: borrowApp.borrow.address.latitude,
                 longitude: borrowApp.borrow.address.longitude

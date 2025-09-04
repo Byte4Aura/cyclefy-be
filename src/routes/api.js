@@ -100,7 +100,7 @@ userRouter.post('/repairs/:repairId/pay', authMiddleware, repairController.reque
 userRouter.get('/repairs/:repairId/payment-status', authMiddleware, repairController.getRepairPaymentStatus);
 
 userRouter.get('/users/current/repairs', authMiddleware, repairHistoryController.getMyRepairHistory);
-userRouter.get('/users/current/repairs/:repairId', authMiddleware,);
+userRouter.get('/users/current/repairs/:repairId', authMiddleware, repairHistoryController.getMyRepairDetail);
 
 userRouter.post('/payment/notification', paymentNotificationController.midtransNotification);
 

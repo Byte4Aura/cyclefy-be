@@ -130,6 +130,7 @@ const getMyRecycleDetail = async (userId, recycleId, reqObject) => {
         address: recycle.address
             ? {
                 id: recycle.address.id,
+                name: recycle.address.address_name,
                 address: recycle.address.address,
                 latitude: recycle.address.latitude,
                 longitude: recycle.address.longitude

@@ -229,6 +229,7 @@ const getMyRequestDetail = async (userId, requestId, reqObject) => {
             : null,
         address: {
             id: barterApp.address.id,
+            name: barterApp.address.address_name,
             address: barterApp.address.address,
             latitude: barterApp.address.latitude,
             longitude: barterApp.address.longitude

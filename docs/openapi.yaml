@@ -2295,6 +2295,9 @@ paths:
                         type: object
                         properties:
                           id: { type: integer, example: 2 }
+                          name:
+                            type: string
+                            example: Rumah
                           address: { type: string, example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia" }
                           latitude: { type: number, example: -6.123 }
                           longitude: { type: number, example: 106.123 }
@@ -3472,6 +3475,9 @@ paths:
                           id:
                             type: integer
                             example: 2
+                          name:
+                            type: string
+                            example: Rumah
                           address:
                             type: string
                             example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia"
@@ -3716,12 +3722,19 @@ paths:
                         properties:
                           id:
                             type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Rumah
                           address:
                             type: string
+                            example: Permata Buah Batu, Lengkong, Bojongsoang, Kabupaten Bandung, Jawa Barat, Jawa, Indonesia
                           latitude:
                             type: number
+                            example: -6.9724402
                           longitude:
                             type: number
+                            example: 107.638862
                       distance:
                         type: number
                       user:
@@ -3775,8 +3788,6 @@ paths:
           description: Forbidden (bukan milik user login)
         '404':
           description: Data tidak ditemukan
-        '500':
-          description: Internal server error
     
   /api/users/current/barters/{barterId}/mark-as-completed:
     post:
@@ -5270,6 +5281,9 @@ paths:
                           id:
                             type: integer
                             example: 3
+                          name:
+                            type: string
+                            example: Rumah
                           address:
                             type: string
                             example: "Jl. Merdeka No. 1, Bandung"
@@ -5433,6 +5447,9 @@ paths:
                         nullable: true
                         properties:
                           id: { type: integer }
+                          name:
+                            type: string
+                            example: Rumah
                           address: { type: string }
                           latitude: { type: number }
                           longitude: { type: number }
@@ -6750,6 +6767,9 @@ paths:
                           id:
                             type: integer
                             example: 2
+                          name:
+                            type: string
+                            example: Rumah
                           address:
                             type: string
                             example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia"
@@ -7496,8 +7516,23 @@ paths:
                           images:
                             type: array
                             items:
-                              type: string
-                              format: uri
+                              type: object
+                              properties:
+                                id:
+                                  type: int
+                                  example: 1
+                                image_path:
+                                  type: string
+                                  format: uri
+                                image_size:
+                                  type: integer
+                                  example: 2501
+                                image_name:
+                                  type: string
+                                  example: front-view1.png
+                                image_type:
+                                  type: string
+                                  example: Front View
                           category:
                             type: object
                             nullable: true
@@ -7542,8 +7577,146 @@ paths:
                       token:
                         type: string
                         example: null
- 
 
+  /api/users/current/repairs/{repairId}:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan detail postingan repair milik user sendiri
+      description: |
+        Mengambil detail postingan repair milik user saat ini berdasarkan repairId
+      parameters:
+        - name: repairId
+          in: path
+          required: true
+          description: ID repair milik user login
+          schema:
+            type: integer
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail riwayat repair
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail riwayat perbaikan
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Sepeda Bekas"
+                      description:
+                        type: string
+                        example: "Sepeda bekas, masih layak pakai, warna biru."
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: "Sepeda"
+                      repair_location:
+                        type: string
+                        example: Warehouse
+                      repair_type:
+                        type: string
+                        example: Moderate Repair
+                      status:
+                        type: string
+                        example: "Request Submitted"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: Rumah
+                          address:
+                            type: string
+                            example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia"
+                          latitude:
+                            type: number
+                            example: -6.123
+                          longitude:
+                            type: number
+                            example: 106.123
+                      images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: int
+                              example: 1
+                            image_path:
+                              type: string
+                              format: uri
+                            image_size:
+                              type: integer
+                              example: 2501
+                            image_name:
+                              type: string
+                              example: front-view1.png
+                            image_type:
+                              type: string
+                              example: Front View
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "waiting_for_request"
+                            status_detail:
+                              type: string
+                              example: "Menunggu permintaan barter"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2025-08-26T10:00:00.000Z"
+        '400':
+          description: repairId tidak valid
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+        '404':
+          description: Repair tidak ditemukan
 
 
 
