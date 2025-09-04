@@ -419,7 +419,8 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
 
     const midtransAuth = {
         username: env.midtrans.serverKey,
-        password: "Basic TWlkLXNlcnZlci12VEVWOTJHNlVuZzlMZXEta0Y4YUJQdkw6"
+        // password: "Basic TWlkLXNlcnZlci12VEVWOTJHNlVuZzlMZXEta0Y4YUJQdkw6"
+        password: ""
     };
 
     // 3. Request ke Midtrans Core API
