@@ -194,7 +194,7 @@ const createRecycle = async (userId, requestBody, files, reqObject) => {
             // donation_id: donation.id,
             recycle_id: recycle.id,
             status: "submitted",
-            status_detail: "recycle.submitted_detail",
+            status_detail: "recycle.post.submitted_detail",
             // updated_by: userId
         }
     });

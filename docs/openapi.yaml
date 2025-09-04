@@ -2381,6 +2381,20 @@ paths:
             type: string
             example: multipart/form-data
           description: Tipe konten yang dikirim dalam format multipart/form-data karena ada file yang disertakan
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: status
+          in: query
+          description: "Filter status donasi **(value: submitted,confirmed,completed,failed) atau all**"
+          required: false
+          schema:
+            type: string
+            example: submitted,confirmed
       requestBody:
         required: true
         content:
@@ -3166,21 +3180,21 @@ paths:
             example: elektronik,perabot
         - name: userItemStatus
           in: query
-          description: "Filter status barter milik user **(value: waiting_for_request, waiting_for_confirmation, confirmed, completed, failed)**"
+          description: "Filter status barter milik user **(value: waiting_for_request, waiting_for_confirmation, confirmed, completed, failed) atau all**"
           required: false
           schema:
             type: string
             example: waiting_for_request,waiting_for_confirmation
         - name: otherItemStatus
           in: query
-          description: "Filter status: **(value: request_submitted,confirmed,completed,failed)**"
+          description: "Filter status: **(value: request_submitted,confirmed,completed,failed) atau all**"
           required: false
           schema:
             type: string
             example: request_submitted,confirmed
         - name: ownership
           in: query
-          description: "Pilih data yang diambil: my_items, other_items, all (pisahkan dengan koma, default: all)"
+          description: "Pilih data yang diambil: **my_items, other_items (pisahkan dengan koma, default: all)**"
           required: false
           schema:
             type: string
@@ -5002,21 +5016,21 @@ paths:
             example: elektronik,perabot
         - name: userItemStatus
           in: query
-          description: "Filter status borrow milik user (waiting_for_request, waiting_for_confirmation, confirmed, lent, returned, overdue, completed, cancelled)"
+          description: "Filter status borrow milik user **(Value: waiting_for_request, waiting_for_confirmation, confirmed, lent, returned, overdue, completed, cancelled) atau all**"
           required: false
           schema:
             type: string
             example: waiting_for_request,waiting_for_confirmation
         - name: otherItemStatus
           in: query
-          description: "Filter status other_items (request_submitted,confirmed,borrowed,returned,overdue,completed,cancelled)"
+          description: "Filter status other_items **(Value: request_submitted,confirmed,borrowed,returned,overdue,completed,cancelled) atau all**"
           required: false
           schema:
             type: string
             example: request_submitted,confirmed
         - name: ownership
           in: query
-          description: "Pilih data yang diambil: my_items, other_items, all (pisahkan dengan koma, default: all)"
+          description: "Pilih data yang diambil: **my_items, other_items, (pisahkan dengan koma, default: all)**"
           required: false
           schema:
             type: string
@@ -6556,7 +6570,7 @@ paths:
             example: elektronik,perabot
         - name: status
           in: query
-          description: "Filter status recycle **(value: submitted, confirmed, confirmed, completed, failed)**"
+          description: "Filter status recycle **(value: submitted, confirmed, confirmed, completed, failed) atau all**"
           required: false
           schema:
             type: string
@@ -7406,21 +7420,21 @@ paths:
             example: elektronik,perabot
         - name: status
           in: query
-          description: "Filter status recycle **(value: all, request_submitted, confirmed, under_repair, completed, failed)**"
+          description: "Filter status recycle **(value: request_submitted, confirmed, under_repair, completed, failed) atau all**"
           required: false
           schema:
             type: string
             example: request_submitted,confirmed
         - name: repairLocation
           in: query
-          description: "Filter lokasi perbaikan **(value: all, my_location, warehouse)**"
+          description: "Filter lokasi perbaikan **(value: my_location, warehouse) atau all**"
           required: false
           schema:
             type: string
             example: my_location
         - name: repairType
           in: query
-          description: "Filter jenis perbaikan **(value: all, minor_repair, moderate_repair, major_repair)**"
+          description: "Filter jenis perbaikan **(value: minor_repair, moderate_repair, major_repair) atau all **"
           required: false
           schema:
             type: string
