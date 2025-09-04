@@ -36,6 +36,10 @@ export const validate = (schema, request, req = null) => {
                     message = req.__('validation.iso_8601_date_format', { field: key })
                 } else if (message.includes('duration_to must be greater than')) {
                     message = req.__('validation.invalid_duration')
+                } else if (message.includes('repair_type must be one of')) {
+                    message = req.__('validation.repair_type_enum_values', { values: "minor_repair, moderate_repair, atau major_repair" })
+                } else if (message.includes('repair_location must be one of')) {
+                    message = req.__('validation.repair_location_enum_values', { values: "my_location, atau warehouse" })
                 }
                 // console.log(`[validation.js] message: ${message}`);
             }

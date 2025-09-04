@@ -1,13 +1,9 @@
 enum RepairStatus {
     request_submitted
     confirmed
-    in_transit
-    picked_up
     under_repair
-    courier_return
-    returned
     completed
-    cancelled
+    failed
 }
 
 enum RepairType {

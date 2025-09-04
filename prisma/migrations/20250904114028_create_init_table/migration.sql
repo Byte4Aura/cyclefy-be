@@ -201,6 +201,7 @@ CREATE TABLE `recycles` (
     `address_id` INTEGER NOT NULL,
     `category_id` INTEGER NOT NULL,
     `phone_id` INTEGER NOT NULL,
+    `recycle_location_id` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -211,7 +212,7 @@ CREATE TABLE `recycles` (
 CREATE TABLE `recycle_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `recycle_id` INTEGER NOT NULL,
-    `status` ENUM('submitted', 'confirmed', 'in_transit', 'picked_up', 'completed', 'cancelled') NOT NULL DEFAULT 'submitted',
+    `status` ENUM('submitted', 'confirmed', 'completed', 'failed') NOT NULL DEFAULT 'submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -237,8 +238,10 @@ CREATE TABLE `recycle_locations` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `location_name` VARCHAR(255) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
+    `phone` VARCHAR(255) NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
+    `description` TEXT NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -290,7 +293,7 @@ CREATE TABLE `repairs` (
 CREATE TABLE `repair_status_histories` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
-    `status` ENUM('request_submitted', 'confirmed', 'in_transit', 'picked_up', 'under_repair', 'courier_return', 'returned', 'completed', 'cancelled') NOT NULL DEFAULT 'request_submitted',
+    `status` ENUM('request_submitted', 'confirmed', 'under_repair', 'completed', 'failed') NOT NULL DEFAULT 'request_submitted',
     `status_detail` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -331,14 +334,15 @@ CREATE TABLE `repair_payments` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `repair_id` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
-    `order_id` VARCHAR(355) NOT NULL,
-    `payment_type` ENUM('bank_transfer', 'e_wallet', 'qris') NOT NULL,
+    `order_id` VARCHAR(355) NULL,
+    `payment_type` ENUM('bank_transfer', 'e_wallet', 'qris') NULL,
     `bank_code` VARCHAR(191) NULL,
     `va_number` VARCHAR(191) NULL,
     `ewallet_type` VARCHAR(191) NULL,
+    `deeplink_url` VARCHAR(191) NULL,
     `qris_url` VARCHAR(191) NULL,
     `amount` INTEGER NOT NULL,
-    `admin_fee` INTEGER NOT NULL,
+    `admin_fee` INTEGER NULL,
     `status` ENUM('pending', 'paid', 'expired', 'cancelled', 'failed') NOT NULL DEFAULT 'pending',
     `paid_at` DATETIME(3) NULL,
     `expired_at` DATETIME(3) NULL,
@@ -579,6 +583,9 @@ ALTER TABLE `recycles` ADD CONSTRAINT `recycles_category_id_fkey` FOREIGN KEY (`
 
 -- AddForeignKey
 ALTER TABLE `recycles` ADD CONSTRAINT `recycles_phone_id_fkey` FOREIGN KEY (`phone_id`) REFERENCES `phones`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `recycles` ADD CONSTRAINT `recycles_recycle_location_id_fkey` FOREIGN KEY (`recycle_location_id`) REFERENCES `recycle_locations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `recycle_status_histories` ADD CONSTRAINT `recycle_status_histories_recycle_id_fkey` FOREIGN KEY (`recycle_id`) REFERENCES `recycles`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,29 +1,29 @@
 enum RecycleStatus {
     submitted
     confirmed
-    in_transit
-    picked_up
     completed
-    cancelled
+    failed
 }
 
 // RECYCLINGS
 model Recycle {
-    id          Int      @id @default(autoincrement())
-    user        User     @relation(fields: [user_id], references: [id])
-    user_id     Int
-    item_name   String   @db.VarChar(255)
-    description String   @db.Text
-    address     Address  @relation(fields: [address_id], references: [id])
-    address_id  Int
-    category    Category @relation(fields: [category_id], references: [id])
-    category_id Int
-    phone       Phone    @relation(fields: [phone_id], references: [id])
-    phone_id    Int
+    id                  Int             @id @default(autoincrement())
+    user                User            @relation(fields: [user_id], references: [id])
+    user_id             Int
+    item_name           String          @db.VarChar(255)
+    description         String          @db.Text
+    address             Address         @relation(fields: [address_id], references: [id])
+    address_id          Int
+    category            Category        @relation(fields: [category_id], references: [id])
+    category_id         Int
+    phone               Phone           @relation(fields: [phone_id], references: [id])
+    phone_id            Int
+    recycle_location    RecycleLocation @relation(fields: [recycle_location_id], references: [id])
+    recycle_location_id Int
     // status        RecycleStatus @default(submitted)
     // status_detail String        @db.VarChar(255)
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
+    created_at          DateTime        @default(now())
+    updated_at          DateTime        @updatedAt
 
     images                 RecycleImage[]
     recycleStatusHistories RecycleStatusHistory[]
@@ -61,13 +61,16 @@ model RecycleLocation {
     id            Int      @id @default(autoincrement())
     location_name String   @db.VarChar(255)
     address       String   @db.VarChar(255)
+    phone         String   @db.VarChar(255)
     latitude      Float    @db.Double
     longitude     Float    @db.Double
+    description   String   @db.Text
     created_at    DateTime @default(now())
     updated_at    DateTime @updatedAt
 
     recycleLocationCategories RecycleLocationCategories[]
     RecycleLocationImage      RecycleLocationImage[]
+    recycle                   Recycle[]
 
     @@map("recycle_locations")
 }

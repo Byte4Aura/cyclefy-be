@@ -17,6 +17,12 @@ import { uploadBorrowImageMiddleware } from "../middlewares/borrow/uploadBorrowI
 import borrowController from "../controllers/borrowController.js";
 import borrowApplicationController from "../controllers/borrowApplicationController.js";
 import borrowHistoryController from "../controllers/borrowHistoryController.js";
+import recycleController from "../controllers/recycleController.js";
+import { uploadRecycleImageMiddleware } from "../middlewares/recycle/uploadRecycleImageMiddleware.js";
+import recycleHistoryController from "../controllers/recycleHistoryController.js";
+import repairController from "../controllers/repairController.js";
+import { uploadRepairImageMiddleware } from "../middlewares/repair/uploadRepairImageMiddleware.js";
+import paymentNotificationController from "../controllers/paymentNotificationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -76,6 +82,21 @@ userRouter.post('/users/current/borrows/:borrowId/mark-as-completed', authMiddle
 userRouter.get('/users/current/borrows/:borrowId/requests/:requestId', authMiddleware, borrowController.getMyBorrowIncomingRequestDetail);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/extend', authMiddleware, borrowApplicationController.extendBorrowApplication);
 userRouter.post('/users/current/borrows/:borrowId/requests/:requestId/process', authMiddleware, borrowController.processIncomingRequest);
+
+// Recycle
+userRouter.post('/recycles', authMiddleware, uploadRecycleImageMiddleware, recycleController.createRecycle);
+userRouter.get('/recycle-locations', authMiddleware, recycleController.getRecycleLocations);
+userRouter.get('/recycle-locations/:recycleLocationId', authMiddleware, recycleController.getRecycleLocationDetail);
+
+userRouter.get('/users/current/recycles', authMiddleware, recycleHistoryController.getMyRecycleHistory);
+userRouter.get('/users/current/recycles/:recycleId', authMiddleware, recycleHistoryController.getMyRecycleDetail);
+
+// Repair
+userRouter.get('/categories/:categoryId/repair-prices', authMiddleware, repairController.getRepairPrice);
+userRouter.post('/repairs', authMiddleware, uploadRepairImageMiddleware, repairController.createRepair);
+userRouter.get('/repairs/:repairId', authMiddleware, repairController.getRepairDetail);
+userRouter.post('/repairs/:repairId/pay', authMiddleware, repairController.requestRepairPayment);
+userRouter.post('/payment/notification', paymentNotificationController.midtransNotification);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

@@ -6039,19 +6039,1219 @@ paths:
                     type: object
                     example: null
 
+  /api/recycle-locations:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan daftar recycle locations (tempat daur ulang)
+      description: |
+        Mengambil daftar recycle locations (tempat daur ulang) beserta kategori, gambar, dan jarak terdekat dari semua alamat user login.
+        Mendukung pencarian nama tempat lokasi, filter kategori, filter lokasi (maxDistance atau nama lokasi), dan sorting.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pencarian pada location_name (case-insensitive, partial match)
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "furniture,clothes"
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma)
+        - name: maxDistance
+          in: query
+          required: false
+          schema:
+            type: number
+            example: 5
+          description: Filter lokasi dengan jarak maksimum (km) dari address user login. Jika diisi, parameter location diabaikan.
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Bandung"
+          description: Filter berdasarkan nama lokasi (address). Diabaikan jika maxDistance diisi.
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [relevance, nearest]
+          description: Urutan hasil (relevance, nearest). Default relevance
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: "Halaman (default: 1)"
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: "Jumlah data per halaman (default: 10)"
+      responses:
+        "200":
+          description: Daftar recycle locations berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan daftar recycle locations
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 10
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        location_name:
+                          type: string
+                          example: "Recycle Center Bandung"
+                        address:
+                          type: string
+                          example: "Jl. Merdeka No. 1, Bandung"
+                        latitude:
+                          type: string
+                          example: "-6.914744"
+                        longitude:
+                          type: string
+                          example: "107.609810"
+                        distance:
+                          type: string
+                          example: "2.5"
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        categories:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: int
+                                example: 1
+                              name:
+                                type: string
+                                example: clothes
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-1"
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-2"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User does not have an address yet
 
+  /api/recycle-locations/{recyleLocationId}:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan detail recycle locations (tempat daur ulang)
+      description: |
+        Mengambil detail recycle locations (tempat daur ulang) beserta kategori, gambar, dan jarak terdekat dari semua alamat user login
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: recycleLocationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID Recycle Location yang ingin diambil detailnya
+      responses:
+        "200":
+          description: Daftar recycle locations berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail tempat daur ulang
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        location_name:
+                          type: string
+                          example: "Recycle Center Bandung"
+                        address:
+                          type: string
+                          example: "Jl. Merdeka No. 1, Bandung"
+                        latitude:
+                          type: string
+                          example: "-6.914744"
+                        longitude:
+                          type: string
+                          example: "107.609810"
+                        distance:
+                          type: string
+                          example: "2.5"
+                          description: "Jarak terdekat (km) dari daftar alamat user login"
+                        phone:
+                          type: string
+                          example: "+6213737865862"
+                        description:
+                          type: string
+                          example: "Absque sopor comedo. Id pariatur aggero. Accusator surgo modi ullam ulciscor. Aliqua itaque conforto despecto. Curatio auctor vulgus acer admoveo compello stillicidium spectaculum. Cui beatus viscus cribro timidus. Expedita aeger tergo confugo timidus ipsam desino. Decens desolo volaticus paulatim calco volubilis aequitas."
+                        categories:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: int
+                                example: 1
+                              name:
+                                type: string
+                                example: clothes
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-1"
+                            - "https://dummyimage.com/600x400/000/fff&text=recycle-location1-2"
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: User tidak punya alamat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: User does not have an address yet
 
+  /api/recycles:
+    post:
+      tags:
+        - Recycle
+      summary: Membuat recycle baru
+      description: |
+        Endpoint untuk membuat postingan recycle baru. Hanya user yang sudah login yang dapat mengakses endpoint ini.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten yang dikirim dalam format multipart/form-data karena ada file yang disertakan
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda Bekas
+                  description: Nama barang yang didonasikan
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Sepeda bekas, masih layak pakai, warna biru.
+                  description: Deskripsi barang donasi
+                category_id:
+                  type: integer
+                  example: 1
+                  description: ID kategori donasi
+                address_id:
+                  type: integer
+                  example: 2
+                  description: ID alamat pengambilan barang
+                phone_id:
+                  type: integer
+                  example: 3
+                  description: ID nomor kontak yang bisa dihubungi
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  # description: Daftar file gambar donasi (maksimal 5 gambar)
+                recycle_location_id:
+                  type: integer
+                  example: 1
+                  description: ID recycle location
+              required:
+                - item_name
+                - description
+                - category_id
+                - address_id
+                - phone_id
+                - images
+                - recycle_location_id
+      responses:
+        '201':
+          description: Donasi berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Donasi berhasil dibuat
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: Sepeda Bekas
+                      description:
+                        type: string
+                        example: Sepeda bekas, masih layak pakai, warna biru.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Sepeda
+                      address_id:
+                        type: integer
+                        example: 2
+                      phone_id:
+                        type: integer
+                        example: 3
+                      image:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - https://.../donation_1_1692950400000.jpg
+                          - https://.../donation_1_1692950401000.jpg
+                      status:
+                        type: string
+                        example: submitted
+                      location:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          name:
+                            type: string
+                            example: Luettgen and Sons Recycle Center
+                          address:
+                            type: string
+                            example: Gang Babakan Jati Mulya IV, Gumuruh, Batununggal, Kota Bandung, Jawa Barat, Jawa, 40275, Indonesia
+                          latitude:
+                            type: int 
+                            example: -6.9229148
+                          longitude:
+                            type: int 
+                            example: 107.7026636
+        '400':
+          description: Validasi gagal atau request tidak sesuai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Field item_name wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
+  /api/users/current/recycles:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan riwayat recycle user
+      description: |
+        Mengambil daftar recycle milik user saat ini dengan filter kategori, status, search, dan pagination.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+        - name: search
+          in: query
+          description: Pencarian nama item atau deskripsi (optional)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter berdasarkan nama kategori (bisa multiple, pisahkan dengan koma, gunakan "all" untuk semua)
+          required: false
+          schema:
+            type: string
+            example: elektronik,perabot
+        - name: status
+          in: query
+          description: "Filter status recycle **(value: submitted, confirmed, confirmed, completed, failed)**"
+          required: false
+          schema:
+            type: string
+            example: submitted,confirmed
+        - name: page
+          in: query
+          description: "Halaman data recycle milik user (default: 1)"
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: "Jumlah data per halaman recycle milik user (default: 10)"
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Berhasil mendapatkan riwayat recycle user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan riwayat recycle
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 12
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 2
+                  data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          item_name:
+                            type: string
+                          description:
+                            type: string
+                          images:
+                            type: array
+                            items:
+                              type: string
+                              format: uri
+                          category:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                          status:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              status:
+                                type: string
+                              updated_at:
+                                type: string
+                                format: date-time
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
+  /api/users/current/recycles/{recycleId}:
+    get:
+      tags:
+        - Recycle
+      summary: Mendapatkan detail postingan recycle milik user sendiri
+      description: |
+        Mengambil detail postingan recycle milik user saat ini berdasarkan recycleId
+      parameters:
+        - name: recycleId
+          in: path
+          required: true
+          description: ID recycle milik user login
+          schema:
+            type: integer
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: application/json
+          description: Tipe konten yang dikirim dalam format application/json
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail recycle milik user sendiri
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Berhasil mendapatkan detail daur ulang
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      item_name:
+                        type: string
+                        example: "Sepeda Bekas"
+                      description:
+                        type: string
+                        example: "Sepeda bekas, masih layak pakai, warna biru."
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: "Sepeda"
+                      status:
+                        type: string
+                        example: "waiting_for_confirmation"
+                      address:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          address:
+                            type: string
+                            example: "Jl. Mawar No. 1 Bandung, Jawa Barat, Indonesia"
+                          latitude:
+                            type: number
+                            example: -6.123
+                          longitude:
+                            type: number
+                            example: 106.123
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - "https://..."
+                          - "https://..."
+                      status_histories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "waiting_for_request"
+                            status_detail:
+                              type: string
+                              example: "Menunggu permintaan barter"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2025-08-26T10:00:00.000Z"
+        '400':
+          description: recycleId tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: ID Recycle bukan angka
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized. Need Authorization Token"
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        '404':
+          description: Recycle tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Postingan daur ulang tidak ditemukan
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
 
+  /api/categories/{categoryId}/repair-prices:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan harga perbaikan pada sebuah kategori
+      description: |
+        Mengambil data harga perbaikan tipe minor, moderate, major pada sebuah kategori
+      parameters:
+        - name: categoryId
+          in: path
+          description: Category yang ingin diambil data harga perbaikannya
+          schema:
+            type: string
+          required: true
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '202':
+          description: Berhasil mendapatkan harga perbaikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean,
+                    example: true
+                  message:
+                    type: string
+                    example: Get repair price list of a categories succesful
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: int
+                        example: 1
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          name:
+                            type: string
+                            example: Books
+                      minor_price:
+                        type: int
+                        example: 10016
+                      moderate_price:
+                        type: int
+                        example: 28458
+                      major_price:
+                        type: int
+                        example: 33925
+        '404':
+          description: Data category tidak ditemukan
 
+  /api/repairs:
+    post:
+      tags:
+        - Repair
+      summary: Membuat permintaan perbaikan barang (repair)
+      description: |
+        Endpoint untuk membuat permintaan perbaikan barang. User mengisi data item, kategori, berat, tipe perbaikan, alamat, kontak, lokasi perbaikan, dan upload gambar (front_view & close_up_damage).
+        - Gambar wajib diupload minimal 1 untuk masing-masing tipe.
+        - Harga dihitung otomatis: repair_price * item_weight.
+        - Status awal: request_submitted, payment status: pending.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten multipart/form-data (karena upload file)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Kipas Angin Rusak
+                  description: Nama barang yang ingin diperbaiki
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Kipas angin mati total, ingin diperbaiki.
+                  description: Deskripsi kerusakan barang
+                category_id:
+                  type: integer
+                  example: 1
+                  description: ID kategori barang
+                item_weight:
+                  type: number
+                  example: 2.5
+                  description: Berat barang (kg)
+                repair_type:
+                  type: string
+                  enum: [minor_repair, moderate_repair, major_repair]
+                  example: moderate_repair
+                  description: Tipe perbaikan
+                address_id:
+                  type: integer
+                  example: 3
+                  description: ID alamat user
+                phone_id:
+                  type: integer
+                  example: 4
+                  description: ID nomor kontak user
+                repair_location:
+                  type: string
+                  enum: [my_location, warehouse]
+                  example: my_location
+                  description: Lokasi perbaikan
+                front_view:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Gambar tampak depan barang (wajib, max 5)
+                close_up_damage:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Gambar close up kerusakan (wajib, max 5)
+              required:
+                - item_name
+                - description
+                - category_id
+                - item_weight
+                - repair_type
+                - address_id
+                - phone_id
+                - repair_location
+                - front_view
+                - close_up_damage
+      responses:
+        "201":
+          description: Repair berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Repair created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      item_name:
+                        type: string
+                        example: Kipas Angin Rusak
+                      description:
+                        type: string
+                        example: Kipas angin mati total, ingin diperbaiki.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Electronics
+                      item_weight:
+                        type: number
+                        example: 2.5
+                      repair_type:
+                        type: string
+                        example: moderate_repair
+                      address_id:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          address:
+                            type: string
+                      phone_id:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          number:
+                            type: string
+                            example: "+6281122334455"
+                      repair_location:
+                        type: string
+                        example: my_location
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - https://api.cyclefi.id/assets/repairs/12_5_front_view_1693850000000.jpg
+                          - https://api.cyclefi.id/assets/repairs/12_5_close_up_damage_1693850001000.jpg
+                      status:
+                        type: string
+                        example: Request Submitted
+                      payment:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 20
+                          repair_id:
+                            type: integer
+                            example: 12
+                          order_id:
+                            type: string
+                            example: REPAIR-1-16-1012715231
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 5
+                              profile_picture:
+                                type: string
+                                example: https://api.cyclefi.id/assets/profiles/username.png
+                              username:
+                                type: string
+                                example: budi123
+                              fullname:
+                                type: string
+                                example: Budi Santoso
+                          amount:
+                            type: integer
+                            example: 31250
+                            description: Repair cost
+                          admin_fee:
+                            type: integer
+                            example: 1563
+                            description: 5% repair cost (Pembulatan keatas)
+                          total:
+                            type: integer
+                            example: 32813
+                            description: amount + admin fee
+                          status:
+                            type: string
+                            example: Pending
+        "400":
+          description: Validasi gagal atau request tidak sesuai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Kolom item_name wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized. Need Authorization Token
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Data kategori/alamat/phone tidak ditemukan atau tidak dimiliki user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Data tidak ditemukan
 
+  /api/repairs/{repairId}:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan detail yang sama persis seperti di `POST /api/repairs` diatas
+      description: Mendapatkan detail repair yang telah dibuat di POST /api/repairs dengan **struktur response yang sama**
 
-
-
-
-
-
+  paths:
+  /api/repairs/{repairId}/pay:
+    post:
+      tags:
+        - Repair
+      summary: Request payment for a repair
+      description: |
+        Membuat permintaan pembayaran untuk repair tertentu. 
+        Jika pembayaran sudah ada dan masih pending, instruksi pembayaran yang sama akan dikembalikan.
+        Jika pembayaran sudah expired/failed/cancelled, akan dibuat pembayaran baru (order_id baru).
+        Mendukung metode pembayaran: bank_transfer (VA), qris, e_wallet (gopay, shopeepay, dll).
+      parameters:
+        - name: repairId
+          in: path
+          required: true
+          description: ID repair yang akan dibayar
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentType
+              properties:
+                paymentType:
+                  type: string
+                  enum: [bank_transfer, qris, e_wallet]
+                  description: Jenis pembayaran yang dipilih user (bank_transfer, qris, e_wallet)
+                bankCode:
+                  type: string
+                  description: "Kode bank (wajib jika paymentType=bank_transfer). Value yang tersedia: **bca, bni, bri, bsi, cimb**"
+                ewalletType:
+                  type: string
+                  description: "Jenis e-wallet (wajib jika paymentType=e_wallet). Value yang tersedia: **gopay**"
+      responses:
+        '200':
+          description: Payment instruction created or returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: string
+                        example: "REPAIR-1-1-1756988995278"
+                      payment_type:
+                        type: string
+                        example: qris
+                      status:
+                        type: string
+                        example: pending
+                      expiry:
+                        type: string
+                        format: date-time
+                      # Bank Transfer
+                      bank_code:
+                        type: string
+                        nullable: true
+                      va_number:
+                        type: string
+                        nullable: true
+                      # QRIS
+                      qris_url:
+                        type: string
+                        nullable: true
+                      # E-Wallet
+                      ewallet_type:
+                        type: string
+                        nullable: true
+                      deeplink_url:
+                        type: string
+                        nullable: true
+        '400':
+          description: Invalid request or payment type
+        '403':
+          description: Anda tidak memiliki akses ke resource repair payment tersebut
+        '404':
+          description: Resource tidak ditemukan
 
 
 
