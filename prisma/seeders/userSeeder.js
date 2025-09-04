@@ -35,7 +35,7 @@ export default async function userSeeder(prisma) {
         {
             fullname: "Siti Aminah",
             username: "siti.aminah",
-            email: "siti@example.com",
+            email: "sitiaminah@example.com",
             password: await bcrypt.hash("password123", 10),
             is_email_verified: true,
             email_verified_at: new Date(),
