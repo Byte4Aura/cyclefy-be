@@ -6659,7 +6659,6 @@ paths:
                         type: string
                         example: null
 
-
   /api/users/current/recycles/{recycleId}:
     get:
       tags:
@@ -6830,11 +6829,310 @@ paths:
                         type: string
                         example: null
 
+  /api/categories/{categoryId}/repair-prices:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan harga perbaikan pada sebuah kategori
+      description: |
+        Mengambil data harga perbaikan tipe minor, moderate, major pada sebuah kategori
+      parameters:
+        - name: categoryId
+          in: path
+          description: Category yang ingin diambil data harga perbaikannya
+          schema:
+            type: string
+          required: true
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+      responses:
+        '202':
+          description: Berhasil mendapatkan harga perbaikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean,
+                    example: true
+                  message:
+                    type: string
+                    example: Get repair price list of a categories succesful
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: int
+                        example: 1
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          name:
+                            type: string
+                            example: Books
+                      minor_price:
+                        type: int
+                        example: 10016
+                      moderate_price:
+                        type: int
+                        example: 28458
+                      major_price:
+                        type: int
+                        example: 33925
+        '404':
+          description: Data category tidak ditemukan
 
-
-
-
-
+  /api/repairs:
+    post:
+      tags:
+        - Repair
+      summary: Membuat permintaan perbaikan barang (repair)
+      description: |
+        Endpoint untuk membuat permintaan perbaikan barang. User mengisi data item, kategori, berat, tipe perbaikan, alamat, kontak, lokasi perbaikan, dan upload gambar (front_view & close_up_damage).
+        - Gambar wajib diupload minimal 1 untuk masing-masing tipe.
+        - Harga dihitung otomatis: repair_price * item_weight.
+        - Status awal: request_submitted, payment status: pending.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: JWT token (Bearer)
+        - name: Accept-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bahasa response (en/id)
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            example: multipart/form-data
+          description: Tipe konten multipart/form-data (karena upload file)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                  maxLength: 255
+                  example: Kipas Angin Rusak
+                  description: Nama barang yang ingin diperbaiki
+                description:
+                  type: string
+                  maxLength: 255
+                  example: Kipas angin mati total, ingin diperbaiki.
+                  description: Deskripsi kerusakan barang
+                category_id:
+                  type: integer
+                  example: 1
+                  description: ID kategori barang
+                item_weight:
+                  type: number
+                  example: 2.5
+                  description: Berat barang (kg)
+                repair_type:
+                  type: string
+                  enum: [minor_repair, moderate_repair, major_repair]
+                  example: moderate_repair
+                  description: Tipe perbaikan
+                address_id:
+                  type: integer
+                  example: 3
+                  description: ID alamat user
+                phone_id:
+                  type: integer
+                  example: 4
+                  description: ID nomor kontak user
+                repair_location:
+                  type: string
+                  enum: [my_location, warehouse]
+                  example: my_location
+                  description: Lokasi perbaikan
+                front_view:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Gambar tampak depan barang (wajib, max 5)
+                close_up_damage:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Gambar close up kerusakan (wajib, max 5)
+              required:
+                - item_name
+                - description
+                - category_id
+                - item_weight
+                - repair_type
+                - address_id
+                - phone_id
+                - repair_location
+                - front_view
+                - close_up_damage
+      responses:
+        "201":
+          description: Repair berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Repair created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      item_name:
+                        type: string
+                        example: Kipas Angin Rusak
+                      description:
+                        type: string
+                        example: Kipas angin mati total, ingin diperbaiki.
+                      category:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Electronics
+                      item_weight:
+                        type: number
+                        example: 2.5
+                      repair_type:
+                        type: string
+                        example: moderate_repair
+                      address_id:
+                        type: integer
+                        example: 3
+                      phone_id:
+                        type: integer
+                        example: 4
+                      repair_location:
+                        type: string
+                        example: my_location
+                      images:
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                        example:
+                          - https://api.cyclefi.id/assets/repairs/12_5_front_view_1693850000000.jpg
+                          - https://api.cyclefi.id/assets/repairs/12_5_close_up_damage_1693850001000.jpg
+                      status:
+                        type: string
+                        example: Request Submitted
+                      payment:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 20
+                          repair_id:
+                            type: integer
+                            example: 12
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 5
+                              profile_picture:
+                                type: string
+                                example: https://api.cyclefi.id/assets/profiles/username.png
+                              username:
+                                type: string
+                                example: budi123
+                              fullname:
+                                type: string
+                                example: Budi Santoso
+                          amount:
+                            type: number
+                            example: 31250
+                          status:
+                            type: string
+                            example: Pending
+        "400":
+          description: Validasi gagal atau request tidak sesuai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Validasi gagal
+                  errors:
+                    type: object
+                    example:
+                      item_name:
+                        - Kolom item_name wajib diisi
+        "401":
+          description: Unauthorized (token tidak valid/expired)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized. Need Authorization Token
+                  errors:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: null
+        "404":
+          description: Data kategori/alamat/phone tidak ditemukan atau tidak dimiliki user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Data tidak ditemukan
 
 
 

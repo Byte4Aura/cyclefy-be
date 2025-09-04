@@ -8,11 +8,13 @@
         "field_required": "Kolom {{field}} wajib diisi",
         "valid_email": "Email harus email yang valid",
         "password_length": "Panjang password minimal 8 karakter",
-        "not_allowed": "{{field}} tidak diperbolehkan",
+        "not_allowed": "{{field}} tidak diperbolehkan (Harus memiliki nilai)",
         "invalid_action": "Nilai action harus {{value1}} atau {{value2}}",
         "decline_reason_required": "Wajib mengisi decline_reason jika action bernilai decline",
         "iso_8601_date_format": "{{field}} harus dalam format tanggal ISO 8601",
-        "invalid_duration": "Durasi tidak valid"
+        "invalid_duration": "Durasi tidak valid",
+        "repair_type_enum_values": "repair_type harus bernilai salah satu dari {{values}}",
+        "repair_location_enum_values": "repair_location harus bernilai salah satu dari {{values}}"
     },
     "auth": {
         "unauthorized": "Tidak diizinkan. Membutuhkan Token Otorisasi",
@@ -80,9 +82,12 @@
     },
     "file": {
         "image_only": "Hanya file gambar yang diizinkan",
-        "no_file_uploaded": "Tidak ada file yang diunggah"
+        "no_file_uploaded": "Tidak ada file yang diunggah",
+        "front_view_required": "Foto tampak depan diperlukan",
+        "close_up_damage_required": "Foto kerusakan diperlukan"
     },
     "category": {
+        "id_not_a_number": "ID Category bukan angka",
         "not_found": "Kategori tidak ditemukan",
         "get_list_successful": "Berhasil mendapatkan daftar kategori"
     },
@@ -210,10 +215,10 @@
         "id_not_a_number": "ID Recycle bukan angka",
         "recycle_location_not_found": "Recycle location not found",
         "post": {
-            "submitted_detail": "Barang telah diajukan untuk didaur ulang dan sedang menunggu konfirmasi dari fasilitas daur ulang.",
-            "confirmed_detail": "Permintaan daur ulang telah dikonfirmasi, dan barang siap untuk diambil.",
-            "completed_detail": "Proses daur ulang telah berhasil diselesaikan.",
-            "failed_detail": "Proses daur ulang dibatalkan."
+            "submitted_detail": "Barang telah diajukan untuk didaur ulang dan sedang menunggu konfirmasi dari fasilitas daur ulang",
+            "confirmed_detail": "Permintaan daur ulang telah dikonfirmasi, dan barang siap untuk diambil",
+            "completed_detail": "Proses daur ulang telah berhasil diselesaikan",
+            "failed_detail": "Proses daur ulang dibatalkan"
         },
         "create_successful": "Berhasil membuat postingan daur ulang",
         "get_history_successful": "Berhasil mendapatkan riwayat daur ulang",
@@ -224,6 +229,19 @@
         "id_not_a_number": "ID Recycle Location bukan angka",
         "get_list_successful": "Berhasil mendapatkan daftar tempat daur ulang",
         "get_detail_successful": "Berhasil mendapatkan detail tempat daur ulang"
+    },
+    "repair": {
+        "price_not_found": "Harga perbaikan tidak ditemukan",
+        "invalid_type": "Tipe perbaikan tidak valid",
+        "status": {
+            "request_submitted_detail": "Permintaan perbaikan telah diajukan dan sedang menunggu konfirmasi dari penyedia layanan",
+            "confirmed_detail": "Permintaan perbaikan telah dikonfirmasi, dan barang siap untuk diperbaiki",
+            "under_repair_detail": "Barang saat ini sedang diperbaiki oleh teknisi",
+            "completed_detail": "Proses perbaikan telah selesai, dan barang berhasil diperbaiki serta dikembalikan",
+            "failed_detail": "Proses perbaikan dibatalkan"
+        },
+        "get_price_list_successful": "Berhasil mendapatkan daftar harga perbaikan sebuah kategori",
+        "create_successful": "Berhasil membuat postingan perbaikan"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

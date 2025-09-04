@@ -29,5 +29,12 @@ export const env = {
         callbackURL: process.env.TWITTER_CALLBACK_URL,
     },
     sessionSecret: process.env.SESSION_SECRET,
-    jwtSecret: process.env.JWT_SECRET
+    jwtSecret: process.env.JWT_SECRET,
+    midtrans: {
+        serverKey: process.env.MIDTRANS_SERVER_KEY,
+        clientKey: process.env.MIDTRANS_CLIENT_KEY,
+        isProduction: process.env.MIDTRANS_IS_PRODUCTION,
+        isSanitized: process.env.MIDTRANS_IS_SANITIZED,
+        is3DS: process.env.MIDTRANS_IS_3DS
+    }
 };

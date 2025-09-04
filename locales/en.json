@@ -8,11 +8,13 @@
         "field_required": "Field {{field}} is required",
         "valid_email": "Email must be a valid email",
         "password_length": "Password length must be at least 8 characters long",
-        "not_allowed": "{{field}} is not allowed",
+        "not_allowed": "{{field}} is not allowed (Must have value)",
         "invalid_action": "Action must be {{value1}} or {{value2}}",
         "decline_reason_required": "Decline reason is required when action is decline",
         "iso_8601_date_format": "{{field}} must be in ISO 8601 date format",
-        "invalid_duration": "Invalid duration"
+        "invalid_duration": "Invalid duration",
+        "repair_type_enum_values": "repair_type must be one of {{values}}",
+        "repair_location_enum_values": "repair_location must be one of {{values}}"
     },
     "auth": {
         "unauthorized": "Unauthorized. Need Authorization Token",
@@ -80,9 +82,12 @@
     },
     "file": {
         "image_only": "Only image files are allowed",
-        "no_file_uploaded": "No file uploaded"
+        "no_file_uploaded": "No file uploaded",
+        "front_view_required": "Front view image required",
+        "close_up_damage_required": "Close up damage image required"
     },
     "category": {
+        "id_not_a_number": "Category ID is not a number",
         "not_found": "Category not found",
         "get_list_successful": "Get list of categories succesful"
     },
@@ -211,9 +216,9 @@
         "recycle_location_not_found": "Recycle location not found",
         "post": {
             "submitted_detail": "The item has been submitted for recycling and is awaiting confirmation from the recycling facility",
-            "confirmed_detail": "The recycling request has been confirmed, and the item is ready for pickup.",
-            "completed_detail": "The recycling process has been successfully completed.",
-            "failed_detail": "The recycling process was cancelled."
+            "confirmed_detail": "The recycling request has been confirmed, and the item is ready for pickup",
+            "completed_detail": "The recycling process has been successfully completed",
+            "failed_detail": "The recycling process was cancelled"
         },
         "create_successful": "Create recycle successful",
         "get_history_successful": "Get recycle history successful",
@@ -224,6 +229,19 @@
         "id_not_a_number": "Recycle location id is not a number",
         "get_list_successful": "Get list of recycle locations successful",
         "get_detail_successful": "Get detail of recycle location successful"
+    },
+    "repair": {
+        "price_not_found": "Repair price not found",
+        "invalid_type": "Invalid repair type",
+        "status": {
+            "request_submitted_detail": "The repair request has been submitted and is awaiting confirmation from the service provider",
+            "confirmed_detail": "The repair request has been confirmed, and the item is ready for repair",
+            "under_repair_detail": "The item is currently being repaired by the technician",
+            "completed_detail": "The repair process is complete, and the item has been successfully repaired and returned",
+            "failed_detail": "The repair process was cancelled"
+        },
+        "get_price_list_successful": "Get repair price list of a categories succesful",
+        "create_successful": "Create repair post successful"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",
