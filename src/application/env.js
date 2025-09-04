@@ -35,6 +35,9 @@ export const env = {
         clientKey: process.env.MIDTRANS_CLIENT_KEY,
         isProduction: process.env.MIDTRANS_IS_PRODUCTION,
         isSanitized: process.env.MIDTRANS_IS_SANITIZED,
-        is3DS: process.env.MIDTRANS_IS_3DS
+        is3DS: process.env.MIDTRANS_IS_3DS,
+        baseUrl: process.env.MIDTRANS_IS_PRODUCTION === "true"
+            ? "https://api.midtrans.com/v2/charge"
+            : "https://api.sandbox.midtrans.com/v2/charge"
     }
 };

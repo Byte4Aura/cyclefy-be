@@ -23,6 +23,7 @@ model RepairPayment {
     bank_code    String? // 'bca', 'bni', etc
     va_number    String? // Virtual account number
     ewallet_type String? // 'gopay', 'shopeepay', etc
+    deeplink_url String? // deeplink e_wallet
     qris_url     String? // URL QRIS image
     amount       Int
     admin_fee    Int?

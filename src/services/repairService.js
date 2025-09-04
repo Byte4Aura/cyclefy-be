@@ -5,6 +5,9 @@ import { snakeToTitleCase } from "../helpers/statusHelper.js";
 import { addressIdOwnershipValidate, isCategoryIdValid, phoneIdOwnershipValidate } from "../helpers/userHelper.js";
 import { createRepairValidation } from "../validations/repairValidation.js";
 import { validate } from "../validations/validation.js";
+import { snap } from "../application/midtrans.js";
+import { env } from "../application/env.js";
+import axios from "axios";
 
 const getRepairPrice = async (categoryId) => {
     const repairPrices = await prismaClient.repairPrice.findUnique({
@@ -72,7 +75,12 @@ const createRepair = async (userId, requestBody, files, reqObject) => {
             phone_id: data.phone_id,
             repair_location: data.repair_location,
         },
-        include: { category: true }
+        include: {
+            category: true,
+            address: true,
+            phone: true,
+            user: true
+        }
     });
 
     // 6. Simpan gambar ke RepairImage
@@ -105,12 +113,16 @@ const createRepair = async (userId, requestBody, files, reqObject) => {
         }
     });
 
+    const orderId = `REPAIR-${repair.user.id}-${repair.id}-${Date.now()}`;
+
     // 8. Buat payment
     const payment = await prismaClient.repairPayment.create({
         data: {
             repair_id: repair.id,
             user_id: userId,
+            order_id: orderId,
             amount: amount,
+            admin_fee: Math.ceil(amount * 0.05),
             status: "pending"
         },
         include: {
@@ -129,14 +141,21 @@ const createRepair = async (userId, requestBody, files, reqObject) => {
         },
         item_weight: repair.item_weight,
         repair_type: repair.repair_type,
-        address_id: repair.address_id,
-        phone_id: repair.phone_id,
+        address: {
+            id: repair.address.id,
+            address: repair.address.address,
+        },
+        phone: {
+            id: repair.phone.id,
+            number: repair.phone.number
+        },
         repair_location: repair.repair_location,
         images: imagePaths,
         status: snakeToTitleCase("request_submitted"),
         payment: {
             id: payment.id,
             repair_id: payment.repair_id,
+            order_id: payment.order_id,
             user: {
                 id: payment.user.id,
                 // profile_picture: payment.user.profile_picture,
@@ -147,12 +166,326 @@ const createRepair = async (userId, requestBody, files, reqObject) => {
                 fullname: payment.user.fullname
             },
             amount: payment.amount,
+            admin_fee: payment.admin_fee,
+            total: (payment.amount + payment.admin_fee),
             status: snakeToTitleCase(payment.status)
         }
     };
 };
 
+const getRepairDetail = async (userId, repairId, reqObject) => {
+    // 1. Ambil Repair + relasi
+    const repair = await prismaClient.repair.findUnique({
+        where: { id: repairId },
+        include: {
+            category: true,
+            address: true,
+            phone: true,
+            user: true,
+            images: true,
+            repairPayments: {
+                include: { user: true },
+                orderBy: { created_at: "desc" }, // ambil payment terbaru
+                take: 1
+            },
+            repairStatusHistories: {
+                orderBy: { created_at: "desc" },
+                take: 1
+            }
+        }
+    });
+    if (!repair) throw new ResponseError(404, "repair.not_found");
+
+    // 2. Ownership check (kalau memang harus milik user)
+    if (repair.user_id !== userId) {
+        throw new ResponseError(403, "repair.forbidden");
+    }
+
+    // 3. Mapping images → url
+    const imagePaths = repair.images.map(img => {
+        if (!img.image_path.startsWith('http') || !img.image_path.startsWith('https')) {
+            return getPictureUrl(reqObject, img.image_path)
+        }
+        return img.image_path
+    });
+
+    // 4. Ambil status terakhir
+    const latestStatus = repair.repairStatusHistories[0];
+
+    // 5. Ambil payment terbaru
+    const payment = repair.repairPayments[0];
+
+    // 6. Bentuk response
+    return {
+        id: repair.id,
+        item_name: repair.item_name,
+        description: repair.description,
+        category: {
+            id: repair.category.id,
+            name: repair.category.name
+        },
+        item_weight: repair.item_weight,
+        repair_type: repair.repair_type,
+        address: {
+            id: repair.address.id,
+            address: repair.address.address,
+        },
+        phone: {
+            id: repair.phone.id,
+            number: repair.phone.number
+        },
+        repair_location: repair.repair_location,
+        images: imagePaths,
+        status: snakeToTitleCase(latestStatus?.status ?? "unknown"),
+        payment: payment ? {
+            id: payment.id,
+            repair_id: payment.repair_id,
+            order_id: payment.order_id,
+            user: {
+                id: payment.user.id,
+                profile_picture: (!payment.user.profile_picture.startsWith('http') && !payment.user.profile_picture.startsWith('https'))
+                    ? getPictureUrl(reqObject, payment.user.profile_picture)
+                    : payment.user.profile_picture,
+                username: payment.user.username,
+                fullname: payment.user.fullname
+            },
+            amount: payment.amount,
+            admin_fee: payment.admin_fee,
+            total: (payment.amount + payment.admin_fee),
+            status: snakeToTitleCase(payment.status)
+        } : null
+    };
+};
+
+// const requestRepairPayment = async (userId, repairId, paymentType, options = {}) => {
+//     // 1. Ambil data repair & payment
+//     const repair = await prismaClient.repair.findUnique({
+//         where: { id: repairId },
+//         include: { repairPayments: true, user: true, category: true, phone: true, address: true }
+//     });
+//     if (!repair) throw new ResponseError(404, "repair.not_found");
+//     if (repair.user_id !== userId) throw new ResponseError(403, "repair.forbidden");
+
+//     let payment = repair.repairPayments[0];
+//     if (!payment) throw new ResponseError(404, "repair.payment_not_found");
+//     if (payment.status !== "pending") throw new ResponseError(400, "repair.payment_already_processed");
+
+//     // 2. Generate parameter Midtrans
+//     const parameter = {
+//         transaction_details: {
+//             order_id: payment.order_id,
+//             gross_amount: payment.amount + (payment.admin_fee || 0)
+//         },
+//         customer_details: {
+//             first_name: repair.user.fullname,
+//             email: repair.user.email,
+//             phone: repair.phone.number,
+//             billing_address: {
+//                 first_name: repair.user.fullname,
+//                 email: repair.user.email,
+//                 phone: repair.phone.number,
+//                 address: repair.address.city,
+//                 city: repair.address.state,
+//                 postal_code: repair.address.zipcode,
+//                 country_code: "IDN"
+//             },
+//         },
+//         item_details: [
+//             {
+//                 id: repair.id,
+//                 name: repair.item_name,
+//                 price: payment.amount,
+//                 quantity: 1,
+//                 category: repair.category.name
+//             },
+//             {
+//                 id: "admin_fee",
+//                 name: "Admin Fee",
+//                 price: payment.admin_fee || 0,
+//                 quantity: 1
+//             }
+//         ]
+//     };
+
+//     // Payment type specific
+//     if (paymentType === "bank_transfer") {
+//         parameter.payment_type = "bank_transfer";
+//         parameter.bank_transfer = { bank: options.bank_code || "bca" };
+//     } else if (paymentType === "qris") {
+//         parameter.payment_type = "qris";
+//     } else if (paymentType === "e_wallet") {
+//         parameter.payment_type = options.ewallet_type; // gopay, shopeepay, dll
+//     } else {
+//         throw new ResponseError(400, "payment.invalid_type");
+//     }
+
+//     // 3. Request ke Midtrans
+//     const midtransRes = await snap.createTransaction(parameter);
+
+//     // 4. Update payment di DB
+//     await prismaClient.repairPayment.update({
+//         where: { id: payment.id },
+//         data: {
+//             payment_type: paymentType,
+//             bank_code: options.bank_code,
+//             ewallet_type: options.ewallet_type,
+//             va_number: midtransRes.va_numbers ? midtransRes.va_numbers[0].va_number : null,
+//             qris_url: midtransRes.actions ? midtransRes.actions.find(a => a.name === "generate-qr-code")?.url : null,
+//             status: "pending"
+//         }
+//     });
+
+//     // 5. Kembalikan data untuk frontend
+//     return {
+//         order_id: payment.order_id,
+//         payment_type: paymentType,
+//         admin_fee: payment.admin_fee,
+//         total_payment: payment.amount + (payment.admin_fee || 0),
+//         payment_url: midtransRes.redirect_url || null,
+//         va_number: midtransRes.va_numbers ? midtransRes.va_numbers[0].va_number : null,
+//         qris_url: midtransRes.actions ? midtransRes.actions.find(a => a.name === "generate-qr-code")?.url : null,
+//         status: "pending",
+//         midtransRes: midtransRes
+//     };
+// };
+
+export const requestRepairPayment = async (userId, repairId, paymentType, options = {}) => {
+    // 1. Ambil data repair & payment
+    const repair = await prismaClient.repair.findUnique({
+        where: { id: repairId },
+        include: { repairPayments: true, user: true, category: true, address: true, phone: true }
+    });
+    if (!repair) throw new ResponseError(404, "repair.not_found");
+    if (repair.user_id !== userId) throw new ResponseError(403, "repair.forbidden");
+
+    let payment = repair.repairPayments[0];
+    if (!payment) throw new ResponseError(404, "repair.payment_not_found");
+    if (payment.status !== "pending") throw new ResponseError(400, "repair.payment_already_processed");
+
+    // 2. Build charge payload
+    const grossAmount = payment.amount + (payment.admin_fee || 0);
+    const orderId = payment.order_id;
+
+    const payload = {
+        payment_type: paymentType,
+        transaction_details: {
+            order_id: orderId,
+            gross_amount: grossAmount
+        },
+        customer_details: {
+            first_name: repair.user.fullname || repair.user.username,
+            email: repair.user.email,
+            phone: repair.user.phone?.number,
+            billing_address: {
+                first_name: repair.user.fullname,
+                email: repair.user.email,
+                phone: repair.phone.number,
+                address: repair.address.city,
+                city: repair.address.state,
+                postal_code: repair.address.zipcode,
+                country_code: "IDN"
+            },
+        },
+        item_details: [
+            {
+                id: repair.id,
+                name: repair.item_name,
+                price: payment.amount,
+                quantity: 1,
+                category: repair.category.name
+            },
+            {
+                id: "admin_fee",
+                name: "Admin Fee",
+                price: payment.admin_fee || 0,
+                quantity: 1
+            }
+        ],
+        custom_expiry: { expiry_duration: 25, unit: 'minute' },
+    };
+
+    // Tambahkan payment_type spesifik
+    if (paymentType === "bank_transfer") {
+        if (!options.bankCode) throw new ResponseError(400, "payment.invalid_type");
+        payload.bank_transfer = { bank: options.bankCode };
+    } else if (paymentType === "qris") {
+        // Tidak perlu tambahan
+    } else if (paymentType === "e_wallet") {
+        if (!options.ewalletType) throw new ResponseError(400, "payment.invalid_type");
+        payload.payment_type = options.ewalletType; // gopay, shopeepay, dsb
+    } else {
+        throw new ResponseError(400, "payment.invalid_type");
+    }
+
+    const midtransAuth = {
+        username: env.midtrans.serverKey,
+        password: ""
+    };
+
+    // 3. Request ke Midtrans Core API
+    const midtransRes = await axios.post(
+        env.midtrans.baseUrl,
+        payload,
+        { auth: midtransAuth }
+    ).then(res => res.data);
+
+    // 4. Simpan instruksi pembayaran ke DB
+    let updateData = { status: "pending" };
+    let responseData = {
+        order_id: orderId,
+        payment_type: paymentType,
+        amount: payment.amount,
+        admin_fee: payment.admin_fee,
+        total_payment: grossAmount,
+        status: "pending"
+    };
+
+    const exists = await prismaClient.repairPayment.findUnique({
+        where: { order_id: orderId, user_id: userId, repair_id: repairId, status: "pending" }
+    });
+
+    if (paymentType === "bank_transfer") {
+        if (!["bca", "bni", "bri", "bsi", "cimb"].includes(options.bankCode)) {
+            throw new ResponseError(400, "payment.invalid_type");
+        }
+        const va = midtransRes.va_numbers?.[0];
+        updateData.payment_type = 'bank_transfer';
+        updateData.va_number = exists.va_number || va?.va_number;
+        updateData.bank_code = exists.bank_code || va?.bank;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        responseData.va_number = exists.va_number || va?.va_number;
+        responseData.bank = exists.bank_code || va?.bank;
+        responseData.expiry = exists.expired_at || midtransRes.expiry_time;
+        // responseData.instructions = midtransRes.pdf_url || null;
+    } else if (paymentType === "qris") {
+        updateData.payment_type = 'qris';
+        updateData.qris_url = exists.qris_url || midtransRes.actions?.find(a => a.name === "generate-qr-code")?.url || midtransRes.qr_url;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        responseData.qris_url = exists.qris_url || updateData.qris_url;
+        responseData.expiry = exists.expired_at || midtransRes.expiry_time;
+    } else if (paymentType === "e_wallet") {
+        // gopay: deeplink_url,
+        updateData.payment_type = 'e_wallet';
+        updateData.deeplink_url = exists.deeplink_url || midtransRes.actions?.find(a => a.name === "deeplink-redirect")?.url;
+        updateData.ewallet_type = options.ewalletType;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        responseData.ewallet_type = exists.ewallet_type || options.ewalletType;
+        responseData.deeplink_url = exists.deeplink_url || updateData.deeplink_url;
+        responseData.expiry = exists.expired_at || midtransRes.expiry_time;
+    }
+
+    await prismaClient.repairPayment.update({
+        where: { id: payment.id },
+        data: updateData
+    });
+
+    // 5. Kembalikan instruksi pembayaran ke frontend
+    return responseData;
+};
+
 export default {
     getRepairPrice,
-    createRepair
+    createRepair,
+    getRepairDetail,
+    requestRepairPayment
 }

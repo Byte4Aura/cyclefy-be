@@ -339,6 +339,7 @@ CREATE TABLE `repair_payments` (
     `bank_code` VARCHAR(191) NULL,
     `va_number` VARCHAR(191) NULL,
     `ewallet_type` VARCHAR(191) NULL,
+    `deeplink_url` VARCHAR(191) NULL,
     `qris_url` VARCHAR(191) NULL,
     `amount` INTEGER NOT NULL,
     `admin_fee` INTEGER NULL,

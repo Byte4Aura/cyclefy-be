@@ -22,6 +22,7 @@ import { uploadRecycleImageMiddleware } from "../middlewares/recycle/uploadRecyc
 import recycleHistoryController from "../controllers/recycleHistoryController.js";
 import repairController from "../controllers/repairController.js";
 import { uploadRepairImageMiddleware } from "../middlewares/repair/uploadRepairImageMiddleware.js";
+import paymentNotificationController from "../controllers/paymentNotificationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -93,7 +94,9 @@ userRouter.get('/users/current/recycles/:recycleId', authMiddleware, recycleHist
 // Repair
 userRouter.get('/categories/:categoryId/repair-prices', authMiddleware, repairController.getRepairPrice);
 userRouter.post('/repairs', authMiddleware, uploadRepairImageMiddleware, repairController.createRepair);
-
+userRouter.get('/repairs/:repairId', authMiddleware, repairController.getRepairDetail);
+userRouter.post('/repairs/:repairId/pay', authMiddleware, repairController.requestRepairPayment);
+userRouter.post('/payment/notification', paymentNotificationController.midtransNotification);
 
 userRouter.get('/test/:query', async (req, res, next) => {
     // console.log(`Query: ${req.params.query}`);

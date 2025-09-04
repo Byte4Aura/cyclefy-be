@@ -231,8 +231,13 @@
         "get_detail_successful": "Get detail of recycle location successful"
     },
     "repair": {
+        "not_found": "Repair not found",
+        "id_not_a_number": "Repair ID not a number",
         "price_not_found": "Repair price not found",
         "invalid_type": "Invalid repair type",
+        "forbidden": "You do not have access to this repair resource",
+        "payment_not_found": "Repair payment data not found",
+        "payment_already_processed": "Repair payment already processed",
         "status": {
             "request_submitted_detail": "The repair request has been submitted and is awaiting confirmation from the service provider",
             "confirmed_detail": "The repair request has been confirmed, and the item is ready for repair",
@@ -240,8 +245,13 @@
             "completed_detail": "The repair process is complete, and the item has been successfully repaired and returned",
             "failed_detail": "The repair process was cancelled"
         },
+        "payment_request_successful": "Payment request successful",
         "get_price_list_successful": "Get repair price list of a categories succesful",
+        "get_detail_successful": "Get repair detail successful",
         "create_successful": "Create repair post successful"
+    },
+    "payment": {
+        "invalid_type": "Invalid payment type"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

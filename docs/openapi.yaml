@@ -7034,11 +7034,22 @@ paths:
                         type: string
                         example: moderate_repair
                       address_id:
-                        type: integer
-                        example: 3
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          address:
+                            type: string
                       phone_id:
-                        type: integer
-                        example: 4
+                        type: object
+                        properties:
+                          id:
+                            type: int
+                            example: 1
+                          number:
+                            type: string
+                            example: "+6281122334455"
                       repair_location:
                         type: string
                         example: my_location
@@ -7062,6 +7073,9 @@ paths:
                           repair_id:
                             type: integer
                             example: 12
+                          order_id:
+                            type: string
+                            example: REPAIR-1-16-1012715231
                           user:
                             type: object
                             properties:
@@ -7078,8 +7092,17 @@ paths:
                                 type: string
                                 example: Budi Santoso
                           amount:
-                            type: number
+                            type: integer
                             example: 31250
+                            description: Repair cost
+                          admin_fee:
+                            type: integer
+                            example: 1563
+                            description: 5% repair cost (Pembulatan keatas)
+                          total:
+                            type: integer
+                            example: 32813
+                            description: amount + admin fee
                           status:
                             type: string
                             example: Pending
@@ -7134,7 +7157,101 @@ paths:
                     type: string
                     example: Data tidak ditemukan
 
+  /api/repairs/{repairId}:
+    get:
+      tags:
+        - Repair
+      summary: Mendapatkan detail yang sama persis seperti di `POST /api/repairs` diatas
+      description: Mendapatkan detail repair yang telah dibuat di POST /api/repairs dengan **struktur response yang sama**
 
+  paths:
+  /api/repairs/{repairId}/pay:
+    post:
+      tags:
+        - Repair
+      summary: Request payment for a repair
+      description: |
+        Membuat permintaan pembayaran untuk repair tertentu. 
+        Jika pembayaran sudah ada dan masih pending, instruksi pembayaran yang sama akan dikembalikan.
+        Jika pembayaran sudah expired/failed/cancelled, akan dibuat pembayaran baru (order_id baru).
+        Mendukung metode pembayaran: bank_transfer (VA), qris, e_wallet (gopay, shopeepay, dll).
+      parameters:
+        - name: repairId
+          in: path
+          required: true
+          description: ID repair yang akan dibayar
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentType
+              properties:
+                paymentType:
+                  type: string
+                  enum: [bank_transfer, qris, e_wallet]
+                  description: Jenis pembayaran yang dipilih user (bank_transfer, qris, e_wallet)
+                bankCode:
+                  type: string
+                  description: "Kode bank (wajib jika paymentType=bank_transfer). Value yang tersedia: **bca, bni, bri, bsi, cimb**"
+                ewalletType:
+                  type: string
+                  description: "Jenis e-wallet (wajib jika paymentType=e_wallet). Value yang tersedia: **gopay**"
+      responses:
+        '200':
+          description: Payment instruction created or returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: string
+                        example: "REPAIR-1-1-1756988995278"
+                      payment_type:
+                        type: string
+                        example: qris
+                      status:
+                        type: string
+                        example: pending
+                      expiry:
+                        type: string
+                        format: date-time
+                      # Bank Transfer
+                      bank_code:
+                        type: string
+                        nullable: true
+                      va_number:
+                        type: string
+                        nullable: true
+                      # QRIS
+                      qris_url:
+                        type: string
+                        nullable: true
+                      # E-Wallet
+                      ewallet_type:
+                        type: string
+                        nullable: true
+                      deeplink_url:
+                        type: string
+                        nullable: true
+        '400':
+          description: Invalid request or payment type
+        '403':
+          description: Anda tidak memiliki akses ke resource repair payment tersebut
+        '404':
+          description: Resource tidak ditemukan
 
 
 

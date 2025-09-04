@@ -231,8 +231,13 @@
         "get_detail_successful": "Berhasil mendapatkan detail tempat daur ulang"
     },
     "repair": {
+        "not_found": "Repair tidak ditemukan",
+        "id_not_a_number": "ID Repair bukan angka",
         "price_not_found": "Harga perbaikan tidak ditemukan",
         "invalid_type": "Tipe perbaikan tidak valid",
+        "forbidden": "Anda tidak memiliki akses ke resource repair ini",
+        "payment_not_found": "Data pembayaran perbaikan tidak ditemukan",
+        "payment_already_processed": "Pembayaran perbaikan sudah diproses",
         "status": {
             "request_submitted_detail": "Permintaan perbaikan telah diajukan dan sedang menunggu konfirmasi dari penyedia layanan",
             "confirmed_detail": "Permintaan perbaikan telah dikonfirmasi, dan barang siap untuk diperbaiki",
@@ -240,8 +245,13 @@
             "completed_detail": "Proses perbaikan telah selesai, dan barang berhasil diperbaiki serta dikembalikan",
             "failed_detail": "Proses perbaikan dibatalkan"
         },
+        "payment_request_successful": "Request payment berhasil",
         "get_price_list_successful": "Berhasil mendapatkan daftar harga perbaikan sebuah kategori",
+        "get_detail_successful": "Berhasil mendapatkan detail perbaikan",
         "create_successful": "Berhasil membuat postingan perbaikan"
+    },
+    "payment": {
+        "invalid_type": "Opsi pembayaran tidak valid"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",
