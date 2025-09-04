@@ -159,6 +159,10 @@ const login = async (requestBody, reqObject) => {
     if (!user.is_active) throw new ResponseError(403, 'auth.account_is_inactive');
     if (!user.is_email_verified) throw new ResponseError(403, 'auth.email_not_verified');
 
+    const profilePicture = (!user.profile_picture.startsWith('http') || !user.profile_picture.startsWith('https'))
+        ? getPictureUrl(reqObject, user.profile_picture)
+        : user.profile_picture
+
     return {
         token: generateJWT(user),
         user: {
@@ -166,7 +170,7 @@ const login = async (requestBody, reqObject) => {
             fullname: user.fullname,
             username: user.username,
             email: user.email,
-            profile_picture: getPictureUrl(reqObject, user.profile_picture)
+            profile_picture: profilePicture
         }
     };
 }
