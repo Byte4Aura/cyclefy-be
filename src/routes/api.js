@@ -96,6 +96,8 @@ userRouter.get('/categories/:categoryId/repair-prices', authMiddleware, repairCo
 userRouter.post('/repairs', authMiddleware, uploadRepairImageMiddleware, repairController.createRepair);
 userRouter.get('/repairs/:repairId', authMiddleware, repairController.getRepairDetail);
 userRouter.post('/repairs/:repairId/pay', authMiddleware, repairController.requestRepairPayment);
+userRouter.get('/repairs/:repairId/payment-status', authMiddleware, repairController.getRepairPaymentStatus);
+
 userRouter.post('/payment/notification', paymentNotificationController.midtransNotification);
 
 userRouter.get('/test/:query', async (req, res, next) => {

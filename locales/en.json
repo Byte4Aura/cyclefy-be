@@ -251,7 +251,8 @@
         "create_successful": "Create repair post successful"
     },
     "payment": {
-        "invalid_type": "Invalid payment type"
+        "invalid_type": "Invalid payment type",
+        "get_payment_status_successful": "Get payment status successful"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} not found. Visit /api/docs for documentation",

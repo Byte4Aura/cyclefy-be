@@ -8,6 +8,7 @@ import { validate } from "../validations/validation.js";
 import { snap } from "../application/midtrans.js";
 import { env } from "../application/env.js";
 import axios from "axios";
+import { wibToUtc } from "../helpers/dateHelper.js";
 
 const getRepairPrice = async (categoryId) => {
     const repairPrices = await prismaClient.repairPrice.findUnique({
@@ -349,7 +350,7 @@ const getRepairDetail = async (userId, repairId, reqObject) => {
 //     };
 // };
 
-export const requestRepairPayment = async (userId, repairId, paymentType, options = {}) => {
+const requestRepairPayment = async (userId, repairId, paymentType, options = {}) => {
     // 1. Ambil data repair & payment
     const repair = await prismaClient.repair.findUnique({
         where: { id: repairId },
@@ -433,6 +434,13 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
     // 4. Simpan instruksi pembayaran ke DB
     let updateData = { status: "pending" };
     let responseData = {
+        repair_id: repairId,
+        item_name: repair.item_name,
+        category: {
+            id: repair.category.id,
+            name: repair.category.name
+        },
+        customer: repair.user.fullname || repair.user.username,
         order_id: orderId,
         payment_type: paymentType,
         amount: payment.amount,
@@ -453,7 +461,7 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
         updateData.payment_type = 'bank_transfer';
         updateData.va_number = exists.va_number || va?.va_number;
         updateData.bank_code = exists.bank_code || va?.bank;
-        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? wibToUtc(midtransRes.expiry_time) : exists.expired_at;
         responseData.va_number = exists.va_number || va?.va_number;
         responseData.bank = exists.bank_code || va?.bank;
         responseData.expiry = exists.expired_at || midtransRes.expiry_time;
@@ -461,7 +469,7 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
     } else if (paymentType === "qris") {
         updateData.payment_type = 'qris';
         updateData.qris_url = exists.qris_url || midtransRes.actions?.find(a => a.name === "generate-qr-code")?.url || midtransRes.qr_url;
-        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? wibToUtc(midtransRes.expiry_time) : exists.expired_at;
         responseData.qris_url = exists.qris_url || updateData.qris_url;
         responseData.expiry = exists.expired_at || midtransRes.expiry_time;
     } else if (paymentType === "e_wallet") {
@@ -469,7 +477,7 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
         updateData.payment_type = 'e_wallet';
         updateData.deeplink_url = exists.deeplink_url || midtransRes.actions?.find(a => a.name === "deeplink-redirect")?.url;
         updateData.ewallet_type = options.ewalletType;
-        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? new Date(midtransRes.expiry_time) : exists.expired_at;
+        updateData.expired_at = (midtransRes.expiry_time && !exists.expired_at) ? wibToUtc(midtransRes.expiry_time) : exists.expired_at;
         responseData.ewallet_type = exists.ewallet_type || options.ewalletType;
         responseData.deeplink_url = exists.deeplink_url || updateData.deeplink_url;
         responseData.expiry = exists.expired_at || midtransRes.expiry_time;
@@ -484,9 +492,51 @@ export const requestRepairPayment = async (userId, repairId, paymentType, option
     return responseData;
 };
 
+async function getRepairPaymentStatus(userId, repairId) {
+    // 1. Ambil repair dan payment
+    const repair = await prismaClient.repair.findUnique({
+        where: { id: repairId, user_id: userId },
+        include: {
+            repairPayments: true,
+            category: true,
+            user: true
+        }
+    });
+    if (!repair) throw new ResponseError(404, "repair.not_found");
+    if (repair.user_id !== userId) throw new ResponseError(403, "repair.forbidden");
+
+    const payment = repair.repairPayments[0];
+    if (!payment) throw new ResponseError(404, "repair.payment_not_found");
+
+    // 2. Format response
+    return {
+        id: payment.id,
+        order_id: payment.order_id,
+        amount: payment.amount,
+        admin_fee: payment.admin_fee,
+        total: payment.amount + (payment.admin_fee || 0),
+        customer: repair.user.fullname || repair.user.username,
+        item_name: repair.item_name,
+        category: {
+            id: repair.category.id,
+            name: repair.category.name
+        },
+        expired_at: payment.expired_at ? payment.expired_at.toISOString() : null,
+        status: payment.status,
+        payment_type: payment.payment_type,
+        bank_code: payment.bank_code,
+        va_number: payment.va_number,
+        ewallet_type: payment.ewallet_type,
+        deeplink_url: payment.deeplink_url,
+        qris_url: payment.qris_url,
+        paid_at: payment.paid_at ? payment.paid_at.toISOString() : null
+    };
+}
+
 export default {
     getRepairPrice,
     createRepair,
     getRepairDetail,
-    requestRepairPayment
+    requestRepairPayment,
+    getRepairPaymentStatus
 }

@@ -67,9 +67,26 @@ const requestRepairPayment = async (req, res, next) => {
     }
 };
 
+const getRepairPaymentStatus = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const repairId = Number(req.params.repairId);
+        if (!isRequestParameterNumber(repairId)) throw new ResponseError(400, "repair.id_not_a_number");
+        const result = await repairService.getRepairPaymentStatus(userId, repairId);
+        res.status(200).json({
+            success: true,
+            message: req.__("payment.get_payment_status_successful"),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getRepairPrice,
     getRepairDetail,
     createRepair,
-    requestRepairPayment
+    requestRepairPayment,
+    getRepairPaymentStatus
 }

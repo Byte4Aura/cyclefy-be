@@ -251,7 +251,8 @@
         "create_successful": "Berhasil membuat postingan perbaikan"
     },
     "payment": {
-        "invalid_type": "Opsi pembayaran tidak valid"
+        "invalid_type": "Opsi pembayaran tidak valid",
+        "get_payment_status_successful": "Berhasil mendapatkan status pembayaran"
     },
     "common": {
         "not_found": "{{reqMethod}} {{{reqURL}}} tidak ditemukan. Kunjungi /api/docs untuk dokumentasi",

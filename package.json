@@ -33,6 +33,7 @@
 		"i18n": "^0.15.1",
 		"joi": "^17.13.3",
 		"jsonwebtoken": "^9.0.2",
+		"luxon": "^3.7.1",
 		"midtrans-client": "^1.4.3",
 		"multer": "^2.0.2",
 		"node-cron": "^4.2.1",
