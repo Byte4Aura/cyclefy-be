@@ -7164,7 +7164,6 @@ paths:
       summary: Mendapatkan detail yang sama persis seperti di `POST /api/repairs` diatas
       description: Mendapatkan detail repair yang telah dibuat di POST /api/repairs dengan **struktur response yang sama**
 
-  paths:
   /api/repairs/{repairId}/pay:
     post:
       tags:
