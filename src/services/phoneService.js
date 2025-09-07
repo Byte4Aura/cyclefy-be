@@ -74,7 +74,7 @@ const deletePhone = async (userId, phoneId) => {
     if (!phone) throw new ResponseError(404, 'phone.not_found');
 
     return await prismaClient.phone.delete({
-        where: { id: [phoneId] }
+        where: { id: phoneId }
     });
 }
 
