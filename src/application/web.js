@@ -24,10 +24,10 @@ web.use(passport.initialize());
 web.use(passport.session());
 
 // API Specification
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-// const swaggerDocument = YAML.load(path.join(__dirname, "../../docs/openapi.yaml"));
-// web.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const swaggerDocument = YAML.load(path.join(__dirname, "../../docs/openapi.yaml"));
+web.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 i18n.configure({
     locales: ["en", "id"],
@@ -35,7 +35,7 @@ i18n.configure({
     defaultLocale: "en",
     queryParameter: "lang",  // optional, ex: /api/...?lang=en
     objectNotation: true,
-    autoReload: false,   //make sure to be false in unit test
+    autoReload: true,   //make sure to be false in unit test
     updateFiles: false,
     syncFiles: false,
     // cookie: "lang"        // optional

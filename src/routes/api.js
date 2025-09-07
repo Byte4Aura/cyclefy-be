@@ -112,17 +112,17 @@ userRouter.get('/test/:query', async (req, res, next) => {
     });
 });
 
-userRouter.get('/tes/pexels/:query', async (req, res) => {
-    const response = await fetch(`https://api.pexels.com/v1/search?query=${req.params.query}`, {
-        headers: {
-            'Authorization': 'EXoKdHXVmyVkHkLtVatSDz5zRh0EhY4zFwWTJY0a5XXWDI7pn2Cy9ija'
-        }
-    });
-    const data = await response.json();
-    res.json({
-        data: data.photos[0].src.medium
-    });
-})
+// userRouter.get('/tes/pexels/:query', async (req, res) => {
+//     const response = await fetch(`https://api.pexels.com/v1/search?query=${req.params.query}`, {
+//         headers: {
+//             'Authorization': 'EXoKdHXVmyVkHkLtVatSDz5zRh0EhY4zFwWTJY0a5XXWDI7pn2Cy9ija'
+//         }
+//     });
+//     const data = await response.json();
+//     res.json({
+//         data: data.photos[0].src.medium
+//     });
+// })
 
 export {
     userRouter
