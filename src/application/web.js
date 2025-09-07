@@ -24,10 +24,10 @@ web.use(passport.initialize());
 web.use(passport.session());
 
 // API Specification
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const swaggerDocument = YAML.load(path.join(__dirname, "../../docs/openapi.yaml"));
-web.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const swaggerDocument = YAML.load(path.join(__dirname, "../../docs/openapi.yaml"));
+// web.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 i18n.configure({
     locales: ["en", "id"],
@@ -35,7 +35,7 @@ i18n.configure({
     defaultLocale: "en",
     queryParameter: "lang",  // optional, ex: /api/...?lang=en
     objectNotation: true,
-    autoReload: true,
+    autoReload: false,   //make sure to be false in unit test
     updateFiles: false,
     syncFiles: false,
     // cookie: "lang"        // optional
@@ -51,7 +51,10 @@ web.use('/assets/donations/offers', express.static(path.join(__dirname, '../../s
 web.use('/assets/barters/postings', express.static(path.join(__dirname, '../../src/assets/barters/postings')));
 web.use('/assets/barters/applications', express.static(path.join(__dirname, '../../src/assets/barters/applications')));
 web.use('/assets/borrows/postings', express.static(path.join(__dirname, '../../src/assets/borrows/postings')));
-web.use('/assets/borrows/applications', express.static(path.join(__dirname, '../../src/assets/borrows/applications')));
+// web.use('/assets/borrows/applications', express.static(path.join(__dirname, '../../src/assets/borrows/applications')));
+web.use('/assets/recycles/posts', express.static(path.join(__dirname, '../../src/assets/recycles/posts')));
+web.use('/assets/recycles/locations', express.static(path.join(__dirname, '../../src/assets/recycles/locations')));
+web.use('/assets/repairs', express.static(path.join(__dirname, '../../src/assets/repairs')));
 web.use((req, res, next) => {
     res.status(404).json({
         success: false,

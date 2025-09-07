@@ -133,7 +133,7 @@ const resendEmailVerificationOtp = async (requestBody, reqObject) => {
 
     return {
         message: "auth.otp_resend",
-        email: userExistsByEmail.email
+        email: user.email
     };
 }
 

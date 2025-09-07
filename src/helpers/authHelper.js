@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { prismaClient } from "../application/database.js";
 import { sendMail } from "../application/mailer.js";
 import path from "path";
-import fetch from "node-fetch";
+// import fetch from "node-fetch";
 
 export const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
 
