@@ -24,11 +24,15 @@ export async function clearDatabase() {
     if (prisma.borrowApplicationStatusHistory) await prisma.borrowApplicationStatusHistory.deleteMany();
     if (prisma.borrowApplication) await prisma.borrowApplication.deleteMany();
     if (prisma.barterApplicationStatusHistory) await prisma.barterApplicationStatusHistory.deleteMany();
-    if (prisma.barterApplication) await prisma.barterApplication.deleteMany();
     if (prisma.barterApplicationImage) await prisma.barterApplicationImage.deleteMany();
+    if (prisma.barterApplication) await prisma.barterApplication.deleteMany();
     // Recycle location (if needed)
+
     if (prisma.recycleLocationImage) await prisma.recycleLocationImage.deleteMany();
     if (prisma.recycleLocationCategories) await prisma.recycleLocationCategories.deleteMany();
+
+    // Hapus recycle sebelum recycleLocation (karena recycle punya recycle_location_id)
+    await prisma.recycle.deleteMany();
     if (prisma.recycleLocation) await prisma.recycleLocation.deleteMany();
 
     // 2. Parent tables (main data)
