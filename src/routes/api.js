@@ -24,6 +24,7 @@ import repairController from "../controllers/repairController.js";
 import { uploadRepairImageMiddleware } from "../middlewares/repair/uploadRepairImageMiddleware.js";
 import paymentNotificationController from "../controllers/paymentNotificationController.js";
 import repairHistoryController from "../controllers/repairHistoryController.js";
+import notificationController from "../controllers/notificationController.js";
 
 const userRouter = express.Router();
 // userRouter.use(authMiddleware);
@@ -32,6 +33,8 @@ const userRouter = express.Router();
 userRouter.get('/users/current', authMiddleware, userController.currentUser);
 userRouter.patch('/users/current', authMiddleware, userController.updateCurrentUser);
 userRouter.patch('/users/current/profile-picture', authMiddleware, uploadProfilePictureMiddleware, userController.updateProfilePicture)
+userRouter.get('/users/current/notifications', authMiddleware, notificationController.getNotifications);
+userRouter.patch('/users/current/notifications/:notificationId/read', authMiddleware, notificationController.readNotification);
 
 // Categories API
 userRouter.get('/categories', authMiddleware, categoryController.getCategories);

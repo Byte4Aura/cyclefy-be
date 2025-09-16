@@ -91,6 +91,14 @@
         "not_found": "Kategori tidak ditemukan",
         "get_list_successful": "Berhasil mendapatkan daftar kategori"
     },
+    "notification": {
+        "not_found": "Notifikasi tidak ditemukan",
+        "id_not_a_number": "ID notifikasi bukan angka",
+        "type_invalid": "Notification type is invalid",
+        "get_all_successful": "Berhasil mendapatkan semua notifikasi",
+        "mark_as_read_successful": "Tandai notifikasi sebagai berhasil dibaca",
+        "donation_submitted_message": "{{item_name}} telah diajukan untuk didonasikan"
+    },
     "donation": {
         "not_found": "Donasi tidak ditemukan",
         "id_not_a_number": "Donasi ID bukan angka",

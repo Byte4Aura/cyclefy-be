@@ -91,6 +91,14 @@
         "not_found": "Category not found",
         "get_list_successful": "Get list of categories succesful"
     },
+    "notification": {
+        "not_found": "Notifikasi tidak ditemukan",
+        "id_not_a_number": "Notification ID is not a number",
+        "type_invalid": "Notification type is invalid",
+        "get_all_successful": "Get all notifications successful",
+        "mark_as_read_successful": "Mark notification as read successful",
+        "donation_submitted_message": "{{item_name}} has been submitted for donation"
+    },
     "donation": {
         "not_found": "Donation not found",
         "id_not_a_number": "Donation id is not a number",

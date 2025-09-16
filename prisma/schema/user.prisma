@@ -37,6 +37,8 @@ model User {
     repairStatusHistories  RepairStatusHistory[]
     repairPayments         RepairPayment[]
 
+    notifications Notification[]
+
     @@map("users")
 }
 
