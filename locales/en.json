@@ -97,7 +97,9 @@
         "type_invalid": "Notification type is invalid",
         "get_all_successful": "Get all notifications successful",
         "mark_as_read_successful": "Mark notification as read successful",
-        "donation_submitted_message": "{{item_name}} has been submitted for donation"
+        "donation_submitted_message": "{{item_name}} has been submitted for donation",
+        "barter_waiting_for_request_message": "{{item_name}} has been submitted and waiting for request",
+        "barter_waiting_for_confirmation_message": "{{applicant_name}} has submitted a barter request to exchange his {{applicant_item}} with your {{item_name}}, awaiting your confirmation"
     },
     "donation": {
         "not_found": "Donation not found",
