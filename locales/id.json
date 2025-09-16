@@ -99,7 +99,8 @@
         "mark_as_read_successful": "Tandai notifikasi sebagai berhasil dibaca",
         "donation_submitted_message": "{{item_name}} telah diajukan untuk didonasikan",
         "barter_waiting_for_request_message": "{{item_name}} telah diajukan dan menunggu untuk permintaan pengguna lain",
-        "barter_waiting_for_confirmation_message": "{{applicant_name}} telah mengajukan barter {{applicant_item}} dengan {{item_name}} milikmu, menunggu konfirmasi anda"
+        "barter_waiting_for_confirmation_message": "{{applicant_name}} telah mengajukan barter {{applicant_item}} dengan {{item_name}} milikmu, menunggu konfirmasi anda",
+        "barter_completed_message": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar"
     },
     "donation": {
         "not_found": "Donasi tidak ditemukan",

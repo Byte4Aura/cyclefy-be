@@ -877,6 +877,18 @@ const markBarterAsCompleted = async (userId, barterId) => {
         }
     });
 
+    const host = getHost(reqObject);
+    const protocol = getProtocol(reqObject);
+
+    await createNotification({
+        userId: barter.user_id,
+        type: "barter",
+        entityId: barter.id,
+        title: "Barter - Completed",
+        messageKey: "notification.barter_completed_message",
+        redirectTo: `${protocol}://${host}/api/users/current/barters/${barter.id}`
+    });
+
     // 4. Update barter_application_status_histories requestId jadi completed
     await prismaClient.barterApplicationStatusHistory.create({
         data: {
