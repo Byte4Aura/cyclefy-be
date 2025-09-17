@@ -38,6 +38,7 @@ model User {
     repairPayments         RepairPayment[]
 
     notifications Notification[]
+    news          News[]
 
     @@map("users")
 }

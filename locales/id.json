@@ -107,6 +107,12 @@
         "recycle_submitted_message": "Barang {{item_name}} telah diajukan untuk didaur ulang",
         "repair_request_submitted_message": "Barang {{item_name}} telah diajukan untuk permintaan perbaikan"
     },
+    "news": {
+        "not_found": "Berita tidak ditemukan",
+        "id_not_a_number": "ID Berita bukan angka",
+        "get_list_successful": "Berhasil mendapatkan daftar berita",
+        "get_news_detail_successful": "Berhasil mendapatkan detail berita"
+    },
     "donation": {
         "not_found": "Donasi tidak ditemukan",
         "id_not_a_number": "Donasi ID bukan angka",

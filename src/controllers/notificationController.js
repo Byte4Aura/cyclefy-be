@@ -2,7 +2,7 @@
 
 import { ResponseError } from "../errors/responseError.js";
 import { isRequestParameterNumber } from "../helpers/controllerHelper.js";
-import { getUserNotifications, markNotificationAsRead } from "../services/notificationService.js";
+import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../services/notificationService.js";
 
 const getNotifications = async (req, res, next) => {
     try {
@@ -47,7 +47,23 @@ const readNotification = async (req, res, next) => {
     }
 };
 
+
+const readAllNotifications = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const result = await markAllNotificationsAsRead(userId);
+        res.status(200).json({
+            success: true,
+            message: req.__('notification.mark_all_as_read_successful'),
+            data: result
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     getNotifications,
-    readNotification
+    readNotification,
+    readAllNotifications
 }

@@ -98,9 +98,17 @@ export const getUserNotifications = async ({
     return { notifications, total };
 };
 
+
 export const markNotificationAsRead = async (notificationId, userId) => {
     return prismaClient.notification.updateMany({
         where: { id: notificationId, user_id: userId },
+        data: { is_read: true },
+    });
+};
+
+export const markAllNotificationsAsRead = async (userId) => {
+    return prismaClient.notification.updateMany({
+        where: { user_id: userId, is_read: false },
         data: { is_read: true },
     });
 };
