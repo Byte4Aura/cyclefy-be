@@ -100,7 +100,10 @@
         "donation_submitted_message": "{{item_name}} telah diajukan untuk didonasikan",
         "barter_waiting_for_request_message": "{{item_name}} telah diajukan dan menunggu untuk permintaan pengguna lain",
         "barter_waiting_for_confirmation_message": "{{applicant_name}} telah mengajukan barter {{applicant_item}} dengan {{item_name}} milikmu, menunggu konfirmasi anda",
-        "barter_completed_message": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar"
+        "barter_completed_message": "Barter telah berhasil diselesaikan, dan barang-barang telah ditukar",
+        "borrow_waiting_for_request_message": "{{item_name}} telah diajukan dan menunggu untuk permintaan pengguna lain",
+        "borrow_waiting_for_confirmation_message": "{{applicant_name}} telah mengajukan untuk meminjam {{item_name}} milikmu, menunggu konfirmasi anda",
+        "borrow_completed_message": "Proses peminjaman selesai, barang telah dipinjamkan dan dikembalikan"
     },
     "donation": {
         "not_found": "Donasi tidak ditemukan",
