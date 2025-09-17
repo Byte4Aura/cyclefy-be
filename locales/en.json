@@ -103,7 +103,9 @@
         "barter_completed_message": "The barter has been successfully completed, and the items have been exchanged",
         "borrow_waiting_for_request_message": "{{item_name}} has been submitted and waiting for request",
         "borrow_waiting_for_confirmation_message": "{{applicant_name}} has request to borrow your {{item_name}}, awaiting your confirmation",
-        "borrow_completed_message": "The borrowing process is complete, and the item has been successfully borrowed and returned"
+        "borrow_completed_message": "The borrowing process is complete, and the item has been successfully borrowed and returned",
+        "recycle_submitted_message": "The {{item_name}} has been submitted for recycling",
+        "repair_request_submitted_message": "The {{item_name}} has been submitted for repair request"
     },
     "donation": {
         "not_found": "Donation not found",

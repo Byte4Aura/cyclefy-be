@@ -834,7 +834,7 @@ const processIncomingRequest = async (userId, barterId, requestId, action, decli
     }
 };
 
-const markBarterAsCompleted = async (userId, barterId) => {
+const markBarterAsCompleted = async (userId, barterId, reqObject) => {
     // 1. Validasi barterId milik user login
     const barter = await prismaClient.barter.findUnique({
         where: { id: barterId, user_id: userId },

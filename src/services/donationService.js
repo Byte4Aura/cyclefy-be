@@ -73,8 +73,6 @@ const createDonation = async (userId, requestBody, files, reqObject) => {
         title: "Donation - Submitted",
         messageKey: "notification.donation_submitted_message",
         messageData: { item_name: donation.item_name },
-        // message: `${donation.item_name} has been submitted for donation`,
-        // message: req.__('notification.donation_submitted_message', { item_name: donation.item_name }),
         redirectTo: `${protocol}://${host}/api/users/current/donations/${donation.id}`
     });
 

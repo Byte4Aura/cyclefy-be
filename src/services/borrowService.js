@@ -805,7 +805,7 @@ const markBorrowAsReturned = async (userId, borrowId) => {
     });
 };
 
-const markBorrowAsCompleted = async (userId, borrowId) => {
+const markBorrowAsCompleted = async (userId, borrowId, reqObject) => {
     // 1. Validasi borrowId milik user login
     const borrow = await prismaClient.borrow.findUnique({
         where: { id: borrowId, user_id: userId },
