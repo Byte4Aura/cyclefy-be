@@ -328,7 +328,7 @@ paths:
                   success: { type: boolean, example: false }
                   message: { type: string, example: "Email not found" }
 
-  /api/verify-reset-password-otp:
+  /api/verify-reset-password-email:
     post:
       summary: Verifikasi OTP untuk Reset Password
       description: |
